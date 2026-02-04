@@ -85,8 +85,10 @@ export const uploadImages = async (req: Request, res: Response) => {
       });
     }
 
-    const files = Array.isArray(req.files) ? req.files : [req.files];
-    const uploadedFiles = files.map((file: Express.Multer.File) => ({
+    const fileList: Express.Multer.File[] = Array.isArray(req.files)
+      ? req.files
+      : Object.values(req.files).flat();
+    const uploadedFiles = fileList.map((file: Express.Multer.File) => ({
       url: `/uploads/${file.filename}`,
       filename: file.filename,
       originalname: file.originalname,

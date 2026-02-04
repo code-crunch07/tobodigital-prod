@@ -46,7 +46,7 @@ export const signup = async (req: Request, res: Response) => {
     const token = jwt.sign(
       { userId: user._id, email: user.email, role: user.role },
       JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
+      { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions
     );
 
     const userData = user.toObject();
@@ -112,7 +112,7 @@ export const login = async (req: Request, res: Response) => {
     const token = jwt.sign(
       { userId: user._id, email: user.email, role: user.role },
       JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
+      { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions
     );
 
     const userData = user.toObject();

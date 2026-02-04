@@ -235,11 +235,7 @@ const duplicateProduct = async (req: Request, res: Response) => {
     }
 
     // Convert to plain object and remove _id, __v, createdAt, updatedAt
-    const productData = originalProduct.toObject();
-    delete productData._id;
-    delete productData.__v;
-    delete productData.createdAt;
-    delete productData.updatedAt;
+    const { _id, __v, createdAt, updatedAt, ...productData } = originalProduct.toObject();
 
     // Generate unique productId
     let newProductId = `${productData.productId}-copy`;

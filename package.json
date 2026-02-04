@@ -8,7 +8,7 @@
     "dev:backend": "ts-node-dev --respawn --transpile-only src/server.ts",
     "dev:client": "cd client && npm run dev",
     "dev:dashboard": "cd dashboard && npm run dev",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
     "lint": "eslint src --ext .ts",
     "seed:demo": "ts-node-dev --transpile-only scripts/seed-demo-data.ts",

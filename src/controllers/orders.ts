@@ -133,7 +133,7 @@ const createOrder = async (req: Request, res: Response) => {
       .populate('items.product');
 
     // Create notification for new order
-    await createOrderNotification(order._id.toString());
+    await createOrderNotification(String(order._id));
 
     res.status(201).json({
       success: true,
@@ -247,7 +247,12 @@ export const createRazorpayOrder = async (req: Request, res: Response) => {
         receipt: receipt || `rcpt_${Date.now()}`,
       }),
     });
-    const data = await response.json();
+    const data = await response.json() as {
+      error?: { description?: string };
+      id?: string;
+      amount?: number;
+      currency?: string;
+    };
     if (data.error) {
       return res.status(400).json({
         success: false,
