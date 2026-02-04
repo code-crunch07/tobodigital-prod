@@ -1,0 +1,31 @@
+# Auto-deploy to server when pushing to main
+# Requires GitHub repo secrets: DEPLOY_HOST, DEPLOY_USER, SSH_PRIVATE_KEY, DEPLOY_PATH
+
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Allow manual run from Actions tab
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd ${{ secrets.DEPLOY_PATH }}
+            echo "📥 Pulling latest code..."
+            git pull origin main
+            echo "🚀 Running deploy script..."
+            chmod +x deploy-tobo.sh
+            ./deploy-tobo.sh
+            echo "✅ Deploy finished."
