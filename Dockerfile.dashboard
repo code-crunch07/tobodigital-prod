@@ -1,14 +1,14 @@
 # Tobo Admin Dashboard (Next.js)
+
 FROM node:20-alpine AS deps
 WORKDIR /app
-COPY dashboard/package.json dashboard/package-lock.json ./
-RUN npm ci
+COPY dashboard/package.json ./
+RUN npm install
 
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY dashboard/ ./
-COPY package.json ../package.json
 
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_BASE_PATH=
@@ -32,5 +32,4 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 EXPOSE 3000
-
 CMD ["node", "server.js"]
