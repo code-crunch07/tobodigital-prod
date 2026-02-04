@@ -767,7 +767,9 @@ export default function ShopPage() {
       {quickViewProduct && (
         <QuickViewDialog
           product={quickViewProduct}
+          isOpen={!!quickViewProduct}
           onClose={() => setQuickViewProduct(null)}
+          formatPrice={formatPrice}
         />
       )}
     </div>
