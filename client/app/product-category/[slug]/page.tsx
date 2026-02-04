@@ -722,7 +722,9 @@ export default function CategoryPage() {
       {quickViewProduct && (
         <QuickViewDialog
           product={quickViewProduct}
+          isOpen={!!quickViewProduct}
           onClose={() => setQuickViewProduct(null)}
+          formatPrice={formatPrice}
         />
       )}
     </div>
