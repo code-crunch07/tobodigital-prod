@@ -10,7 +10,7 @@ services:
     container_name: tobo-backend
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "5000:5000"   # host 5000 for reverse proxy (api.tobodigital.com → 127.0.0.1:5000)
     environment:
       NODE_ENV: production
       PORT: 5000
@@ -29,7 +29,7 @@ services:
     container_name: tobo-dashboard
     restart: unless-stopped
     ports:
-      - "3002:3000"
+      - "3100:3000"   # host 3100 for reverse proxy (admin.tobodigital.com → 127.0.0.1:3100)
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -45,7 +45,7 @@ services:
     container_name: tobo-client
     restart: unless-stopped
     ports:
-      - "3001:3001"
+      - "3101:3001"   # host 3101 for reverse proxy (tobodigital.com → 127.0.0.1:3101)
     environment:
       NODE_ENV: production
       PORT: 3001
