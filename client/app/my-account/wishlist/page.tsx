@@ -61,8 +61,7 @@ export default function WishlistPage() {
       _id: product._id,
       itemName: product.itemName,
       yourPrice: product.yourPrice,
-      images: product.images || [],
-      quantity: 1,
+      mainImage: product.images?.[0] ?? '',
     });
   };
 
