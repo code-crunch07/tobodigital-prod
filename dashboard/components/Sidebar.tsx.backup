@@ -1,0 +1,488 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { 
+  LayoutDashboard, 
+  Package, 
+  Layers, 
+  ShoppingCart, 
+  Users,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronRight,
+  Plus,
+  List
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { getCategories, getSubCategories, getProducts } from '@/lib/api';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { createCategory, createSubCategory } from '@/lib/api';
+
+const menuItems = [
+  {
+    name: 'Dashboard',
+    href: '/',
+    icon: LayoutDashboard,
+  },
+  {
+    name: 'Orders',
+    href: '/orders',
+    icon: ShoppingCart,
+  },
+  {
+    name: 'Customers',
+    href: '/customers',
+    icon: Users,
+  },
+];
+
+export default function Sidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
+  const [productsExpanded, setProductsExpanded] = useState(false);
+  const [categoriesExpanded, setCategoriesExpanded] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [subCategories, setSubCategories] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [openCategoryDialog, setOpenCategoryDialog] = useState(false);
+  const [openSubCategoryDialog, setOpenSubCategoryDialog] = useState(false);
+  const [categoryFormData, setCategoryFormData] = useState({ name: '', description: '' });
+  const [subCategoryFormData, setSubCategoryFormData] = useState({ name: '', description: '', category: '' });
+
+  useEffect(() => {
+    loadCategoriesData();
+    loadProductsData();
+  }, []);
+
+  const loadCategoriesData = async () => {
+    try {
+      const [categoriesRes, subCategoriesRes] = await Promise.all([
+        getCategories(),
+        getSubCategories(),
+      ]);
+      setCategories(categoriesRes.data || []);
+      setSubCategories(subCategoriesRes.data || []);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  };
+
+  const loadProductsData = async () => {
+    try {
+      const productsRes = await getProducts({ limit: 10 });
+      setProducts(productsRes.data?.products || []);
+    } catch (error) {
+      console.error('Error loading products:', error);
+    }
+  };
+
+  const handleCreateCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await createCategory(categoryFormData);
+      setOpenCategoryDialog(false);
+      setCategoryFormData({ name: '', description: '' });
+      loadCategoriesData();
+      router.push('/categories');
+    } catch (error: any) {
+      console.error('Error creating category:', error);
+      alert(error.response?.data?.message || 'Failed to create category');
+    }
+  };
+
+  const handleCreateSubCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await createSubCategory(subCategoryFormData);
+      setOpenSubCategoryDialog(false);
+      setSubCategoryFormData({ name: '', description: '', category: '' });
+      loadCategoriesData();
+      router.push('/subcategories');
+    } catch (error: any) {
+      console.error('Error creating subcategory:', error);
+      alert(error.response?.data?.message || 'Failed to create subcategory');
+    }
+  };
+
+  const getSubCategoriesForCategory = (categoryId: string) => {
+    return subCategories.filter((sub) => sub.category === categoryId || sub.category?._id === categoryId);
+  };
+
+  const isProductsActive = pathname.startsWith('/products');
+  const isCategoriesActive = pathname === '/categories' || pathname === '/subcategories';
+
+  return (
+    <>
+      {/* Mobile menu button */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? <X /> : <Menu />}
+        </Button>
+      </div>
+
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          'fixed top-0 left-0 z-40 h-screen w-64 bg-card border-r border-border transition-transform duration-300',
+          'lg:translate-x-0',
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
+        <div className="h-full px-4 py-4 overflow-y-auto">
+          <div className="flex items-center mb-8 mt-4 lg:mt-0">
+            <h1 className="text-2xl font-bold text-primary">Tobo Admin</h1>
+          </div>
+          <nav className="space-y-1">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className={cn(
+                    'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  )}
+                >
+                  <Icon className="w-5 h-5" />
+                  {item.name}
+                </Link>
+              );
+            })}
+
+            {/* Products Section with Toggle */}
+            <div className="mt-2">
+              <button
+                onClick={() => setProductsExpanded(!productsExpanded)}
+                className={cn(
+                  'w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+                  isProductsActive
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <Package className="w-5 h-5" />
+                  <span>Products</span>
+                </div>
+                {productsExpanded ? (
+                  <ChevronDown className="w-4 h-4" />
+                ) : (
+                  <ChevronRight className="w-4 h-4" />
+                )}
+              </button>
+
+              {/* Expanded Products Content */}
+              {productsExpanded && (
+                <div className="ml-4 mt-1 space-y-1 border-l-2 border-border pl-2">
+                  {/* Add New Product */}
+                  <Link
+                    href="/products/add"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-md text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Product
+                  </Link>
+
+                  {/* Product List Link */}
+                  <Link
+                    href="/products"
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      'flex items-center gap-2 px-3 py-2 rounded-md text-xs transition-colors',
+                      pathname === '/products'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    )}
+                  >
+                    <List className="w-4 h-4" />
+                    Product List
+                  </Link>
+
+                  {/* Recent Products (optional - show first 5) */}
+                  {products.length > 0 && (
+                    <>
+                      <div className="px-3 py-2 text-xs font-semibold text-muted-foreground/70 mt-2">
+                        Recent Products
+                      </div>
+                      {products.slice(0, 5).map((product) => (
+                        <Link
+                          key={product._id}
+                          href={`/products`}
+                          onClick={() => setIsOpen(false)}
+                          className="block px-3 py-1.5 rounded-md text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors truncate"
+                          title={product.itemName}
+                        >
+                          • {product.itemName}
+                        </Link>
+                      ))}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Categories Section with Toggle */}
+            <div className="mt-2">
+              <button
+                onClick={() => setCategoriesExpanded(!categoriesExpanded)}
+                className={cn(
+                  'w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+                  isCategoriesActive
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <Layers className="w-5 h-5" />
+                  <span>Categories</span>
+                </div>
+                {categoriesExpanded ? (
+                  <ChevronDown className="w-4 h-4" />
+                ) : (
+                  <ChevronRight className="w-4 h-4" />
+                )}
+              </button>
+
+              {/* Expanded Categories Content */}
+              {categoriesExpanded && (
+                <div className="ml-4 mt-1 space-y-1 border-l-2 border-border pl-2">
+                  {/* Add New Category */}
+                  <Dialog open={openCategoryDialog} onOpenChange={setOpenCategoryDialog}>
+                    <DialogTrigger asChild>
+                      <button
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        <Plus className="w-4 h-4" />
+                        Add Category
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add New Category</DialogTitle>
+                        <DialogDescription>
+                          Create a new product category
+                        </DialogDescription>
+                      </DialogHeader>
+                      <form onSubmit={handleCreateCategory} className="space-y-4">
+                        <div className="space-y-2">
+                          <Label>Name</Label>
+                          <Input
+                            value={categoryFormData.name}
+                            onChange={(e) =>
+                              setCategoryFormData({ ...categoryFormData, name: e.target.value })
+                            }
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Description</Label>
+                          <textarea
+                            className="w-full min-h-[100px] px-3 py-2 border rounded-md"
+                            value={categoryFormData.description}
+                            onChange={(e) =>
+                              setCategoryFormData({ ...categoryFormData, description: e.target.value })
+                            }
+                          />
+                        </div>
+                        <div className="flex justify-end gap-4">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setOpenCategoryDialog(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button type="submit">Create</Button>
+                        </div>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* Categories List */}
+                  <Link
+                    href="/categories"
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      'block px-3 py-2 rounded-md text-xs transition-colors',
+                      pathname === '/categories'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    )}
+                  >
+                    📋 All Categories
+                  </Link>
+
+                  {/* List of Categories with Subcategories */}
+                  {categories.map((category) => {
+                    const categorySubs = getSubCategoriesForCategory(category._id);
+                    return (
+                      <div key={category._id} className="space-y-1">
+                        <Link
+                          href={`/categories`}
+                          onClick={() => setIsOpen(false)}
+                          className="block px-3 py-1.5 rounded-md text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                        >
+                          • {category.name}
+                        </Link>
+                        {/* Subcategories */}
+                        {categorySubs.length > 0 && (
+                          <div className="ml-4 space-y-0.5">
+                            {categorySubs.map((sub) => (
+                              <Link
+                                key={sub._id}
+                                href="/subcategories"
+                                onClick={() => setIsOpen(false)}
+                                className="block px-3 py-1 rounded-md text-xs text-muted-foreground/80 hover:bg-accent hover:text-accent-foreground transition-colors"
+                              >
+                                └ {sub.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {/* Add Subcategory */}
+                  <Dialog open={openSubCategoryDialog} onOpenChange={setOpenSubCategoryDialog}>
+                    <DialogTrigger asChild>
+                      <button
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors mt-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        <Plus className="w-4 h-4" />
+                        Add Subcategory
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add New Subcategory</DialogTitle>
+                        <DialogDescription>
+                          Create a new subcategory under a category
+                        </DialogDescription>
+                      </DialogHeader>
+                      <form onSubmit={handleCreateSubCategory} className="space-y-4">
+                        <div className="space-y-2">
+                          <Label>Category</Label>
+                          <Select
+                            value={subCategoryFormData.category}
+                            onValueChange={(value) =>
+                              setSubCategoryFormData({ ...subCategoryFormData, category: value })
+                            }
+                            required
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {categories.map((cat) => (
+                                <SelectItem key={cat._id} value={cat._id}>
+                                  {cat.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Name</Label>
+                          <Input
+                            value={subCategoryFormData.name}
+                            onChange={(e) =>
+                              setSubCategoryFormData({ ...subCategoryFormData, name: e.target.value })
+                            }
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Description</Label>
+                          <textarea
+                            className="w-full min-h-[100px] px-3 py-2 border rounded-md"
+                            value={subCategoryFormData.description}
+                            onChange={(e) =>
+                              setSubCategoryFormData({
+                                ...subCategoryFormData,
+                                description: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="flex justify-end gap-4">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setOpenSubCategoryDialog(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button type="submit">Create</Button>
+                        </div>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* Link to Subcategories Page */}
+                  <Link
+                    href="/subcategories"
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      'block px-3 py-2 rounded-md text-xs transition-colors mt-2',
+                      pathname === '/subcategories'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    )}
+                  >
+                    📋 All Subcategories
+                  </Link>
+                </div>
+              )}
+            </div>
+          </nav>
+        </div>
+      </aside>
+
+      {/* Overlay for mobile */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+    </>
+  );
+}

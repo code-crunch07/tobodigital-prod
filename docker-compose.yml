@@ -1,0 +1,57 @@
+# Tobo E-commerce - Docker Compose for CloudPanel / VPS
+# Domain: tobodigital.com
+# API: api.tobodigital.com | Dashboard: tobodigital.com/admin | Store: tobodigital.com
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: tobo-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGODB_URI: ${MONGODB_URI}
+      JWT_SECRET: ${JWT_SECRET}
+      UPLOADS_DIR: /data/uploads/public
+    volumes:
+      # Use a named volume, or bind-mount a CloudPanel folder (see docs/CLOUDPANEL_DOCKER_DEPLOY.md)
+      - uploads_data:/data/uploads/public
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.tobodigital.com/api}
+    container_name: tobo-dashboard
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    depends_on:
+      - backend
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.tobodigital.com/api}
+    container_name: tobo-client
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+    depends_on:
+      - backend
+
+volumes:
+  uploads_data:
+    # Persist uploaded images; override with bind mount in CloudPanel

@@ -1,0 +1,48 @@
+{
+  "name": "tobo-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Tobo E-commerce platform",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "concurrently -n \"backend,client,dashboard\" -c \"blue,green,yellow\" \"npm run dev:backend\" \"npm run dev:client\" \"npm run dev:dashboard\"",
+    "dev:backend": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev:client": "cd client && npm run dev",
+    "dev:dashboard": "cd dashboard && npm run dev",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "lint": "eslint src --ext .ts",
+    "seed:demo": "ts-node-dev --transpile-only scripts/seed-demo-data.ts",
+    "create-admin": "ts-node scripts/create-admin.ts",
+    "test-admin": "ts-node scripts/test-admin-login.ts"
+  },
+  "keywords": [
+    "ecommerce",
+    "api",
+    "typescript",
+    "express",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/multer": "^2.0.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.7.1",
+    "multer": "^2.0.2"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20.14.10",
+    "baseline-browser-mapping": "^2.9.14",
+    "concurrently": "^9.2.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.5.4"
+  }
+}

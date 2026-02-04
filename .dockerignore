@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+*.log
+.env
+.env.*
+!.env.docker.example
+uploads
+*.md
+client/node_modules
+dashboard/node_modules
+dist
