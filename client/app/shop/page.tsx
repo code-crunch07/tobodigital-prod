@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ShoppingCart, Star, Heart, Eye, Layers, ChevronLeft, ChevronRight, Home } from 'lucide-react';
@@ -268,7 +268,7 @@ const ProductCard = ({
   );
 };
 
-export default function ShopPage() {
+function ShopPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { addToCart } = useCart();
@@ -773,5 +773,21 @@ export default function ShopPage() {
         />
       )}
     </div>
+  );
+}
+
+function ShopPageFallback() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ff006e]"></div>
+    </div>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense fallback={<ShopPageFallback />}>
+      <ShopPageContent />
+    </Suspense>
   );
 }
