@@ -303,7 +303,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
     if (editor && value !== editor.getHTML()) {
       const currentContent = editor.getHTML();
       if (currentContent !== value) {
-        editor.commands.setContent(value || '', false);
+        editor.commands.setContent(value || '', { emitUpdate: false });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
