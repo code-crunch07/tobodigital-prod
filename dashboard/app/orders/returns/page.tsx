@@ -12,17 +12,18 @@ import { ArrowLeft, RotateCcw, Plus } from 'lucide-react';
 
 export default function ReturnsPage() {
   const router = useRouter();
-  const [returns, setReturns] = useState([
+  // Start with no demo data; real returns should come from the API later.
+  const [returns, setReturns] = useState<
     {
-      id: '1',
-      orderNumber: 'ORD-001',
-      product: 'Sample Product',
-      reason: 'Defective',
-      status: 'pending',
-      requestedDate: '2024-01-15',
-      amount: 99.99,
-    },
-  ]);
+      id: string;
+      orderNumber: string;
+      product: string;
+      reason: string;
+      status: string;
+      requestedDate: string;
+      amount: number;
+    }[]
+  >([]);
   const [showForm, setShowForm] = useState(false);
 
   const getStatusBadge = (status: string) => {

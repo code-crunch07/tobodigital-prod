@@ -11,11 +11,10 @@ import { ArrowLeft, Building2, Plus, Edit, Trash2 } from 'lucide-react';
 
 export default function BrandsPage() {
   const router = useRouter();
-  const [brands, setBrands] = useState([
-    { id: '1', name: 'Brand A', description: 'Premium quality products', products: 15 },
-    { id: '2', name: 'Brand B', description: 'Affordable and reliable', products: 8 },
-    { id: '3', name: 'Brand C', description: 'Innovative solutions', products: 12 },
-  ]);
+  // Start with no demo data; real brands should come from the API later.
+  const [brands, setBrands] = useState<
+    { id: string; name: string; description: string; products: number }[]
+  >([]);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ name: '', description: '' });
 

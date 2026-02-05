@@ -10,26 +10,18 @@ import { ArrowLeft, Star, Check, X, Eye } from 'lucide-react';
 
 export default function ReviewsPage() {
   const router = useRouter();
-  const [reviews, setReviews] = useState([
+  // Start with no demo data; real reviews should come from the API later.
+  const [reviews, setReviews] = useState<
     {
-      id: '1',
-      customer: 'John Doe',
-      product: 'Sample Product',
-      rating: 5,
-      comment: 'Great product! Highly recommended.',
-      status: 'approved',
-      date: '2024-01-15',
-    },
-    {
-      id: '2',
-      customer: 'Jane Smith',
-      product: 'Another Product',
-      rating: 4,
-      comment: 'Good quality, fast delivery.',
-      status: 'pending',
-      date: '2024-01-14',
-    },
-  ]);
+      id: string;
+      customer: string;
+      product: string;
+      rating: number;
+      comment: string;
+      status: string;
+      date: string;
+    }[]
+  >([]);
 
   const handleApprove = (id: string) => {
     setReviews(reviews.map((r) => (r.id === id ? { ...r, status: 'approved' } : r)));

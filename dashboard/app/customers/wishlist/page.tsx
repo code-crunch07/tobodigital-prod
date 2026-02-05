@@ -9,29 +9,10 @@ import { ArrowLeft, Heart, Eye } from 'lucide-react';
 
 export default function WishlistPage() {
   const router = useRouter();
-  const [wishlists, setWishlists] = useState([
-    {
-      id: '1',
-      customer: 'John Doe',
-      email: 'john@example.com',
-      items: 5,
-      lastUpdated: '2024-01-15',
-    },
-    {
-      id: '2',
-      customer: 'Jane Smith',
-      email: 'jane@example.com',
-      items: 3,
-      lastUpdated: '2024-01-14',
-    },
-    {
-      id: '3',
-      customer: 'Bob Johnson',
-      email: 'bob@example.com',
-      items: 8,
-      lastUpdated: '2024-01-13',
-    },
-  ]);
+  // Start with no demo data; real wishlists should come from the API later.
+  const [wishlists] = useState<
+    { id: string; customer: string; email: string; items: number; lastUpdated: string }[]
+  >([]);
 
   const totalItems = wishlists.reduce((sum, w) => sum + w.items, 0);
 

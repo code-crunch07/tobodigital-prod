@@ -12,11 +12,10 @@ import { ArrowLeft, Star, Plus, Gift } from 'lucide-react';
 
 export default function LoyaltyPage() {
   const router = useRouter();
-  const [members, setMembers] = useState([
-    { id: '1', name: 'John Doe', email: 'john@example.com', points: 1250, tier: 'Gold', orders: 15 },
-    { id: '2', name: 'Jane Smith', email: 'jane@example.com', points: 850, tier: 'Silver', orders: 8 },
-    { id: '3', name: 'Bob Johnson', email: 'bob@example.com', points: 320, tier: 'Bronze', orders: 3 },
-  ]);
+  // Start with no demo data; real members should come from the API later.
+  const [members] = useState<
+    { id: string; name: string; email: string; points: number; tier: string; orders: number }[]
+  >([]);
   const [showForm, setShowForm] = useState(false);
 
   const getTierBadge = (tier: string) => {
@@ -72,7 +71,7 @@ export default function LoyaltyPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Active Rewards</CardDescription>
-            <CardTitle className="text-3xl">3</CardTitle>
+            <CardTitle className="text-3xl">0</CardTitle>
           </CardHeader>
         </Card>
       </div>

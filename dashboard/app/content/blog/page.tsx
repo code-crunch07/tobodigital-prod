@@ -10,11 +10,10 @@ import { ArrowLeft, BookOpen, Plus, Edit, Trash2, Eye } from 'lucide-react';
 
 export default function BlogPage() {
   const router = useRouter();
-  const [articles, setArticles] = useState([
-    { id: '1', title: '10 Tips for Better Shopping', author: 'John Doe', status: 'published', views: 1250, date: '2024-01-15' },
-    { id: '2', title: 'New Product Launch Guide', author: 'Jane Smith', status: 'published', views: 890, date: '2024-01-10' },
-    { id: '3', title: 'Seasonal Trends 2024', author: 'Bob Johnson', status: 'draft', views: 0, date: '2024-01-05' },
-  ]);
+  // Start with no demo data; real articles should come from the API later.
+  const [articles, setArticles] = useState<
+    { id: string; title: string; author: string; status: string; views: number; date: string }[]
+  >([]);
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, any> = {

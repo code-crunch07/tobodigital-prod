@@ -211,41 +211,31 @@ export default function Sidebar() {
     return subCategories.filter((sub) => sub.category === categoryId || sub.category?._id === categoryId);
   };
 
-  // More precise active state checking
+  // Active state for individual links: exact match (no multi-selection)
   const isActive = (href: string) => {
-    // Normalize paths (remove trailing slashes for comparison)
-    const normalizedPathname = pathname.endsWith('/') && pathname.length > 1 
-      ? pathname.slice(0, -1) 
-      : pathname;
-    const normalizedHref = href.endsWith('/') && href.length > 1 
-      ? href.slice(0, -1) 
-      : href;
-    
-    // Exact match
-    if (normalizedPathname === normalizedHref) return true;
-    
-    // Special case: /products should only match exactly, not /products/add or other sub-routes
-    if (normalizedHref === '/products') {
-      // Remove query string for comparison
-      const pathWithoutQuery = normalizedPathname.split('?')[0];
-      return pathWithoutQuery === '/products';
-    }
-    
-    // For routes like /products/add, /products/edit, etc., check if pathname starts with href
-    // This ensures /products/add matches /products/add and /products/add/ but not /products
-    if (normalizedPathname.startsWith(normalizedHref + '/') || normalizedPathname === normalizedHref) {
-      return true;
-    }
-    
-    return false;
+    const pathWithoutQuery = pathname.split('?')[0];
+    const normalizedPathname =
+      pathWithoutQuery.endsWith('/') && pathWithoutQuery.length > 1
+        ? pathWithoutQuery.slice(0, -1)
+        : pathWithoutQuery;
+    const normalizedHref =
+      href.endsWith('/') && href.length > 1 ? href.slice(0, -1) : href;
+
+    return normalizedPathname === normalizedHref;
   };
   
-  const isSectionActive = (hrefs: string[]) => hrefs.some(href => {
-    if (href === '/products') {
-      return pathname === '/products' || pathname === '/products/' || pathname.startsWith('/products/');
-    }
-    return pathname.startsWith(href);
-  });
+  // Section active: highlight parent section when any child path is under it
+  const isSectionActive = (hrefs: string[]) => {
+    const pathWithoutQuery = pathname.split('?')[0];
+    return hrefs.some((href) => {
+      const normalizedHref =
+        href.endsWith('/') && href.length > 1 ? href.slice(0, -1) : href;
+      return (
+        pathWithoutQuery === normalizedHref ||
+        pathWithoutQuery.startsWith(`${normalizedHref}/`)
+      );
+    });
+  };
 
   const renderCollapsibleSection = (
     title: string,

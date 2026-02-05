@@ -18,6 +18,11 @@ export default function ClientHeader() {
     loadCategories();
   }, []);
 
+  // Close mobile menu automatically when the route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
   const loadCategories = async () => {
     try {
       const response = await getPublicCategories();
@@ -261,29 +266,44 @@ export default function ClientHeader() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu (slide-in from left on small screens) */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t py-4 space-y-4">
-            <div className="relative mb-4">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search products..."
-                className="pl-8"
-              />
+          <div
+            className="fixed inset-0 z-40 md:hidden bg-black/40"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <div
+              className="absolute left-0 top-0 h-full w-72 max-w-[80%] bg-background shadow-xl border-r flex flex-col py-4 px-4 space-y-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search products..."
+                  className="pl-8 w-full"
+                />
+              </div>
+
+              {/* Links */}
+              <nav className="flex-1 overflow-y-auto space-y-1">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`block rounded-md px-2 py-2 text-sm font-medium transition-colors ${
+                      isActive(link.href)
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </nav>
             </div>
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`block py-2 text-sm font-medium transition-colors ${
-                  isActive(link.href) ? 'text-primary' : 'text-muted-foreground'
-                }`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {link.name}
-              </Link>
-            ))}
           </div>
         )}
       </div>

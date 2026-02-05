@@ -511,7 +511,15 @@ export default function ProductDetailPage() {
             {activeTab === 0 && (
               <div>
                 <h3 className="text-xl font-semibold mb-4 text-[#FF6B35]">Product Overview</h3>
-                <p className="text-[#CCCCCC] leading-relaxed mb-4">{product.productDescription || 'No description available.'}</p>
+                {product.productDescription && (
+                  <div
+                    className="prose prose-invert max-w-none prose-img:max-w-full prose-img:h-auto mb-4"
+                    dangerouslySetInnerHTML={{ __html: product.productDescription }}
+                  />
+                )}
+                {!product.productDescription && (
+                  <p className="text-[#CCCCCC] leading-relaxed mb-4">No description available.</p>
+                )}
                 {bulletPointsArray.length > 0 && (
                   <ul className="list-disc list-inside text-[#CCCCCC] space-y-2 ml-4">
                     {bulletPointsArray.map((point, i) => (

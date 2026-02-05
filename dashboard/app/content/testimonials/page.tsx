@@ -12,11 +12,10 @@ import { ArrowLeft, MessageSquare, Plus, Edit, Trash2, Star, Check, X } from 'lu
 
 export default function TestimonialsPage() {
   const router = useRouter();
-  const [testimonials, setTestimonials] = useState([
-    { id: '1', name: 'John Doe', rating: 5, comment: 'Great service and fast delivery!', status: 'approved', date: '2024-01-15' },
-    { id: '2', name: 'Jane Smith', rating: 4, comment: 'Very satisfied with my purchase.', status: 'approved', date: '2024-01-10' },
-    { id: '3', name: 'Bob Johnson', rating: 5, comment: 'Excellent products and customer support.', status: 'pending', date: '2024-01-05' },
-  ]);
+  // Start with no demo data; real testimonials should come from the API later.
+  const [testimonials, setTestimonials] = useState<
+    { id: string; name: string; rating: number; comment: string; status: string; date: string }[]
+  >([]);
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, any> = {
