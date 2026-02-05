@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { getPublicProducts, getPublicProductById, getPublicCategories, getPublicCategoryBySlug, getPublicSubCategories } from '../controllers/public';
 import { getActiveBanners, getActivePromotionBanners, getActivePromoRowBanners, getActiveBannersByCategory } from '../controllers/banners';
 import { getActiveNavigations } from '../controllers/navigation';
+import { getPublicSiteSettings } from '../controllers/settings';
 
 const router = Router();
 
@@ -23,5 +24,8 @@ router.get('/banners/category/:slug', getActiveBannersByCategory);
 
 // Public navigation routes
 router.get('/navigations', getActiveNavigations);
+
+// Public site settings (logo, name, url)
+router.get('/site-settings', getPublicSiteSettings);
 
 export default router;

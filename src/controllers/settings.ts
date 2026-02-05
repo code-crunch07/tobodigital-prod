@@ -14,6 +14,29 @@ const DEFAULT_SITE = {
   logo: '',
 };
 
+// GET /api/public/site-settings
+// Public subset used by storefront (no admin auth)
+export const getPublicSiteSettings = async (req: Request, res: Response) => {
+  try {
+    const doc = await Setting.findOne({ key: SITE_KEY }).lean();
+    const value = (doc?.value as Record<string, unknown>) || {};
+    const merged = { ...DEFAULT_SITE, ...value } as any;
+    res.json({
+      success: true,
+      data: {
+        siteName: merged.siteName,
+        siteUrl: merged.siteUrl,
+        logo: merged.logo || '',
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error?.message || 'Failed to fetch public site settings',
+    });
+  }
+};
+
 // GET /api/settings/site
 export const getSiteSettings = async (req: Request, res: Response) => {
   try {

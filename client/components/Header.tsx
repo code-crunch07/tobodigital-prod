@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { ShoppingCart, Search, Menu, X, ChevronDown, Heart, User, LogOut, UserCircle, Package, FileText } from 'lucide-react';
-import { getCategories, getNavigations } from '@/lib/api';
+import { getCategories, getNavigations, getPublicSiteSettings } from '@/lib/api';
 import LoginSignupDialog from './LoginSignupDialog';
 import CartPanel from './CartPanel';
 import { useCart } from '@/contexts/CartContext';
@@ -45,6 +45,7 @@ export default function Header() {
   const { cartItems, updateQuantity, removeFromCart, getCartItemCount } = useCart();
   const [categories, setCategories] = useState<Category[]>([]);
   const [navigations, setNavigations] = useState<NavigationLink[]>([]);
+  const [siteLogo, setSiteLogo] = useState<string>('/tobo-logo.png');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openMegaMenus, setOpenMegaMenus] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -117,7 +118,18 @@ export default function Header() {
   useEffect(() => {
     loadCategories();
     loadNavigations();
+    loadSiteSettings();
   }, []);
+
+  const loadSiteSettings = async () => {
+    try {
+      const res = await getPublicSiteSettings();
+      const logo = res?.data?.logo;
+      if (logo) setSiteLogo(logo);
+    } catch {
+      // ignore - fallback logo stays
+    }
+  };
 
   const loadCategories = async () => {
     try {
@@ -191,7 +203,7 @@ export default function Header() {
           {/* Logo - reduced size */}
           <Link href="/" className="flex items-center space-x-2 group flex-shrink-0">
             <Image
-              src="/tobo-logo.png"
+              src={siteLogo}
               alt="Tobo Digital"
               width={100}
               height={40}
