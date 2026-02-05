@@ -1,7 +1,10 @@
 import express from 'express';
 import productController from '../controllers/products';
+import { requireAdminOrShopManager } from '../controllers/auth';
 
 const router = express.Router();
+
+router.use(requireAdminOrShopManager);
 
 // Get all products
 router.get('/', productController.getAllProducts);

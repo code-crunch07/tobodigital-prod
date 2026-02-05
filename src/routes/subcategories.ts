@@ -1,7 +1,10 @@
 import express from 'express';
 import subCategoryController from '../controllers/subcategories';
+import { requireAdminOrShopManager } from '../controllers/auth';
 
 const router = express.Router();
+
+router.use(requireAdminOrShopManager);
 
 // Get all subcategories
 router.get('/', subCategoryController.getAllSubCategories);

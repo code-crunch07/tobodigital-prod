@@ -6,10 +6,12 @@ import {
   updateNavigation,
   deleteNavigation,
 } from '../controllers/navigation';
+import { requireAdminOrShopManager } from '../controllers/auth';
 
 const router = express.Router();
 
-// Admin routes
+router.use(requireAdminOrShopManager);
+
 router.get('/', getAllNavigations);
 router.get('/:id', getNavigationById);
 router.post('/', createNavigation);

@@ -224,6 +224,38 @@ export const requireAdmin = (req: Request, res: Response, next: Function) => {
   }
 };
 
+// Middleware: allow admin or shop_manager (for products, orders, categories, etc.)
+export const requireAdminOrShopManager = (req: Request, res: Response, next: Function) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'Access token required',
+      });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
+
+    if (decoded.role !== 'admin' && decoded.role !== 'shop_manager') {
+      return res.status(403).json({
+        success: false,
+        message: 'Admin or shop manager access required',
+      });
+    }
+
+    (req as any).user = decoded;
+    next();
+  } catch (error: any) {
+    return res.status(403).json({
+      success: false,
+      message: 'Invalid or expired token',
+    });
+  }
+};
+
 // Optional auth: set req.user if valid token present, do not reject if missing
 export const optionalAuth = (req: Request, res: Response, next: Function) => {
   try {
@@ -270,7 +302,7 @@ export const updateUser = async (req: Request, res: Response) => {
     }
     const updateData: any = {};
     if (typeof isActive === 'boolean') updateData.isActive = isActive;
-    if (role && ['admin', 'customer'].includes(role)) updateData.role = role;
+    if (role && ['admin', 'shop_manager', 'customer'].includes(role)) updateData.role = role;
     const user = await User.findByIdAndUpdate(id, updateData, { new: true }).select('-password');
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });

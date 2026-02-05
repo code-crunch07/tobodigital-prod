@@ -1,7 +1,10 @@
 import express from 'express';
 import categoryController from '../controllers/categories';
+import { requireAdminOrShopManager } from '../controllers/auth';
 
 const router = express.Router();
+
+router.use(requireAdminOrShopManager);
 
 // Get all categories
 router.get('/', categoryController.getAllCategories);

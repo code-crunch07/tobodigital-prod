@@ -23,7 +23,7 @@ const getAllOrders = async (req: Request, res: Response) => {
     const query: any = {};
     const reqUser = (req as any).user;
 
-    if (reqUser && reqUser.role !== 'admin') {
+    if (reqUser && reqUser.role === 'customer') {
       query.customer = reqUser.userId;
     } else if (customer) {
       query.customer = customer;
@@ -77,7 +77,7 @@ const getOrderById = async (req: Request, res: Response) => {
     }
 
     const reqUser = (req as any).user;
-    if (reqUser && reqUser.role !== 'admin') {
+    if (reqUser && reqUser.role === 'customer') {
       const orderCustomerId = (order.customer as any)?._id?.toString() ?? (order.customer as any)?.toString();
       if (orderCustomerId !== reqUser.userId) {
         return res.status(403).json({

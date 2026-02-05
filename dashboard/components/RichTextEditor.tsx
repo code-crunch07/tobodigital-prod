@@ -60,6 +60,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
   const [imageUrl, setImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const skipNextSyncRef = useRef(false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -116,8 +117,15 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
           };
         },
       }).configure({
-        inline: true,
+        inline: false,
         allowBase64: true,
+        resize: {
+          enabled: true,
+          directions: ['top', 'bottom', 'left', 'right'],
+          minWidth: 50,
+          minHeight: 50,
+          alwaysPreserveAspectRatio: true,
+        },
       }),
       Table.configure({
         resizable: true,
@@ -138,6 +146,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
     ],
     content: value,
     onUpdate: ({ editor }) => {
+      skipNextSyncRef.current = true;
       onChange(editor.getHTML());
     },
     editorProps: {
@@ -148,224 +157,19 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
     },
   });
 
-  // Make images resizable
-  const makeImageResizable = (img: HTMLImageElement, editorInstance: any) => {
-    // Remove existing handles
-    const existingHandle = img.parentElement?.querySelector('.resize-handle');
-    if (existingHandle) {
-      existingHandle.remove();
-    }
-
-    // Create resize handle
-    const handle = document.createElement('div');
-    handle.className = 'resize-handle';
-    handle.style.cssText = `
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      background: #8B5CF6;
-      border: 2px solid white;
-      border-radius: 50%;
-      cursor: nwse-resize;
-      z-index: 1000;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      display: none;
-    `;
-
-    // Wrap image in container if not already wrapped
-    let container = img.parentElement;
-    if (!container || !container.classList.contains('image-container')) {
-      container = document.createElement('span');
-      container.className = 'image-container';
-      container.style.cssText = 'position: relative; display: inline-block;';
-      img.parentNode?.insertBefore(container, img);
-      container.appendChild(img);
-    }
-
-    container.style.position = 'relative';
-    container.style.display = 'inline-block';
-    container.appendChild(handle);
-
-    // Show handle on hover/select
-    const showHandle = () => {
-      const rect = img.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-      handle.style.display = 'block';
-      handle.style.bottom = '-6px';
-      handle.style.right = '-6px';
-    };
-
-    const hideHandle = () => {
-      // Only hide if image is not selected
-      const isSelected = img.classList.contains('ProseMirror-selectednode') || 
-                        container.classList.contains('ProseMirror-selectednode') ||
-                        editorInstance.state.selection.$anchor.parent.type.name === 'image';
-      if (!isSelected) {
-        handle.style.display = 'none';
-      }
-    };
-
-    // Show handle when image is clicked/selected
-    const checkSelection = () => {
-      const isSelected = img.classList.contains('ProseMirror-selectednode') || 
-                        container.classList.contains('ProseMirror-selectednode');
-      if (isSelected) {
-        showHandle();
-      }
-    };
-
-    img.addEventListener('mouseenter', showHandle);
-    img.addEventListener('mouseleave', hideHandle);
-    img.addEventListener('click', () => {
-      // Select the image node when clicked
-      editorInstance.state.doc.descendants((node: any, pos: number) => {
-        if (node.type.name === 'image' && node.attrs.src === img.getAttribute('src')) {
-          editorInstance.commands.setTextSelection(pos);
-          editorInstance.commands.setNodeSelection(pos);
-          showHandle();
-          return false;
-        }
-      });
-    });
-    container.addEventListener('mouseenter', showHandle);
-    container.addEventListener('mouseleave', hideHandle);
-    
-    // Check selection on editor updates
-    const selectionObserver = () => {
-      setTimeout(checkSelection, 50);
-    };
-    editorInstance.on('selectionUpdate', selectionObserver);
-    editorInstance.on('update', selectionObserver);
-
-    // Resize functionality
-    let isResizing = false;
-    let startX = 0;
-    let startY = 0;
-    let startWidth = 0;
-    let startHeight = 0;
-
-    const startResize = (e: MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      isResizing = true;
-      startX = e.clientX;
-      startY = e.clientY;
-      startWidth = img.offsetWidth;
-      startHeight = img.offsetHeight;
-      document.addEventListener('mousemove', doResize);
-      document.addEventListener('mouseup', stopResize);
-    };
-
-    const doResize = (e: MouseEvent) => {
-      if (!isResizing) return;
-      e.preventDefault();
-      e.stopPropagation();
-      
-      const deltaX = e.clientX - startX;
-      const deltaY = e.clientY - startY;
-      
-      // Maintain aspect ratio by default (hold Shift to resize independently)
-      const maintainAspect = !e.shiftKey;
-      let newWidth = Math.max(50, startWidth + deltaX);
-      let newHeight = maintainAspect 
-        ? Math.max(50, (startHeight / startWidth) * newWidth)
-        : Math.max(50, startHeight + deltaY);
-
-      // Update image style directly for real-time feedback
-      img.style.width = `${newWidth}px`;
-      img.style.height = `${newHeight}px`;
-      img.style.maxWidth = 'none';
-      img.style.objectFit = 'contain';
-
-      // Find and update the image node in the editor
-      editorInstance.state.doc.descendants((node: any, pos: number) => {
-        if (node.type.name === 'image' && node.attrs.src === img.getAttribute('src')) {
-          editorInstance.commands.updateAttributes('image', {
-            width: `${newWidth}px`,
-            height: `${newHeight}px`,
-          });
-          return false;
-        }
-      });
-    };
-
-    const stopResize = () => {
-      isResizing = false;
-      document.removeEventListener('mousemove', doResize);
-      document.removeEventListener('mouseup', stopResize);
-    };
-
-    handle.addEventListener('mousedown', startResize);
-  };
-
-  // Update editor content when value prop changes (for editing existing products)
+  // Update editor content when value prop changes (for editing existing products).
+  // Skip syncing when the change came from the editor (onUpdate) to avoid cursor jump.
   useEffect(() => {
-    if (editor && value !== editor.getHTML()) {
-      const currentContent = editor.getHTML();
-      if (currentContent !== value) {
-        editor.commands.setContent(value || '', { emitUpdate: false });
-      }
+    if (!editor) return;
+    if (skipNextSyncRef.current) {
+      skipNextSyncRef.current = false;
+      return;
+    }
+    if (value !== editor.getHTML()) {
+      editor.commands.setContent(value || '', { emitUpdate: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
-
-  // Initialize resize on images after editor is ready
-  useEffect(() => {
-    if (!editor) return;
-
-    const updateImages = () => {
-      setTimeout(() => {
-        const images = document.querySelectorAll('.ProseMirror img');
-        images.forEach((img) => {
-          if (!(img as HTMLElement).dataset.resizeListener) {
-            (img as HTMLElement).dataset.resizeListener = 'true';
-            makeImageResizable(img as HTMLImageElement, editor);
-          }
-        });
-      }, 100);
-    };
-
-    // Also check on content changes and focus
-    const checkSelection = () => {
-      setTimeout(() => {
-        const selectedImages = document.querySelectorAll('.ProseMirror img.ProseMirror-selectednode');
-        selectedImages.forEach((img) => {
-          const handle = (img.parentElement as HTMLElement)?.querySelector('.resize-handle') as HTMLElement;
-          if (handle) {
-            handle.style.display = 'block';
-          }
-        });
-      }, 50);
-    };
-
-    editor.on('update', updateImages);
-    editor.on('selectionUpdate', () => {
-      updateImages();
-      checkSelection();
-    });
-    editor.on('focus', updateImages);
-    updateImages();
-
-    // Use MutationObserver to catch dynamically added images
-    const observer = new MutationObserver(() => {
-      updateImages();
-    });
-
-    const editorElement = editor.view.dom;
-    if (editorElement) {
-      observer.observe(editorElement, {
-        childList: true,
-        subtree: true,
-      });
-    }
-
-    return () => {
-      editor.off('update', updateImages);
-      editor.off('selectionUpdate', checkSelection);
-      editor.off('focus', updateImages);
-      observer.disconnect();
-    };
-  }, [editor]);
 
   // Handle editor focus when dialog is open
   useEffect(() => {
@@ -412,11 +216,16 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
   };
 
   const insertImage = (url: string) => {
-    if (url && editor) {
-      editor.chain().focus().setImage({ src: url }).run();
-      setShowImageDialog(false);
-      setImageUrl('');
-    }
+    if (!url || !editor) return;
+    const { from } = editor.state.selection;
+    editor
+      .chain()
+      .focus()
+      .insertContentAt(from, { type: 'image', attrs: { src: url } })
+      .setTextSelection(from + 1)
+      .run();
+    setShowImageDialog(false);
+    setImageUrl('');
   };
 
   const handleImageUrlSubmit = () => {

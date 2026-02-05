@@ -15,7 +15,7 @@ type User = {
   _id: string;
   name: string;
   email: string;
-  role: 'admin' | 'customer';
+  role: 'admin' | 'shop_manager' | 'customer';
   isActive: boolean;
   createdAt: string;
 };
@@ -25,7 +25,7 @@ export default function AdminUsersRolesPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'admin' as 'admin' | 'customer' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'admin' as 'admin' | 'shop_manager' | 'customer' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -65,7 +65,7 @@ export default function AdminUsersRolesPage() {
         password: formData.password,
         role: formData.role,
       });
-      setSuccess('Admin user created successfully');
+      setSuccess('User created successfully');
       setFormData({ name: '', email: '', password: '', role: 'admin' });
       setShowForm(false);
       loadUsers();
@@ -167,9 +167,10 @@ export default function AdminUsersRolesPage() {
                 <select
                   className="w-full px-3 py-2 border rounded-md"
                   value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value as 'admin' | 'customer' })}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value as 'admin' | 'shop_manager' | 'customer' })}
                 >
                   <option value="admin">Admin</option>
+                  <option value="shop_manager">Shop Manager</option>
                   <option value="customer">Customer</option>
                 </select>
               </div>
@@ -219,8 +220,11 @@ export default function AdminUsersRolesPage() {
                       <TableCell className="font-medium">{user.name}</TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
-                        <Badge className={user.role === 'admin' ? 'bg-blue-500' : 'bg-gray-500'}>
-                          {user.role}
+                        <Badge className={
+                          user.role === 'admin' ? 'bg-blue-500' :
+                          user.role === 'shop_manager' ? 'bg-amber-600' : 'bg-gray-500'
+                        }>
+                          {user.role === 'shop_manager' ? 'Shop Manager' : user.role}
                         </Badge>
                       </TableCell>
                       <TableCell>

@@ -91,10 +91,24 @@ export default function Sidebar() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const { isCollapsed } = useSidebar();
+  const [userRole, setUserRole] = useState<string>('customer');
+
+  useEffect(() => {
+    try {
+      const userJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+      if (userJson) {
+        const u = JSON.parse(userJson);
+        setUserRole(u?.role || 'customer');
+      }
+    } catch {
+      setUserRole('customer');
+    }
+  }, []);
 
   // Expanded states for all sections - only one can be open at a time
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
-  
+  const isAdmin = userRole === 'admin';
+
   // Helper functions for section state
   const productsExpanded = expandedSection === 'products';
   const ordersExpanded = expandedSection === 'orders';
@@ -662,8 +676,8 @@ export default function Sidebar() {
               </>
             )}
 
-            {/* Settings Section */}
-            {renderCollapsibleSection(
+            {/* Settings Section (admin only) */}
+            {isAdmin && renderCollapsibleSection(
               'Settings',
               Settings,
               'settings',
@@ -678,8 +692,8 @@ export default function Sidebar() {
               </>
             )}
 
-            {/* Reports Section */}
-            {renderCollapsibleSection(
+            {/* Reports Section (admin only) */}
+            {isAdmin && renderCollapsibleSection(
               'Reports',
               FileBarChart,
               'reports',

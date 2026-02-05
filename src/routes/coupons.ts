@@ -6,17 +6,18 @@ import {
   updateCoupon,
   deleteCoupon,
 } from '../controllers/coupons';
+import { requireAdminOrShopManager } from '../controllers/auth';
 
 const router = express.Router();
 
-// Public route - Validate coupon
+// Public route - Validate coupon (storefront)
 router.post('/validate', validateCoupon);
 
-// Admin routes
-router.get('/', getAllCoupons);
-router.post('/', createCoupon);
-router.put('/:id', updateCoupon);
-router.delete('/:id', deleteCoupon);
+// Dashboard routes (admin or shop manager)
+router.get('/', requireAdminOrShopManager, getAllCoupons);
+router.post('/', requireAdminOrShopManager, createCoupon);
+router.put('/:id', requireAdminOrShopManager, updateCoupon);
+router.delete('/:id', requireAdminOrShopManager, deleteCoupon);
 
 export default router;
 

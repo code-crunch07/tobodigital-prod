@@ -7,8 +7,11 @@ import {
   deleteNotification,
   createNotificationAPI,
 } from '../controllers/notifications';
+import { requireAdminOrShopManager } from '../controllers/auth';
 
 const router = express.Router();
+
+router.use(requireAdminOrShopManager);
 
 // Get all notifications
 router.get('/', getNotifications);
