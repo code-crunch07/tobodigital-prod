@@ -1008,7 +1008,11 @@ export default function ProductDetailPage() {
 
         {/* Product Details Tabs – HTML style */}
         <div className="mt-12">
-          <nav className="flex gap-2 border-b-2 border-[#e2e8f0] mb-8" aria-label="Product details tabs">
+          {/* Tabs: horizontally scrollable on small screens so last tab is always reachable */}
+          <nav
+            className="flex gap-2 border-b-2 border-[#e2e8f0] mb-8 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0"
+            aria-label="Product details tabs"
+          >
             {[
               { id: 'description' as const, label: 'Product Description' },
               { id: 'specifications' as const, label: 'Specifications' },
@@ -1018,7 +1022,7 @@ export default function ProductDetailPage() {
               <button
                 key={id}
                 onClick={() => setActiveTab(id)}
-                className={`py-4 px-8 text-base font-semibold whitespace-nowrap border-b-[3px] -mb-0.5 transition-colors ${
+                className={`py-4 px-6 sm:px-8 text-sm sm:text-base font-semibold whitespace-nowrap border-b-[3px] -mb-0.5 transition-colors flex-shrink-0 ${
                   activeTab === id
                     ? 'border-[#ff6b35] text-[#ff6b35]'
                     : 'border-transparent text-[#718096] hover:text-[#2d3748]'
