@@ -76,6 +76,17 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [mobileMenuOpen]);
+
   useEffect(() => {
     // Check if user is logged in
     const checkAuth = () => {
@@ -560,18 +571,18 @@ export default function Header() {
         </>
       )}
 
-      {/* Mobile menu overlay - left drawer backdrop */}
+      {/* Mobile menu overlay - left drawer backdrop (above page content, below drawer) */}
       <div
-        className={`fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-black/50 z-[60] md:hidden transition-opacity duration-300 ${
           mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={() => setMobileMenuOpen(false)}
         aria-hidden="true"
       />
 
-      {/* Mobile menu - left side drawer */}
+      {/* Mobile menu - left side drawer (on top of header) */}
       <div
-        className={`fixed left-0 top-0 h-full w-full max-w-sm bg-white shadow-2xl z-50 md:hidden transform transition-transform duration-300 ease-out flex flex-col ${
+        className={`fixed left-0 top-0 h-full w-full max-w-sm bg-white shadow-2xl z-[70] md:hidden transform transition-transform duration-300 ease-out flex flex-col ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-label="Mobile menu"
