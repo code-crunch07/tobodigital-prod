@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Image as ImageIcon, Upload, X } from 'lucide-react';
-import { getBanners, createBanner, updateBanner, deleteBanner, uploadImage, getCategories } from '@/lib/api';
+import { getBanners, createBanner, updateBanner, deleteBanner, uploadImage, getCategories, getUploadUrl } from '@/lib/api';
 
 export default function BannersPage() {
   const [banners, setBanners] = useState<any[]>([]);
@@ -264,7 +264,7 @@ export default function BannersPage() {
                 {formData.image && (
                   <div className="mt-2 relative inline-block">
                     <img
-                      src={formData.image}
+                      src={getUploadUrl(formData.image)}
                       alt="Preview"
                       className="w-full h-48 object-cover rounded-lg border"
                       onError={(e) => {
@@ -522,7 +522,7 @@ export default function BannersPage() {
                   <TableCell>
                     {banner.image ? (
                       <img
-                        src={banner.image}
+                        src={getUploadUrl(banner.image)}
                         alt={banner.title}
                         className="w-20 h-20 object-cover rounded"
                         onError={(e) => {

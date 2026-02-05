@@ -2,6 +2,35 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
+/** API origin (no /api) for serving uploads. Use for building image URLs. */
+export const API_UPLOAD_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '') || 'http://localhost:5000';
+
+/**
+ * Return an absolute URL for an upload path. Use for img src so images load from the API, not the dashboard origin.
+ * Handles relative paths (/uploads/...) and fixes wrong hosts (e.g. admin domain).
+ */
+export function getUploadUrl(pathOrUrl: string | undefined): string {
+  if (!pathOrUrl) return '';
+  const apiOrigin = API_UPLOAD_ORIGIN;
+  if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
+    try {
+      const u = new URL(pathOrUrl);
+      const apiU = new URL(apiOrigin);
+      if (u.origin !== apiU.origin) {
+        // Wrong host (e.g. admin domain): serve from API. If path contains /uploads/, use only that part.
+        if (u.pathname.includes('/uploads/')) {
+          const afterUploads = u.pathname.split('/uploads/').pop() || '';
+          return `${apiOrigin}/uploads/${afterUploads}${u.search}`;
+        }
+        return `${apiOrigin}${u.pathname}${u.search}`;
+      }
+      return pathOrUrl;
+    } catch (_) {}
+    return pathOrUrl;
+  }
+  return `${apiOrigin}${pathOrUrl.startsWith('/') ? '' : '/'}${pathOrUrl}`;
+}
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -429,9 +458,7 @@ export const uploadImage = async (file: File): Promise<string> => {
   formData.append('image', file);
   
   const response = await uploadApi.post('/upload/single', formData);
-  // Return the URL - it's relative to the API base URL
-  const baseUrl = API_BASE_URL.replace('/api', '');
-  return `${baseUrl}${response.data.data.url}`;
+  return getUploadUrl(response.data.data.url);
 };
 
 export const uploadImages = async (files: File[]): Promise<string[]> => {
@@ -441,10 +468,7 @@ export const uploadImages = async (files: File[]): Promise<string[]> => {
   });
   
   const response = await uploadApi.post('/upload/multiple', formData);
-  const baseUrl = API_BASE_URL.replace('/api', '');
-  return response.data.data.map((item: any) => 
-    `${baseUrl}${item.url}`
-  );
+  return response.data.data.map((item: any) => getUploadUrl(item.url));
 };
 
 // Authentication

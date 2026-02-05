@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { getCategories, createCategory, updateCategory, deleteCategory, uploadImage } from '@/lib/api';
+import { getCategories, createCategory, updateCategory, deleteCategory, uploadImage, getUploadUrl } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -199,7 +199,7 @@ export default function CategoriesPage() {
                   {formData.image && (
                     <div className="relative">
                       <img
-                        src={formData.image}
+                        src={getUploadUrl(formData.image)}
                         alt="Category"
                         className="w-24 h-24 object-cover border rounded-md"
                       />
@@ -292,7 +292,7 @@ export default function CategoriesPage() {
                 <TableRow key={category._id}>
                   <TableCell>
                     {category.image ? (
-                      <img src={category.image} alt={category.name} className="w-16 h-16 object-cover rounded" />
+                      <img src={getUploadUrl(category.image)} alt={category.name} className="w-16 h-16 object-cover rounded" />
                     ) : (
                       <div className="w-16 h-16 bg-muted rounded flex items-center justify-center text-xs text-muted-foreground">
                         No Image

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { getSubCategories, createSubCategory, updateSubCategory, deleteSubCategory, getCategories, uploadImage } from '@/lib/api';
+import { getSubCategories, createSubCategory, updateSubCategory, deleteSubCategory, getCategories, uploadImage, getUploadUrl } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -207,7 +207,7 @@ export default function SubCategoriesPage() {
                   {formData.image && (
                     <div className="relative">
                       <img
-                        src={formData.image}
+                        src={getUploadUrl(formData.image)}
                         alt="Subcategory"
                         className="w-24 h-24 object-cover border rounded-md"
                       />
@@ -260,7 +260,7 @@ export default function SubCategoriesPage() {
                 <TableRow key={subCategory._id}>
                   <TableCell>
                     {subCategory.image ? (
-                      <img src={subCategory.image} alt={subCategory.name} className="w-16 h-16 object-cover rounded" />
+                      <img src={getUploadUrl(subCategory.image)} alt={subCategory.name} className="w-16 h-16 object-cover rounded" />
                     ) : (
                       <div className="w-16 h-16 bg-muted rounded flex items-center justify-center text-xs text-muted-foreground">
                         No Image

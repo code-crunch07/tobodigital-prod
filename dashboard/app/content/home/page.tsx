@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Plus, Edit, Trash2, Eye, EyeOff, Image as ImageIcon, Upload, X } from 'lucide-react';
-import { getBanners, createBanner, updateBanner, deleteBanner, uploadImage } from '@/lib/api';
+import { getBanners, createBanner, updateBanner, deleteBanner, uploadImage, getUploadUrl } from '@/lib/api';
 import Image from 'next/image';
 
 export default function HomePageBlocksPage() {
@@ -234,7 +234,7 @@ export default function HomePageBlocksPage() {
                   {formData.image && (
                     <div className="relative">
                       <Image
-                        src={formData.image}
+                        src={getUploadUrl(formData.image)}
                         alt="Preview"
                         width={200}
                         height={100}
@@ -388,7 +388,7 @@ export default function HomePageBlocksPage() {
                       <TableCell>
                         {banner.image ? (
                           <Image
-                            src={banner.image}
+                            src={getUploadUrl(banner.image)}
                             alt={banner.title}
                             width={80}
                             height={40}
