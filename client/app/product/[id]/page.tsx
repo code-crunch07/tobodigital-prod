@@ -1036,7 +1036,7 @@ export default function ProductDetailPage() {
           <div className="bg-white p-8 rounded-lg shadow-sm">
             {/* Description Tab */}
             {activeTab === 'description' && (
-              <div className="space-y-8 max-w-3xl text-gray-800">
+              <div className="space-y-8 text-gray-800">
                 <h2 className="text-xl font-bold text-gray-900">Product Description</h2>
                 {product.productDescription && (
                   <div
