@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { createPortal } from 'react-dom';
+import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { ShoppingCart, Search, Menu, X, ChevronDown, Heart, User, LogOut, UserCircle, Package, FileText } from 'lucide-react';
 import { getCategories, getNavigations, getPublicSiteSettings } from '@/lib/api';
@@ -42,6 +43,7 @@ interface NavigationLink {
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const { cartItems, updateQuantity, removeFromCart, getCartItemCount } = useCart();
   const [categories, setCategories] = useState<Category[]>([]);
   const [navigations, setNavigations] = useState<NavigationLink[]>([]);
@@ -571,103 +573,106 @@ export default function Header() {
         </>
       )}
 
-      {/* Mobile menu overlay - left drawer backdrop (above page content, below drawer) */}
-      <div
-        className={`fixed inset-0 bg-black/50 z-[60] md:hidden transition-opacity duration-300 ${
-          mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-        onClick={() => setMobileMenuOpen(false)}
-        aria-hidden="true"
-      />
-
-      {/* Mobile menu - left side drawer (on top of header) */}
-      <div
-        className={`fixed left-0 top-0 h-full w-full max-w-sm bg-white shadow-2xl z-[70] md:hidden transform transition-transform duration-300 ease-out flex flex-col ${
-          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-        aria-label="Mobile menu"
-      >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <span className="text-lg font-bold text-gray-900">Menu</span>
-          <button
-            onClick={() => setMobileMenuOpen(false)}
-            className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-            aria-label="Close menu"
+      {/* Mobile menu overlay + drawer rendered in portal so they are never hidden by header/overflow */}
+      {typeof document !== 'undefined' && createPortal(
+        <>
+          {mobileMenuOpen && (
+            <div
+              className="fixed inset-0 bg-black/50 z-[100] md:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-hidden="true"
+            />
+          )}
+          <div
+            className={`fixed left-0 top-0 h-full w-full max-w-sm bg-white shadow-2xl z-[110] md:hidden transform transition-transform duration-300 ease-out flex flex-col ${
+              mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+            }`}
+            aria-label="Mobile menu"
           >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-        <nav className="flex-1 overflow-y-auto p-4 flex flex-col space-y-4">
-          {navigations.length > 0 ? (
-            navigations.map((nav) => (
-              <div key={nav._id}>
-                {nav.hasMegaMenu ? (
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => toggleMegaMenu(nav._id)}
-                      className="flex items-center justify-between w-full text-gray-700 hover:text-[#ff006e] transition-colors font-medium"
-                    >
-                      <span>{nav.label}</span>
-                      {openMegaMenus.has(nav._id) ? (
-                        <ChevronDown className="h-4 w-4 rotate-180" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </button>
-                    {openMegaMenus.has(nav._id) && nav.megaMenuColumns && (
-                      <div className="pl-4 space-y-2">
-                        {nav.megaMenuColumns.map((column, colIndex) => (
-                          <div key={colIndex} className="space-y-2">
-                            {column.title && (
-                              <div className="text-sm font-semibold text-gray-600 mt-2">
-                                {column.title}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
+              <span className="text-lg font-bold text-gray-900">Menu</span>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                aria-label="Close menu"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <nav className="flex-1 overflow-y-auto overflow-x-hidden p-4 flex flex-col space-y-4 min-h-0">
+              {navigations.length > 0 ? (
+                navigations.map((nav) => (
+                  <div key={nav._id}>
+                    {nav.hasMegaMenu ? (
+                      <div className="space-y-2">
+                        <button
+                          onClick={() => toggleMegaMenu(nav._id)}
+                          className="flex items-center justify-between w-full text-gray-700 hover:text-[#ff006e] transition-colors font-medium"
+                        >
+                          <span>{nav.label}</span>
+                          {openMegaMenus.has(nav._id) ? (
+                            <ChevronDown className="h-4 w-4 rotate-180 flex-shrink-0" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                          )}
+                        </button>
+                        {openMegaMenus.has(nav._id) && nav.megaMenuColumns && (
+                          <div className="pl-4 space-y-2">
+                            {nav.megaMenuColumns.map((column, colIndex) => (
+                              <div key={colIndex} className="space-y-2">
+                                {column.title && (
+                                  <div className="text-sm font-semibold text-gray-600 mt-2">
+                                    {column.title}
+                                  </div>
+                                )}
+                                {column.links.map((link, linkIndex) => {
+                                  const linkHref = link.isCategory ? getCategoryLink(link.href) : link.href;
+                                  return (
+                                    <Link
+                                      key={linkIndex}
+                                      href={linkHref}
+                                      target={link.isExternal ? '_blank' : '_self'}
+                                      rel={link.isExternal ? 'noopener noreferrer' : undefined}
+                                      className="block text-gray-600 hover:text-[#ff006e] transition-colors"
+                                      onClick={() => setMobileMenuOpen(false)}
+                                    >
+                                      {link.label}
+                                    </Link>
+                                  );
+                                })}
                               </div>
-                            )}
-                            {column.links.map((link, linkIndex) => {
-                              const linkHref = link.isCategory ? getCategoryLink(link.href) : link.href;
-                              return (
-                                <Link
-                                  key={linkIndex}
-                                  href={linkHref}
-                                  target={link.isExternal ? '_blank' : '_self'}
-                                  rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                                  className="block text-gray-600 hover:text-[#ff006e] transition-colors"
-                                  onClick={() => setMobileMenuOpen(false)}
-                                >
-                                  {link.label}
-                                </Link>
-                              );
-                            })}
+                            ))}
                           </div>
-                        ))}
+                        )}
                       </div>
+                    ) : (
+                      <Link
+                        href={nav.href}
+                        target={nav.isExternal ? '_blank' : '_self'}
+                        rel={nav.isExternal ? 'noopener noreferrer' : undefined}
+                        className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {nav.label}
+                      </Link>
                     )}
                   </div>
-                ) : (
-                  <Link
-                    href={nav.href}
-                    target={nav.isExternal ? '_blank' : '_self'}
-                    rel={nav.isExternal ? 'noopener noreferrer' : undefined}
-                    className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {nav.label}
-                  </Link>
-                )}
-              </div>
-            ))
-          ) : (
-            <>
-              <Link href="/" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-              <Link href="/new-arrivals" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>New Arrivals</Link>
-              <Link href="/shop" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Shop</Link>
-              <Link href="/about" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
-              <Link href="/blog" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
-              <Link href="/contact" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Contact Us</Link>
-            </>
-          )}
-        </nav>
-      </div>
+                ))
+              ) : (
+                <>
+                  <Link href="/" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+                  <Link href="/new-arrivals" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>New Arrivals</Link>
+                  <Link href="/shop" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Shop</Link>
+                  <Link href="/about" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
+                  <Link href="/blog" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
+                  <Link href="/contact" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Contact Us</Link>
+                </>
+              )}
+            </nav>
+          </div>
+        </>,
+        document.body
+      )}
 
       {/* Login/Signup Dialog */}
       <LoginSignupDialog
