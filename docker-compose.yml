@@ -18,7 +18,9 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       UPLOADS_DIR: /data/uploads/public
     volumes:
-      - uploads_data:/data/uploads/public
+      # Bind-mount uploads so files appear on disk. On server set in .env:
+      # UPLOADS_HOST_PATH=/home/tobodigital/htdocs/tobodigital.com/tobo-uploads/public
+      - ${UPLOADS_HOST_PATH:-./uploads/public}:/data/uploads/public
     networks:
       - default
       - mongo-shared   # 🔑 access Mongo here
@@ -55,8 +57,9 @@ services:
     depends_on:
       - backend
 
-volumes:
-  uploads_data:
+# Optional: use a named volume instead of bind mount by setting UPLOADS_HOST_PATH in .env
+# volumes:
+#   uploads_data:
 
 networks:
   mongo-shared:
