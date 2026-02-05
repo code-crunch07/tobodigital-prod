@@ -8,10 +8,13 @@ import ThemeToggle from '@/components/ThemeToggle';
 import NotificationBell from '@/components/NotificationBell';
 import UserProfileDropdown from '@/components/UserProfileDropdown';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { Tooltip } from '@/components/ui/tooltip';
 
 function DashboardHeader() {
   const { isCollapsed, toggleSidebar } = useSidebar();
+  const storefrontUrl =
+    process.env.NEXT_PUBLIC_STOREFRONT_URL || 'http://localhost:3001/client';
 
   return (
     <header className="border-b p-4 flex justify-between items-center bg-white" style={{ borderColor: '#E5E7EB' }}>
@@ -38,6 +41,21 @@ function DashboardHeader() {
         <h2 className="text-xl md:text-2xl font-semibold">Welcome Back!</h2>
       </div>
       <div className="flex items-center gap-2">
+        <Tooltip content="Open storefront" side="bottom">
+          <a
+            href={storefrontUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-9 w-9"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </a>
+        </Tooltip>
         <NotificationBell />
         <ThemeToggle />
         <UserProfileDropdown />

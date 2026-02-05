@@ -561,6 +561,14 @@ export default function ProductDetailPage() {
     ? [product.mainImage, ...product.galleryImages]
     : [product.mainImage];
 
+  // Plain-text excerpt of description for summary areas (strip HTML tags)
+  const plainDescription = product.productDescription
+    ? product.productDescription
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+    : '';
+
   return (
     <div className="min-h-screen text-[#2d3748]" style={{ backgroundColor: 'rgb(239 239 239 / 33%)' }}>
       <div className="max-w-[1400px] mx-auto px-4 sm:px-8 py-6 sm:mb-12">
@@ -729,7 +737,7 @@ export default function ProductDetailPage() {
                 </div>
 
                 {/* Product Details Sidebar - Right Side */}
-                <div className="w-[400px] bg-white border-l border-gray-200 flex flex-col">
+                <div className="w-full sm:w-[400px] bg-white border-l border-gray-200 flex flex-col">
                   {/* Header with Close Button */}
                   <div className="flex items-start justify-end p-4 border-b border-gray-200">
                     {/* Close Button */}
@@ -860,9 +868,9 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            {product.productDescription && (
+            {plainDescription && (
               <p className="text-[#4a5568] text-[1.05rem] leading-[1.7] line-clamp-4">
-                {product.productDescription}
+                {plainDescription}
               </p>
             )}
 
