@@ -183,7 +183,7 @@ const ProductCard = ({
           </button>
         </div>
       </div>
-      <div className="px-5 pb-5 pt-4 flex-1 flex flex-col min-h-0 transition-transform duration-300 group-hover:-translate-y-3">
+      <div className="px-5 pb-24 pt-4 flex-1 flex flex-col min-h-0 transition-transform duration-300 group-hover:-translate-y-3">
         <Link href={`/product/${product._id}`}>
           <h3 className="product-title leading-snug line-clamp-2 min-h-[20px] hover:text-[#ff006e] transition-colors">{product.itemName}</h3>
         </Link>
