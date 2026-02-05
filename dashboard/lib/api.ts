@@ -477,7 +477,7 @@ export const login = async (email: string, password: string) => {
   return response.data;
 };
 
-export const signup = async (data: { name: string; email: string; password: string; role?: 'admin' | 'customer' }) => {
+export const signup = async (data: { name: string; email: string; password: string; role?: 'admin' | 'customer' | 'shop_manager' }) => {
   const response = await api.post('/auth/signup', data);
   return response.data;
 };
@@ -502,7 +502,7 @@ export const getUsers = async () => {
 };
 
 // Admin: update user (activate/deactivate, role)
-export const updateUser = async (id: string, data: { isActive?: boolean; role?: 'admin' | 'customer' }) => {
+export const updateUser = async (id: string, data: { isActive?: boolean; role?: 'admin' | 'customer' | 'shop_manager' }) => {
   const response = await api.patch(`/auth/users/${id}`, data);
   return response.data;
 };
