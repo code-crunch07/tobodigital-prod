@@ -115,6 +115,18 @@ export default function ProductDetailPage() {
     }
   }, [productId]);
 
+  // Set page title to product name for browser tab and SEO
+  useEffect(() => {
+    if (product?.itemName) {
+      const siteName = 'Tobo Digital';
+      const title = `${product.itemName} | ${siteName}`;
+      document.title = title;
+      return () => {
+        document.title = siteName;
+      };
+    }
+  }, [product?.itemName]);
+
   const loadProduct = async () => {
     try {
       const response = await getProductById(productId);
