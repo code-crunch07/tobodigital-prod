@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, Star, Heart, Layers, Eye, ShoppingCart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, Heart, Layers, Eye, ShoppingCart, Tag } from 'lucide-react';
 import { getProducts, getNewArrivals } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
 
@@ -215,14 +215,25 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
                           </div>
                         )}
                       </Link>
-                      {discount > 0 && (
+                      {discount > 0 ? (
                         <div className="absolute top-3 left-3 z-20">
-                          <span className="bg-red-500 text-white text-[11px] font-semibold px-2 py-1 rounded">-{discount}%</span>
+                          <span
+                            className="flex items-center gap-1.5 bg-[#ff006e] text-white text-xs font-semibold pl-2 pr-3 py-1.5 shadow-md"
+                            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+                          >
+                            <Tag className="h-3.5 w-3.5 flex-shrink-0" strokeWidth={2.5} />
+                            <span>{discount}% off</span>
+                          </span>
                         </div>
-                      )}
+                      ) : null}
                       {product.isFeatured && (
                         <div className="absolute top-3 left-3 z-20" style={{ top: discount > 0 ? '3.5rem' : '0.75rem' }}>
-                          <span className="bg-red-500 text-white text-[11px] font-semibold px-2 py-1 rounded">Hot</span>
+                          <span
+                            className="inline-flex items-center bg-[#ff006e] text-white text-xs font-semibold px-2.5 py-1 shadow-md"
+                            style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+                          >
+                            Hot
+                          </span>
                         </div>
                       )}
                       <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 z-20">
@@ -237,7 +248,7 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
                         </Link>
                       </div>
                     </div>
-                    <div className="px-5 pb-24 pt-4 flex-1 flex flex-col min-h-0 transition-transform duration-300 group-hover:-translate-y-3">
+                    <div className="px-5 pb-14 pt-4 flex-1 flex flex-col min-h-0 transition-transform duration-300 group-hover:-translate-y-3">
                       <Link href={`/product/${product._id}`}>
                         <h3 className="product-title leading-snug line-clamp-2 min-h-[20px] hover:text-[#ff006e] transition-colors">{product.itemName}</h3>
                       </Link>

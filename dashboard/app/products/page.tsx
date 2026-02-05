@@ -35,9 +35,13 @@ import { Badge } from '@/components/ui/badge';
 interface ColumnVisibility {
   image: boolean;
   productName: boolean;
+  brand: boolean;
+  sku: boolean;
   category: boolean;
+  subcategory: boolean;
   price: boolean;
   stock: boolean;
+  featured: boolean;
   status: boolean;
   actions: boolean;
 }
@@ -63,9 +67,13 @@ export default function ProductsPage() {
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
     image: true,
     productName: true,
+    brand: true,
+    sku: false,
     category: true,
+    subcategory: false,
     price: true,
     stock: true,
+    featured: false,
     status: true,
     actions: true,
   });
@@ -623,12 +631,36 @@ export default function ProductsPage() {
               Product Name
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
+              checked={columnVisibility.brand}
+              onCheckedChange={(checked) =>
+                setColumnVisibility({ ...columnVisibility, brand: checked })
+              }
+            >
+              Brand
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={columnVisibility.sku}
+              onCheckedChange={(checked) =>
+                setColumnVisibility({ ...columnVisibility, sku: checked })
+              }
+            >
+              SKU / Product ID
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
               checked={columnVisibility.category}
               onCheckedChange={(checked) =>
                 setColumnVisibility({ ...columnVisibility, category: checked })
               }
             >
               Category
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={columnVisibility.subcategory}
+              onCheckedChange={(checked) =>
+                setColumnVisibility({ ...columnVisibility, subcategory: checked })
+              }
+            >
+              Subcategory
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
               checked={columnVisibility.price}
@@ -645,6 +677,14 @@ export default function ProductsPage() {
               }
             >
               Stock
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={columnVisibility.featured}
+              onCheckedChange={(checked) =>
+                setColumnVisibility({ ...columnVisibility, featured: checked })
+              }
+            >
+              Featured
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
               checked={columnVisibility.status}
@@ -709,9 +749,13 @@ export default function ProductsPage() {
               </TableHead>
               {columnVisibility.image && <TableHead>Image</TableHead>}
               {columnVisibility.productName && <TableHead>Product</TableHead>}
+              {columnVisibility.brand && <TableHead>Brand</TableHead>}
+              {columnVisibility.sku && <TableHead>SKU</TableHead>}
               {columnVisibility.category && <TableHead>Category</TableHead>}
+              {columnVisibility.subcategory && <TableHead>Subcategory</TableHead>}
               {columnVisibility.price && <TableHead>Price</TableHead>}
               {columnVisibility.stock && <TableHead>Stock</TableHead>}
+              {columnVisibility.featured && <TableHead>Featured</TableHead>}
               {columnVisibility.status && <TableHead>Status</TableHead>}
               {columnVisibility.actions && <TableHead className="text-right">Actions</TableHead>}
             </TableRow>
@@ -753,17 +797,32 @@ export default function ProductsPage() {
                     <TableCell>
                       <div>
                         <div className="font-medium">{product.itemName}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {product.brandName} - {product.productId}
-                        </div>
+                        {!columnVisibility.brand && !columnVisibility.sku && (
+                          <div className="text-sm text-muted-foreground">
+                            {product.brandName} {product.productId ? `- ${product.productId}` : ''}
+                          </div>
+                        )}
                       </div>
                     </TableCell>
+                  )}
+                  {columnVisibility.brand && (
+                    <TableCell className="text-muted-foreground">{product.brandName || '—'}</TableCell>
+                  )}
+                  {columnVisibility.sku && (
+                    <TableCell className="text-muted-foreground font-mono text-sm">{product.productId || '—'}</TableCell>
                   )}
                   {columnVisibility.category && (
                     <TableCell>
                       {typeof product.productCategory === 'object'
                         ? product.productCategory?.name
-                        : 'N/A'}
+                        : '—'}
+                    </TableCell>
+                  )}
+                  {columnVisibility.subcategory && (
+                    <TableCell>
+                      {typeof product.productSubCategory === 'object'
+                        ? product.productSubCategory?.name
+                        : '—'}
                     </TableCell>
                   )}
                   {columnVisibility.price && (
@@ -824,7 +883,16 @@ export default function ProductsPage() {
                     </TableCell>
                   )}
                   {columnVisibility.stock && (
-                    <TableCell>{product.stockQuantity || 0}</TableCell>
+                    <TableCell>{product.stockQuantity ?? '—'}</TableCell>
+                  )}
+                  {columnVisibility.featured && (
+                    <TableCell>
+                      {product.isFeatured ? (
+                        <Badge variant="secondary">Yes</Badge>
+                      ) : (
+                        <span className="text-muted-foreground">No</span>
+                      )}
+                    </TableCell>
                   )}
                   {columnVisibility.status && (
                     <TableCell>

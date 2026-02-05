@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { X, ShoppingCart, Star, Heart, Check } from 'lucide-react';
+import { X, ShoppingCart, Star, Heart, Check, Tag } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import Link from 'next/link';
@@ -89,11 +89,15 @@ export default function QuickViewDialog({
                 No Image
               </div>
             )}
-            {discount > 0 && (
-              <span className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded text-sm font-bold">
-                -{discount}%
+            {discount > 0 ? (
+              <span
+                className="absolute top-4 left-4 flex items-center gap-1.5 bg-[#ff006e] text-white text-xs font-semibold pl-2 pr-3 py-1.5 shadow-md"
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+              >
+                <Tag className="h-3.5 w-3.5 flex-shrink-0" strokeWidth={2.5} />
+                <span>{discount}% off</span>
               </span>
-            )}
+            ) : null}
           </div>
 
           {/* Content Section */}

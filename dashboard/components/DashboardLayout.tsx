@@ -70,7 +70,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <SidebarContentWrapper>
         <DashboardHeader />
-        <main className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: '#F5F6FA' }}>
+        <main className="flex-1 overflow-y-auto p-6 bg-white">
           {children}
         </main>
       </SidebarContentWrapper>

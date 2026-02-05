@@ -3,7 +3,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ShoppingCart, Star, Heart, Eye, Layers, ChevronLeft, ChevronRight, Home, Filter, X, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Star, Heart, Eye, Layers, ChevronLeft, ChevronRight, Home, Filter, X, ChevronDown, Tag } from 'lucide-react';
 import { getProducts, getCategories, getSubCategories } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
@@ -154,19 +154,26 @@ const ProductCard = ({
           )}
         </Link>
 
-        {/* Discount Badge - Top Left (match category style) */}
-        {discount > 0 && (
+        {/* Sale badge - tag style with brand color (use ternary so we never render 0) */}
+        {discount > 0 ? (
           <div className="absolute top-3 left-3 z-20">
-            <span className="bg-red-500 text-white text-[11px] font-semibold px-2 py-1 rounded">
-              -{discount}%
+            <span
+              className="flex items-center gap-1.5 bg-[#ff006e] text-white text-xs font-semibold pl-2 pr-3 py-1.5 shadow-md"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+            >
+              <Tag className="h-3.5 w-3.5 flex-shrink-0" strokeWidth={2.5} />
+              <span>{discount}% off</span>
             </span>
           </div>
-        )}
+        ) : null}
 
         {/* Hot Badge - Top Left (below discount if both exist) */}
         {product.isFeatured && (
           <div className="absolute top-3 left-3 z-20" style={{ top: discount > 0 ? '3.5rem' : '0.75rem' }}>
-            <span className="bg-red-500 text-white text-[11px] font-semibold px-2 py-1 rounded">
+            <span
+              className="inline-flex items-center bg-[#ff006e] text-white text-xs font-semibold px-2.5 py-1 shadow-md"
+              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+            >
               Hot
             </span>
           </div>
@@ -197,7 +204,7 @@ const ProductCard = ({
         </div>
       </div>
 
-      <div className="px-5 pb-24 pt-4 flex-1 flex flex-col min-h-0 transition-transform duration-300 group-hover:-translate-y-3">
+      <div className="px-5 pb-14 pt-4 flex-1 flex flex-col min-h-0 transition-transform duration-300 group-hover:-translate-y-3">
         <Link href={`/product/${product._id}`}>
           <h3 className="product-title leading-snug line-clamp-2 min-h-[20px] hover:text-[#ff006e] transition-colors">{product.itemName}</h3>
         </Link>

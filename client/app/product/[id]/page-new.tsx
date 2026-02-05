@@ -262,13 +262,13 @@ export default function ProductDetailPage() {
                   <button
                     key={index}
                     onClick={() => setSelectedImage(img)}
-                    className={`aspect-square bg-[#1A1A1A] border-2 rounded-xl p-4 flex items-center justify-center transition-all ${
+                    className={`aspect-square bg-[#1A1A1A] border-2 rounded-xl overflow-hidden transition-all ${
                       selectedImage === img
                         ? 'border-[#FF6B35] bg-[#242424] -translate-y-1'
                         : 'border-[#2A2A2A] hover:border-[#FF6B35]'
                     }`}
                   >
-                    <img src={img} alt={`View ${index + 1}`} className="w-[70%] h-[70%] object-contain" />
+                    <img src={img} alt={`View ${index + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
