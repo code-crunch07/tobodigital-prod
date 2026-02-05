@@ -605,8 +605,8 @@ export default function ProductDetailPage() {
 
         {/* Product grid – white card, HTML layout */}
         <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-12 bg-white p-3 sm:p-6 lg:p-8 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] mb-8 sm:mb-12 min-w-0">
-          {/* Image gallery – sticky, HTML styling; zoom logic unchanged */}
-          <div className="lg:sticky lg:top-[100px] h-fit min-w-0">
+          {/* Image gallery – sticky until right column bottom scrolls past */}
+          <div className="lg:sticky lg:top-[100px] lg:self-start h-fit min-w-0">
             <div className="relative mb-4 group">
               <div
                 ref={setImageRef}
@@ -625,14 +625,13 @@ export default function ProductDetailPage() {
                 {/* Zoom lens – kept as is */}
                 {showZoom && (
                   <div
-                    className="absolute pointer-events-none border-2 border-[#ff6b35] bg-white/90 shadow-xl"
+                    className="absolute pointer-events-none bg-white/90 shadow-xl"
                     style={{
                       width: '150px',
                       height: '150px',
                       left: `${zoomPosition.x}px`,
                       top: `${zoomPosition.y}px`,
                       transform: 'translate(-50%, -50%)',
-                      borderRadius: '50%',
                       zIndex: 10,
                     }}
                   />
