@@ -438,7 +438,8 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 sm:gap-4">
+            {/* Row 1: Add to Cart + Wishlist + Share (right after quantity) */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4">
               <button
                 onClick={handleAddToCart}
                 disabled={product.stockQuantity === 0}
@@ -457,23 +458,18 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 )}
               </button>
               <button
-                onClick={handleBuyNow}
-                disabled={product.stockQuantity === 0}
-                className={`py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold text-sm sm:text-base flex items-center justify-center gap-2 border-2 border-[#ff6b35] text-[#ff6b35] bg-white hover:bg-[#fff5f2] transition-colors ${
-                  product.stockQuantity === 0 ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              >
-                <Zap className="h-4 w-4 sm:h-5 sm:w-5" /> <span className="hidden sm:inline">Buy Now</span>
-                <span className="sm:hidden">Buy</span>
-              </button>
-              <button
                 type="button"
-                onClick={() => toggleWishlist(product._id)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleWishlist(String(product._id));
+                }}
                 className="p-3 sm:p-4 rounded-lg border border-[#e2e8f0] bg-[#f7fafc] text-[#4a5568] hover:bg-[#edf2f7] transition-colors"
                 title="Wishlist"
+                aria-label={isInWishlist(String(product._id)) ? 'Remove from Wishlist' : 'Add to Wishlist'}
               >
                 <Heart
-                  className={`h-4 w-4 sm:h-5 sm:w-5 ${isInWishlist(product._id) ? 'fill-red-500 text-red-500' : ''}`}
+                  className={`h-4 w-4 sm:h-5 sm:w-5 ${isInWishlist(String(product._id)) ? 'fill-red-500 text-red-500' : ''}`}
                 />
               </button>
               <button
@@ -493,17 +489,30 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               </button>
             </div>
 
-            {product.amazonLink && product.amazonLink.trim() && (
-              <a
-                href={product.amazonLink.trim()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 flex items-center justify-center gap-2 w-full py-3 sm:py-4 px-4 rounded-lg font-semibold text-sm sm:text-base bg-[#ff9900] text-black hover:bg-[#e88b00] transition-colors border border-[#cc7a00]"
+            {/* Below section: Buy Now + Buy from Amazon */}
+            <div className="flex flex-col gap-3 sm:gap-4">
+              <button
+                onClick={handleBuyNow}
+                disabled={product.stockQuantity === 0}
+                className={`w-full sm:w-auto py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold text-sm sm:text-base flex items-center justify-center gap-2 border-2 border-[#ff6b35] text-[#ff6b35] bg-white hover:bg-[#fff5f2] transition-colors ${
+                  product.stockQuantity === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
-                <ExternalLink className="h-5 w-5" />
-                Buy from Amazon
-              </a>
-            )}
+                <Zap className="h-4 w-4 sm:h-5 sm:w-5" /> <span className="hidden sm:inline">Buy Now</span>
+                <span className="sm:hidden">Buy</span>
+              </button>
+              {product.amazonLink && product.amazonLink.trim() && (
+                <a
+                  href={product.amazonLink.trim()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-3 sm:py-4 px-4 rounded-lg font-semibold text-sm sm:text-base bg-[#ff9900] text-black hover:bg-[#e88b00] transition-colors border border-[#cc7a00]"
+                >
+                  <ExternalLink className="h-5 w-5" />
+                  Buy from Amazon
+                </a>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 p-4 sm:p-6 bg-[#f7fafc] rounded-lg">

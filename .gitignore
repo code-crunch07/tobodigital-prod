@@ -38,6 +38,7 @@ coverage/
 .cache/
 temp/
 tmp/
+docs/
 
 
 

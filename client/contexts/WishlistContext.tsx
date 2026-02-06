@@ -33,27 +33,30 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   }, [wishlistItems]);
 
   const addToWishlist = (productId: string) => {
+    const id = String(productId);
     setWishlistItems((prev) => {
-      if (!prev.includes(productId)) {
-        return [...prev, productId];
+      if (!prev.includes(id)) {
+        return [...prev, id];
       }
       return prev;
     });
   };
 
   const removeFromWishlist = (productId: string) => {
-    setWishlistItems((prev) => prev.filter((id) => id !== productId));
+    const id = String(productId);
+    setWishlistItems((prev) => prev.filter((item) => item !== id));
   };
 
   const isInWishlist = (productId: string) => {
-    return wishlistItems.includes(productId);
+    return wishlistItems.includes(String(productId));
   };
 
   const toggleWishlist = (productId: string) => {
-    if (isInWishlist(productId)) {
-      removeFromWishlist(productId);
+    const id = String(productId);
+    if (isInWishlist(id)) {
+      removeFromWishlist(id);
     } else {
-      addToWishlist(productId);
+      addToWishlist(id);
     }
   };
 
