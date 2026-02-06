@@ -626,9 +626,10 @@ export default function ProductDetailPage() {
     : [product.mainImage];
 
   // Plain-text excerpt of description for summary areas (strip HTML tags)
+  const stripHtmlRegex = new RegExp('<[^>]+>', 'g');
   const plainDescription = product.productDescription
     ? product.productDescription
-        .replace(/<[^>]+>/g, ' ')
+        .replace(stripHtmlRegex, ' ')
         .replace(/\s+/g, ' ')
         .trim()
     : '';
