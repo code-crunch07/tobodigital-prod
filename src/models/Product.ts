@@ -64,7 +64,19 @@ export interface IProduct extends Document {
   // Status
   isActive: boolean;
   stockQuantity: number;
-  
+  isFeatured?: boolean;
+  showOnHomepage?: boolean;
+
+  // SEO
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
+  slug?: string;
+
+  // External links
+  videoLink?: string;
+  amazonLink?: string;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -128,6 +140,14 @@ const ProductSchema: Schema = new Schema(
     batteriesRequired: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     stockQuantity: { type: Number, default: 0 },
+    isFeatured: { type: Boolean, default: false },
+    showOnHomepage: { type: Boolean, default: false },
+    seoTitle: { type: String },
+    seoDescription: { type: String },
+    seoKeywords: { type: String },
+    slug: { type: String },
+    videoLink: { type: String },
+    amazonLink: { type: String },
   },
   {
     timestamps: true,

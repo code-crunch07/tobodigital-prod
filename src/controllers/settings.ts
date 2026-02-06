@@ -96,10 +96,16 @@ export const getIntegrations = async (req: Request, res: Response) => {
     let list = await Integration.find().sort({ name: 1 }).lean();
     if (list.length === 0) {
       const defaults = [
+        // Payment gateways
         { name: 'Stripe', type: 'Payment', status: 'disconnected' },
         { name: 'PayPal', type: 'Payment', status: 'disconnected' },
+        { name: 'Razorpay', type: 'Payment', status: 'disconnected' },
+        // Shipping providers
         { name: 'FedEx', type: 'Shipping', status: 'disconnected' },
+        { name: 'Shiprocket', type: 'Shipping', status: 'disconnected' },
+        // Email / marketing
         { name: 'SendGrid', type: 'Email', status: 'disconnected' },
+        { name: 'Brevo', type: 'Email', status: 'disconnected' },
       ];
       await Integration.insertMany(defaults);
       list = await Integration.find().sort({ name: 1 }).lean();

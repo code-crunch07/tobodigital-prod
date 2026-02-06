@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ShoppingCart, Heart, Check, X, ZoomIn, ZoomOut, ChevronLeft, ChevronRight, MapPin, Zap, Package, Info, Truck, Shield, FileText, Ruler, Weight, Globe, Battery, Box, Star, Home, Eye, Layers, RefreshCw, Tag } from 'lucide-react';
+import { ShoppingCart, Heart, Check, X, ZoomIn, ZoomOut, ChevronLeft, ChevronRight, MapPin, Zap, Package, Info, Truck, Shield, FileText, Ruler, Weight, Globe, Battery, Box, Star, Home, Eye, Layers, RefreshCw, Tag, ExternalLink } from 'lucide-react';
 import { getProductById, getProducts } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
@@ -15,6 +15,7 @@ interface Product {
   mainImage: string;
   galleryImages?: string[];
   videoLink?: string;
+  amazonLink?: string;
   productType?: string;
   productId?: string;
   modelNo?: string;
@@ -166,6 +167,46 @@ export default function ProductDetailPage() {
       setRecentlyViewed(limited.slice(1, 5)); // Show 4 most recent (excluding current)
     } catch (error) {
       console.error('Error saving recently viewed:', error);
+    }
+  };
+
+  const handleShare = async () => {
+    if (!product) return;
+
+    const fallbackUrl =
+      (process.env.NEXT_PUBLIC_STOREFRONT_URL || process.env.NEXT_PUBLIC_SITE_URL)?.replace(/\/$/, '') ||
+      'https://tobodigital.com';
+
+    const url =
+      typeof window !== 'undefined'
+        ? window.location.href
+        : `${fallbackUrl}/product/${product._id}`;
+
+    const title = product.itemName;
+    const text = `Check out this product on Tobo Digital: ${product.itemName}`;
+
+    try {
+      if (typeof navigator !== 'undefined' && (navigator as any).share) {
+        await (navigator as any).share({ title, text, url });
+      } else if (typeof navigator !== 'undefined' && navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+        alert('Product link copied to clipboard');
+      } else if (typeof document !== 'undefined') {
+        const textarea = document.createElement('textarea');
+        textarea.value = url;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          alert('Product link copied to clipboard');
+        } finally {
+          document.body.removeChild(textarea);
+        }
+      }
+    } catch (error) {
+      console.error('Error sharing product:', error);
     }
   };
 
@@ -1004,11 +1045,26 @@ export default function ProductDetailPage() {
               </button>
               <button
                 type="button"
+                onClick={handleShare}
                 className="p-3 sm:p-4 rounded-lg border border-[#e2e8f0] bg-[#f7fafc] text-[#4a5568] hover:bg-[#edf2f7] transition-colors"
                 title="Share"
               >
                 <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
               </button>
+            </div>
+
+            {/* Buy from Amazon – only when link is set */}
+            {product.amazonLink && product.amazonLink.trim() && (
+              <a
+                href={product.amazonLink.trim()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 flex items-center justify-center gap-2 w-full py-3 sm:py-4 px-4 rounded-lg font-semibold text-sm sm:text-base bg-[#ff9900] text-black hover:bg-[#e88b00] transition-colors border border-[#cc7a00]"
+              >
+                <ExternalLink className="h-5 w-5" />
+                Buy from Amazon
+              </a>
+            )}
             </div>
 
             {/* Features – HTML: 2-col grid, grey bg, checkmarks */}

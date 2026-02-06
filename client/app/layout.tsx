@@ -16,6 +16,11 @@ const baiJamjuree = Bai_Jamjuree({
 export const metadata: Metadata = {
   title: "Tobo Digital - Modern E-commerce Store",
   description: "Discover amazing products at Tobo Digital",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

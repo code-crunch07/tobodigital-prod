@@ -48,6 +48,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
     mainImage: '',
     galleryImages: [] as string[],
     videoLink: '',
+    amazonLink: '',
     productType: '',
     itemName: '',
     brandName: '',
@@ -142,8 +143,20 @@ export default function ProductForm({ product, categories, subCategories = [], o
         itemDimensions: product.itemDimensions || { length: 0, width: 0, height: 0, unit: 'cm' },
         itemPackageDimensions: product.itemPackageDimensions || product.packageDimensions || { length: 0, width: 0, height: 0, unit: 'cm' },
         itemCondition: product.itemCondition || 'New',
-        areBatteriesRequired: product.areBatteriesRequired || product.batteriesRequired || false,
+        areBatteriesRequired: product.areBatteriesRequired ?? product.batteriesRequired ?? false,
         isActive: product.isActive !== undefined ? product.isActive : true,
+        // Map backend field names to form field names so inputs show correct values
+        maximumRetailPrice: product.maxRetailPrice ?? product.maximumRetailPrice ?? 0,
+        importerContactInformation: product.importerContactInfo ?? product.importerContactInformation ?? '',
+        packerContactInformation: product.packerContactInfo ?? product.packerContactInformation ?? '',
+        seoTitle: product.seoTitle ?? '',
+        seoDescription: product.seoDescription ?? '',
+        seoKeywords: product.seoKeywords ?? '',
+        slug: product.slug ?? '',
+        isFeatured: product.isFeatured ?? false,
+        showOnHomepage: product.showOnHomepage ?? false,
+        videoLink: product.videoLink ?? '',
+        amazonLink: product.amazonLink ?? '',
       }));
     }
   }, [product]);
@@ -336,7 +349,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
   );
 
   return (
-    <div className="flex gap-6">
+    <div className="flex flex-col xl:flex-row gap-6">
       {/* Main Form - 70% */}
       <form onSubmit={handleSubmit} className="flex-1 space-y-6">
         {/* 1️⃣ Product Information - Always Open */}
@@ -352,7 +365,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
           </CardHeader>
           {expandedSections.basic && (
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Product Name *</Label>
                   <Input
@@ -413,7 +426,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
                   placeholder="Brief description for product cards"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Product Type *</Label>
                   <Input
@@ -666,6 +679,15 @@ export default function ProductForm({ product, categories, subCategories = [], o
               placeholder="https://youtube.com/watch?v=..."
             />
           </div>
+              <div className="space-y-2">
+                <Label>Buy on Amazon (URL)</Label>
+                <Input
+                  value={formData.amazonLink || ''}
+                  onChange={(e) => setFormData({ ...formData, amazonLink: e.target.value })}
+                  placeholder="https://www.amazon.in/..."
+                />
+                <p className="text-xs text-muted-foreground">Optional. Adds a &quot;Buy from Amazon&quot; button on the product page.</p>
+              </div>
             </CardContent>
         )}
         </Card>
@@ -683,7 +705,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
           </CardHeader>
         {expandedSections.pricing && (
             <CardContent className="bg-blue-50/50 p-6 rounded-lg">
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <h4 className="font-semibold text-sm text-gray-700">Price</h4>
                   <div className="space-y-2">
@@ -939,7 +961,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
           </CardHeader>
           {expandedSections.technical && (
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
                   <Label>HSN Code</Label>
                   <Input
@@ -1026,7 +1048,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
           </CardHeader>
         {expandedSections.seo && (
             <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Meta Title</Label>
             <Input
@@ -1140,9 +1162,9 @@ export default function ProductForm({ product, categories, subCategories = [], o
       </div>
     </form>
 
-      {/* Sticky Summary Panel - 30% */}
-      <div className="w-[30%]">
-        <div className="sticky top-6">
+      {/* Summary Panel - full width on small screens, sticky sidebar on large */}
+      <div className="w-full xl:w-[30%] mt-6 xl:mt-0">
+        <div className="xl:sticky xl:top-6">
           <Card>
             <CardHeader>
               <CardTitle>Product Summary</CardTitle>
