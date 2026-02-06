@@ -83,6 +83,14 @@ interface Product {
   isActive?: boolean;
 }
 
+/** Strip HTML tags and collapse whitespace for plain-text excerpt */
+function toPlainText(html: string): string {
+  return html
+    .replace(new RegExp('<[^>]+>', 'g'), ' ')
+    .replace(new RegExp('\\s+', 'g'), ' ')
+    .trim();
+}
+
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params.id as string;
@@ -625,14 +633,7 @@ export default function ProductDetailPage() {
     ? [product.mainImage, ...product.galleryImages]
     : [product.mainImage];
 
-  // Plain-text excerpt of description for summary areas (strip HTML tags)
-  const stripHtmlRegex = new RegExp('<[^>]+>', 'g');
-  const plainDescription = product.productDescription
-    ? product.productDescription
-        .replace(stripHtmlRegex, ' ')
-        .replace(/\s+/g, ' ')
-        .trim()
-    : '';
+  const plainDescription = product.productDescription ? toPlainText(product.productDescription) : '';
 
   return (
     <div className="min-h-screen text-[#2d3748] overflow-x-hidden" style={{ backgroundColor: 'rgb(239 239 239 / 33%)' }}>
