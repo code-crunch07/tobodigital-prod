@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save } from 'lucide-react';
-import { getSiteSettings, updateSiteSettings } from '@/lib/api';
+import { ArrowLeft, Save, X } from 'lucide-react';
+import { getSiteSettings, updateSiteSettings, uploadImage, getUploadUrl } from '@/lib/api';
 
 const defaultSettings = {
   siteName: 'Tobo Admin',
@@ -17,6 +17,8 @@ const defaultSettings = {
   address: '123 Main St, City, State 12345',
   currency: 'INR',
   timezone: 'Asia/Kolkata',
+  logo: '',
+  favicon: '',
 };
 
 export default function SiteSettingsPage() {
@@ -24,13 +26,20 @@ export default function SiteSettingsPage() {
   const [settings, setSettings] = useState(defaultSettings);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingFavicon, setUploadingFavicon] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const faviconInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     (async () => {
       try {
         const res = await getSiteSettings();
-        if (res?.data) setSettings({ ...defaultSettings, ...res.data });
+        if (res?.data) {
+          const loaded = { ...defaultSettings, ...res.data };
+          setSettings(loaded);
+        }
       } catch {
         setMessage({ type: 'error', text: 'Failed to load site settings.' });
       } finally {
@@ -38,6 +47,61 @@ export default function SiteSettingsPage() {
       }
     })();
   }, []);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'Logo file size must be less than 2MB.' });
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setMessage({ type: 'error', text: 'Please upload an image file.' });
+      return;
+    }
+
+    try {
+      setUploadingLogo(true);
+      const url = await uploadImage(file);
+      setSettings({ ...settings, logo: url });
+      setMessage({ type: 'success', text: 'Logo uploaded successfully.' });
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error?.response?.data?.message || 'Failed to upload logo.' });
+    } finally {
+      setUploadingLogo(false);
+      if (logoInputRef.current) logoInputRef.current.value = '';
+    }
+  };
+
+  const handleFaviconUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 1 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'Favicon file size must be less than 1MB.' });
+      return;
+    }
+
+    const allowedTypes = ['image/x-icon', 'image/vnd.microsoft.icon', 'image/png', 'image/svg+xml'];
+    if (!allowedTypes.includes(file.type)) {
+      setMessage({ type: 'error', text: 'Please upload an ICO, PNG, or SVG file for favicon.' });
+      return;
+    }
+
+    try {
+      setUploadingFavicon(true);
+      const url = await uploadImage(file);
+      setSettings({ ...settings, favicon: url });
+      setMessage({ type: 'success', text: 'Favicon uploaded successfully.' });
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error?.response?.data?.message || 'Failed to upload favicon.' });
+    } finally {
+      setUploadingFavicon(false);
+      if (faviconInputRef.current) faviconInputRef.current.value = '';
+    }
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -95,10 +159,83 @@ export default function SiteSettingsPage() {
               />
             </div>
           </div>
+          {/* Logo Upload */}
           <div className="space-y-2">
             <Label>Logo</Label>
-            <Input type="file" accept="image/*" />
-            <p className="text-xs text-muted-foreground">Upload site logo (PNG, JPG, max 2MB)</p>
+            {settings.logo && (
+              <div className="mb-3 flex items-center gap-4">
+                <img
+                  src={getUploadUrl(settings.logo)}
+                  alt="Site Logo"
+                  className="h-16 w-auto object-contain border border-gray-200 rounded p-2 bg-white"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSettings({ ...settings, logo: '' });
+                    if (logoInputRef.current) logoInputRef.current.value = '';
+                  }}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Remove
+                </Button>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <Input
+                ref={logoInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/jpg,image/webp"
+                onChange={handleLogoUpload}
+                disabled={uploadingLogo}
+                className="flex-1"
+              />
+              {uploadingLogo && <span className="text-sm text-gray-500">Uploading...</span>}
+            </div>
+            <p className="text-xs text-muted-foreground">Upload site logo (PNG, JPG, WebP, max 2MB)</p>
+          </div>
+
+          {/* Favicon Upload */}
+          <div className="space-y-2">
+            <Label>Favicon</Label>
+            {settings.favicon && (
+              <div className="mb-3 flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <img
+                    src={getUploadUrl(settings.favicon)}
+                    alt="Favicon"
+                    className="h-8 w-8 object-contain border border-gray-200 rounded p-1 bg-white"
+                  />
+                  <span className="text-sm text-gray-600">Current favicon</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSettings({ ...settings, favicon: '' });
+                    if (faviconInputRef.current) faviconInputRef.current.value = '';
+                  }}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Remove
+                </Button>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <Input
+                ref={faviconInputRef}
+                type="file"
+                accept="image/x-icon,image/vnd.microsoft.icon,image/png,image/svg+xml"
+                onChange={handleFaviconUpload}
+                disabled={uploadingFavicon}
+                className="flex-1"
+              />
+              {uploadingFavicon && <span className="text-sm text-gray-500">Uploading...</span>}
+            </div>
+            <p className="text-xs text-muted-foreground">Upload favicon (ICO, PNG, SVG, max 1MB)</p>
           </div>
         </CardContent>
       </Card>

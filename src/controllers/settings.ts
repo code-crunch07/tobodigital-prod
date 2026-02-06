@@ -12,6 +12,7 @@ const DEFAULT_SITE = {
   currency: 'INR',
   timezone: 'Asia/Kolkata',
   logo: '',
+  favicon: '',
 };
 
 // GET /api/public/site-settings
@@ -27,6 +28,7 @@ export const getPublicSiteSettings = async (req: Request, res: Response) => {
         siteName: merged.siteName,
         siteUrl: merged.siteUrl,
         logo: merged.logo || '',
+        favicon: merged.favicon || '',
       },
     });
   } catch (error: any) {
@@ -63,7 +65,7 @@ export const getSiteSettings = async (req: Request, res: Response) => {
 // PATCH /api/settings/site
 export const updateSiteSettings = async (req: Request, res: Response) => {
   try {
-    const allowed = ['siteName', 'siteUrl', 'email', 'phone', 'address', 'currency', 'timezone', 'logo'];
+    const allowed = ['siteName', 'siteUrl', 'email', 'phone', 'address', 'currency', 'timezone', 'logo', 'favicon'];
     const updates: Record<string, unknown> = {};
     for (const k of allowed) {
       if (req.body[k] !== undefined) updates[k] = req.body[k];

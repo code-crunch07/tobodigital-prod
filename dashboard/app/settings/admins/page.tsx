@@ -46,6 +46,19 @@ export default function AdminUsersRolesPage() {
     }
   };
 
+  const handleRoleChange = async (user: User, newRole: User['role']) => {
+    if (user.role === newRole) return;
+    try {
+      await updateUser(user._id, { role: newRole });
+      await loadUsers();
+      setSuccess('User role updated successfully');
+      setError('');
+    } catch (err) {
+      console.error('Error updating user role:', err);
+      setError('Failed to update user role');
+    }
+  };
+
   const handleCreateAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -220,12 +233,17 @@ export default function AdminUsersRolesPage() {
                       <TableCell className="font-medium">{user.name}</TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
-                        <Badge className={
-                          user.role === 'admin' ? 'bg-blue-500' :
-                          user.role === 'shop_manager' ? 'bg-amber-600' : 'bg-gray-500'
-                        }>
-                          {user.role === 'shop_manager' ? 'Shop Manager' : user.role}
-                        </Badge>
+                        <select
+                          className="px-2 py-1 text-xs border rounded-md bg-white"
+                          value={user.role}
+                          onChange={(e) =>
+                            handleRoleChange(user, e.target.value as User['role'])
+                          }
+                        >
+                          <option value="admin">Admin</option>
+                          <option value="shop_manager">Shop Manager</option>
+                          <option value="customer">Customer</option>
+                        </select>
                       </TableCell>
                       <TableCell>
                         <Badge variant={user.isActive ? 'default' : 'secondary'}>

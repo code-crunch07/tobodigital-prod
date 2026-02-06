@@ -9,6 +9,7 @@ export interface ISiteSettingValue {
   currency?: string;
   timezone?: string;
   logo?: string;
+  favicon?: string;
 }
 
 export interface ISetting extends Document {

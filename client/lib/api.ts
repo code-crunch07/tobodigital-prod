@@ -193,11 +193,12 @@ export const getNavigations = async () => {
   return response.data;
 };
 
-// Public site settings (logo, name, url)
+// Public site settings (logo, name, url, favicon)
 export const getPublicSiteSettings = async () => {
   const response = await api.get('/site-settings');
   const payload = response.data;
   if (payload?.data?.logo) payload.data.logo = resolveUploadUrl(payload.data.logo);
+  if (payload?.data?.favicon) payload.data.favicon = resolveUploadUrl(payload.data.favicon);
   return payload;
 };
 
