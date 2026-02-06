@@ -3,7 +3,6 @@ import { Bai_Jamjuree } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import Favicon from "@/components/Favicon";
 import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 
@@ -27,7 +26,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={baiJamjuree.variable}>
       <body className={`${baiJamjuree.className} font-sans`}>
-        <Favicon />
         <CartProvider>
           <WishlistProvider>
             <Header />
