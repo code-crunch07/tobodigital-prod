@@ -142,10 +142,10 @@ export function ProductDetailView(props: ProductDetailViewProps) {
 
         <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-12 bg-white p-3 sm:p-6 lg:p-8 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] mb-8 sm:mb-12 min-w-0">
           <div className="lg:sticky lg:top-[100px] lg:self-start h-fit min-w-0">
-            {/* Two-panel zoom: main image + magnified view (lg+) */}
+            {/* Two-panel zoom: main image + magnified view (lg+). Right column always reserved to avoid layout shift. */}
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 mb-4">
               {/* Left: main image with zoom overlay */}
-              <div className="relative flex-1 min-w-0">
+              <div className="relative flex-1 min-w-0 lg:min-w-0">
                 <div
                   ref={setImageRef}
                   className="aspect-square rounded-lg overflow-hidden relative cursor-zoom-in flex items-center justify-center bg-gray-50"
@@ -160,15 +160,13 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                     className="w-full h-full object-contain relative z-0"
                     draggable={false}
                   />
-                  {/* Translucent light blue striped overlay (zoom region) */}
+                  {/* Overlay positioned by % to avoid pixel jitter; size in px for consistent lens */}
                   {showZoom && (
                     <div
-                      className="absolute pointer-events-none border-2 border-blue-300/60 rounded shadow-lg z-10"
+                      className="absolute pointer-events-none border-2 border-blue-300/60 rounded shadow-lg z-10 w-[140px] h-[140px]"
                       style={{
-                        width: '140px',
-                        height: '140px',
-                        left: `${zoomPosition.x}px`,
-                        top: `${zoomPosition.y}px`,
+                        left: `${zoomPosition.percentX}%`,
+                        top: `${zoomPosition.percentY}%`,
                         transform: 'translate(-50%, -50%)',
                         background: 'repeating-linear-gradient(0deg, rgba(147, 197, 253, 0.45) 0px, rgba(147, 197, 253, 0.45) 2px, rgba(147, 197, 253, 0.2) 2px, rgba(147, 197, 253, 0.2) 6px)',
                       }}
@@ -189,23 +187,24 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   </button>
                 </p>
               </div>
-              {/* Right: magnified view (visible on lg when hovering) */}
-              {showZoom && (
-                <div className="hidden lg:flex flex-col flex-1 min-w-0 max-w-full lg:max-w-[min(100%,380px)]">
-                  <div
-                    className="aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex-1 min-h-[200px]"
-                    style={{
-                      backgroundImage: `url(${selectedImage || product.mainImage})`,
-                      backgroundSize: '300%',
-                      backgroundPosition: `${zoomPosition.percentX}% ${zoomPosition.percentY}%`,
-                      backgroundRepeat: 'no-repeat',
-                    }}
-                  />
-                  <p className="mt-2 text-xs text-gray-500 truncate" title={product.itemName}>
-                    {product.itemName}
-                  </p>
-                </div>
-              )}
+              {/* Right: magnified view - always in DOM on lg to prevent layout shift, visibility toggled */}
+              <div
+                className={`hidden lg:flex flex-col flex-1 min-w-0 max-w-full lg:max-w-[min(100%,380px)] transition-opacity duration-150 ${showZoom ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                aria-hidden={!showZoom}
+              >
+                <div
+                  className="aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex-1 min-h-[200px]"
+                  style={{
+                    backgroundImage: `url(${selectedImage || product.mainImage})`,
+                    backgroundSize: '300%',
+                    backgroundPosition: `${zoomPosition.percentX}% ${zoomPosition.percentY}%`,
+                    backgroundRepeat: 'no-repeat',
+                  }}
+                />
+                <p className="mt-2 text-xs text-gray-500 truncate" title={product.itemName}>
+                  {product.itemName}
+                </p>
+              </div>
             </div>
             {images.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-1 -mx-1">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ShoppingCart, Heart, Check, X, ZoomIn, ZoomOut, ChevronLeft, ChevronRight, MapPin, Zap, Package, Info, Truck, Shield, FileText, Ruler, Weight, Globe, Battery, Box, Star, Home, Eye, Layers, RefreshCw, Tag, ExternalLink } from 'lucide-react';
@@ -399,33 +399,33 @@ export default function ProductDetailPage() {
     }
   };
 
+  const zoomRafRef = useRef<number | null>(null);
+  const lastMoveRef = useRef<React.MouseEvent<HTMLDivElement> | null>(null);
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!imageRef) return;
-    
-    const rect = imageRef.getBoundingClientRect();
-    const lensSize = 140; // Matches zoom overlay size in ProductDetailView
-    const halfLens = lensSize / 2;
-    
-    // Calculate mouse position relative to image
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    
-    // Constrain lens position to stay within image bounds
-    const maxX = rect.width - halfLens;
-    const maxY = rect.height - halfLens;
-    
-    const constrainedX = Math.max(halfLens, Math.min(maxX, mouseX));
-    const constrainedY = Math.max(halfLens, Math.min(maxY, mouseY));
-    
-    // Calculate percentage for background position
-    const percentX = (constrainedX / rect.width) * 100;
-    const percentY = (constrainedY / rect.height) * 100;
-    
-    setZoomPosition({ 
-      x: constrainedX, 
-      y: constrainedY,
-      percentX,
-      percentY
+    lastMoveRef.current = e;
+    if (zoomRafRef.current != null) return;
+    zoomRafRef.current = requestAnimationFrame(() => {
+      zoomRafRef.current = null;
+      const ev = lastMoveRef.current;
+      if (!ev || !imageRef) return;
+      const rect = imageRef.getBoundingClientRect();
+      const lensSize = 140;
+      const halfLens = lensSize / 2;
+      const mouseX = ev.clientX - rect.left;
+      const mouseY = ev.clientY - rect.top;
+      const maxX = rect.width - halfLens;
+      const maxY = rect.height - halfLens;
+      const constrainedX = Math.max(halfLens, Math.min(maxX, mouseX));
+      const constrainedY = Math.max(halfLens, Math.min(maxY, mouseY));
+      const percentX = (constrainedX / rect.width) * 100;
+      const percentY = (constrainedY / rect.height) * 100;
+      setZoomPosition({
+        x: constrainedX,
+        y: constrainedY,
+        percentX,
+        percentY,
+      });
     });
   };
 
