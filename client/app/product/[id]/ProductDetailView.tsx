@@ -510,24 +510,25 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 </a>
               )}
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 p-4 sm:p-6 bg-[#f7fafc] rounded-lg">
-            <div className="flex items-center gap-3 text-[0.9rem]">
-              <span className="text-[#48bb78] text-lg">✓</span>
-              <span>Free shipping on orders over ₹999</span>
-            </div>
-            <div className="flex items-center gap-3 text-[0.9rem]">
-              <span className="text-[#48bb78] text-lg">✓</span>
-              <span>30-day money back guarantee</span>
-            </div>
-            <div className="flex items-center gap-3 text-[0.9rem]">
-              <span className="text-[#48bb78] text-lg">✓</span>
-              <span>2-year manufacturer warranty</span>
-            </div>
-            <div className="flex items-center gap-3 text-[0.9rem]">
-              <span className="text-[#48bb78] text-lg">✓</span>
-              <span>Secure payment processing</span>
+            {/* Benefits: after Buy Now / Buy from Amazon */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 p-4 sm:p-6 bg-[#f7fafc] rounded-lg">
+              <div className="flex items-center gap-3 text-[0.9rem] text-[#2d3748]">
+                <span className="text-[#48bb78] text-lg">✓</span>
+                <span>Free shipping on orders over ₹999</span>
+              </div>
+              <div className="flex items-center gap-3 text-[0.9rem] text-[#2d3748]">
+                <span className="text-[#48bb78] text-lg">✓</span>
+                <span>30-day money back guarantee</span>
+              </div>
+              <div className="flex items-center gap-3 text-[0.9rem] text-[#2d3748]">
+                <span className="text-[#48bb78] text-lg">✓</span>
+                <span>2-year manufacturer warranty</span>
+              </div>
+              <div className="flex items-center gap-3 text-[0.9rem] text-[#2d3748]">
+                <span className="text-[#48bb78] text-lg">✓</span>
+                <span>Secure payment processing</span>
+              </div>
             </div>
           </div>
         </div>
