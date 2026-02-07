@@ -253,20 +253,67 @@ export default function ProductsPage() {
         return;
       }
 
-      // Prepare data for export
-      const exportData = products.map(product => ({
-        'Product Name': product.itemName || '',
-        'Brand Name': product.brandName || '',
-        'Category': product.productCategory?.name || '',
-        'Subcategory': product.productSubCategory?.name || '',
-        'Price': product.yourPrice || 0,
-        'MRP': product.maximumRetailPrice || '',
-        'Sale Price': product.salePrice || '',
-        'Stock Quantity': product.stockQuantity || 0,
-        'SKU': product.productSKU || '',
+      const formatDim = (d: { length?: number; width?: number; height?: number; unit?: string } | null | undefined) =>
+        d ? `${d.length ?? ''}x${d.width ?? ''}x${d.height ?? ''} ${d.unit ?? ''}`.trim() : '';
+      const joinArr = (arr: string[] | null | undefined) => (Array.isArray(arr) ? arr.join('; ') : '');
+      const dateStr = (d: Date | string | null | undefined) =>
+        d ? new Date(d).toISOString().split('T')[0] : '';
+
+      // Prepare data for export – all product fields
+      const exportData = products.map((product: any) => ({
+        'Product Name': product.itemName ?? '',
+        'Brand Name': product.brandName ?? '',
+        'Product ID (SKU)': product.productId ?? product.productSKU ?? '',
+        'Product Type': product.productType ?? '',
+        'Category': typeof product.productCategory === 'object' ? product.productCategory?.name ?? '' : '',
+        'Subcategory': typeof product.subCategory === 'object' ? product.subCategory?.name ?? '' : product.productSubCategory?.name ?? '',
+        'Model No': product.modelNo ?? '',
+        'Manufacturer': product.manufacturerName ?? '',
+        'Item Type': product.itemTypeName ?? '',
+        'Part Number': product.partNumber ?? '',
+        'Color': product.color ?? '',
+        'Short Description': product.shortDescription ?? '',
+        'Description': product.productDescription ?? '',
+        'Bullet Points': joinArr(product.bulletPoints),
+        'Generic Keywords': joinArr(product.genericKeyword),
+        'Special Features': product.specialFeatures ?? '',
+        'Your Price': product.yourPrice ?? '',
+        'MRP': product.maxRetailPrice ?? product.maximumRetailPrice ?? '',
+        'Sale Price': product.salePrice ?? '',
+        'Sale Start Date': dateStr(product.saleStartDate),
+        'Sale End Date': dateStr(product.saleEndDate),
+        'Stock Quantity': product.stockQuantity ?? 0,
         'Status': product.isActive ? 'Active' : 'Inactive',
-        'Description': product.productDescription || '',
-        'Main Image': product.mainImage || '',
+        'Featured': product.isFeatured ? 'Yes' : 'No',
+        'Show on Homepage': product.showOnHomepage ? 'Yes' : 'No',
+        'Main Image': product.mainImage ?? '',
+        'Gallery Images': joinArr(product.galleryImages),
+        'Item Dimensions': formatDim(product.itemDimensions),
+        'Item Weight': product.itemWeight ?? '',
+        'Weight Unit': product.weightUnit ?? '',
+        'Package Dimensions': formatDim(product.packageDimensions),
+        'Package Weight': product.packageWeight ?? '',
+        'Package Weight Unit': product.packageWeightUnit ?? '',
+        'HSN Code': product.hsnCode ?? '',
+        'Country of Origin': product.countryOfOrigin ?? '',
+        'Item Condition': product.itemCondition ?? '',
+        'Warranty': product.warrantyDescription ?? '',
+        'Batteries Required': product.batteriesRequired ? 'Yes' : 'No',
+        'Importer Contact': product.importerContactInfo ?? product.importerContactInformation ?? '',
+        'Packer Contact': product.packerContactInfo ?? '',
+        'Compatible Devices': joinArr(product.compatibleDevices),
+        'Included Components': joinArr(product.includedComponents),
+        'SEO Title': product.seoTitle ?? '',
+        'SEO Description': product.seoDescription ?? '',
+        'SEO Keywords': product.seoKeywords ?? '',
+        'Slug': product.slug ?? '',
+        'Video Link': product.videoLink ?? '',
+        'Amazon Link': product.amazonLink ?? '',
+        'Attribute Values': product.attributeValues && typeof product.attributeValues === 'object'
+          ? Object.entries(product.attributeValues).map(([k, v]) => `${k}: ${v}`).join('; ')
+          : '',
+        'Created At': product.createdAt ? dateStr(product.createdAt) : '',
+        'Updated At': product.updatedAt ? dateStr(product.updatedAt) : '',
       }));
 
       // Convert to CSV

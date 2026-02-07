@@ -14,6 +14,11 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: "Tobo Admin Dashboard",
   description: "E-commerce Admin Dashboard",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
