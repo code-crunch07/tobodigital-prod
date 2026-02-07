@@ -156,7 +156,7 @@ const ProductCard = ({
 
         {/* Sale badge - tag style with brand color (use ternary so we never render 0) */}
         {discount > 0 ? (
-          <div className="absolute top-3 left-3 z-20">
+          <div className="absolute top-0 left-0 z-20">
             <span
               className="flex items-center gap-1.5 bg-[#ff006e] text-white text-xs font-semibold pl-2 pr-3 py-1.5 shadow-md"
               style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
@@ -169,7 +169,7 @@ const ProductCard = ({
 
         {/* Hot Badge - Top Left (below discount if both exist) */}
         {product.isFeatured && (
-          <div className="absolute top-3 left-3 z-20" style={{ top: discount > 0 ? '3.5rem' : '0.75rem' }}>
+          <div className="absolute left-0 z-20" style={{ top: discount > 0 ? '2.25rem' : 0 }}>
             <span
               className="inline-flex items-center bg-[#ff006e] text-white text-xs font-semibold px-2.5 py-1 shadow-md"
               style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
