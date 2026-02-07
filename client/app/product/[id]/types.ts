@@ -71,4 +71,6 @@ export interface Product {
   };
   isFeatured?: boolean;
   isActive?: boolean;
+  /** Values for product attributes (e.g. Size, Material) from dashboard Product Attributes */
+  attributeValues?: Record<string, string>;
 }

@@ -702,6 +702,11 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 if (product.hsnCode) specRows.push({ label: 'HSN Code', value: product.hsnCode });
                 if (product.warrantyDescription)
                   specRows.push({ label: 'Warranty', value: product.warrantyDescription });
+                if (product.attributeValues && typeof product.attributeValues === 'object') {
+                  Object.entries(product.attributeValues).forEach(([name, value]) => {
+                    if (value != null && String(value).trim()) specRows.push({ label: name, value: String(value).trim() });
+                  });
+                }
                 if (specRows.length === 0) {
                   return (
                     <div className="bg-white w-full overflow-hidden py-8 px-4 text-center text-[#718096] text-sm">

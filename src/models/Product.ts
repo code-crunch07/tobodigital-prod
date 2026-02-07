@@ -77,6 +77,9 @@ export interface IProduct extends Document {
   videoLink?: string;
   amazonLink?: string;
 
+  /** Values for Product Attributes (e.g. Size, Material) – Color uses the color field */
+  attributeValues?: Record<string, string>;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -148,6 +151,7 @@ const ProductSchema: Schema = new Schema(
     slug: { type: String },
     videoLink: { type: String },
     amazonLink: { type: String },
+    attributeValues: { type: Schema.Types.Mixed, default: {} },
   },
   {
     timestamps: true,

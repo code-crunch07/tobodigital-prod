@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { createProduct, updateProduct, uploadImage, uploadImages } from '@/lib/api';
+import { createProduct, updateProduct, uploadImage, uploadImages, getProductAttributes, type ProductAttribute } from '@/lib/api';
 import RichTextEditor from '@/components/RichTextEditor';
 import {
   Plus,
@@ -65,6 +65,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
     itemTypeName: '',
     partNumber: '',
     color: '',
+    attributeValues: {} as Record<string, string>,
     yourPrice: 0,
     maximumRetailPrice: 0,
     salePrice: 0,
@@ -117,6 +118,14 @@ export default function ProductForm({ product, categories, subCategories = [], o
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const galleryImagesInputRef = useRef<HTMLInputElement>(null);
 
+  const [productAttributes, setProductAttributes] = useState<ProductAttribute[]>([]);
+
+  useEffect(() => {
+    getProductAttributes().then((res) => {
+      if (res.success && Array.isArray(res.data)) setProductAttributes(res.data);
+    }).catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (product) {
       const productCategoryId = product.productCategory?._id 
@@ -157,6 +166,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
         showOnHomepage: product.showOnHomepage ?? false,
         videoLink: product.videoLink ?? '',
         amazonLink: product.amazonLink ?? '',
+        attributeValues: product.attributeValues && typeof product.attributeValues === 'object' ? { ...product.attributeValues } : {},
       }));
     }
   }, [product]);
@@ -493,13 +503,73 @@ export default function ProductForm({ product, categories, subCategories = [], o
                     onChange={(e) => setFormData({ ...formData, partNumber: e.target.value })}
                   />
             </div>
-                <div className="space-y-2">
-                  <Label>Color</Label>
-                  <Input
-                    value={formData.color}
-                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                  />
-                </div>
+                {/* Product Attributes from Settings: Color uses formData.color, others use attributeValues */}
+                {(() => {
+                  const colorAttr = productAttributes.find((a) => a.name.toLowerCase() === 'color');
+                  if (!colorAttr) {
+                    return (
+                      <div className="space-y-2">
+                        <Label>Color</Label>
+                        <Input
+                          value={formData.color}
+                          onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                          placeholder="e.g. Black, Red"
+                        />
+                      </div>
+                    );
+                  }
+                  const colorIsFromList = colorAttr.values.includes(formData.color);
+                  return (
+                    <div className="space-y-2">
+                      <Label>Color</Label>
+                      <Select
+                        value={colorIsFromList ? formData.color : '__other__'}
+                        onValueChange={(v) => setFormData({
+                          ...formData,
+                          color: v === '__other__' ? '' : v,
+                        })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select color" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {colorAttr.values.map((val) => (
+                            <SelectItem key={val} value={val}>{val}</SelectItem>
+                          ))}
+                          <SelectItem value="__other__">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {!colorIsFromList && (
+                        <Input
+                          placeholder="Enter color"
+                          value={formData.color}
+                          onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                        />
+                      )}
+                    </div>
+                  );
+                })()}
+                {productAttributes.filter((a) => a.name.toLowerCase() !== 'color').map((attr) => (
+                  <div key={attr.id} className="space-y-2">
+                    <Label>{attr.name}</Label>
+                    <Select
+                      value={formData.attributeValues[attr.name] || ''}
+                      onValueChange={(v) => setFormData({
+                        ...formData,
+                        attributeValues: { ...formData.attributeValues, [attr.name]: v },
+                      })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={`Select ${attr.name.toLowerCase()}`} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {attr.values.map((val) => (
+                          <SelectItem key={val} value={val}>{val}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
             </div>
               <div className="space-y-2">
                 <Label>Product Description *</Label>
