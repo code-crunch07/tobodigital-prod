@@ -15,9 +15,9 @@ export const metadata: Metadata = {
   title: "Tobo Admin Dashboard",
   description: "E-commerce Admin Dashboard",
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/favicon.ico",
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 

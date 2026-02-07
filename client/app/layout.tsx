@@ -18,9 +18,9 @@ export const metadata: Metadata = {
   title: "Tobo Digital - Modern E-commerce Store",
   description: "Discover amazing products at Tobo Digital",
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/favicon.ico",
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 
