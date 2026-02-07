@@ -412,9 +412,10 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               </form>
             </div>
 
-            <div className="pb-4 border-b border-[#e2e8f0]">
-              <div className="font-semibold text-[#2d3748] mb-3">Quantity</div>
-              <div className="flex items-center gap-4">
+            {/* Row 1: Quantity (left) + Add to Cart + Wishlist + Share */}
+            <div className="pb-4 border-b border-[#e2e8f0] flex flex-wrap items-end gap-3 sm:gap-4">
+              <div>
+                <div className="font-semibold text-[#2d3748] mb-2">Quantity</div>
                 <div className="flex border border-[#e2e8f0] rounded-md overflow-hidden">
                   <button
                     type="button"
@@ -436,10 +437,6 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   </button>
                 </div>
               </div>
-            </div>
-
-            {/* Row 1: Add to Cart + Wishlist + Share (right after quantity) */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-4">
               <button
                 onClick={handleAddToCart}
                 disabled={product.stockQuantity === 0}
@@ -464,7 +461,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   e.stopPropagation();
                   toggleWishlist(String(product._id));
                 }}
-                className="p-3 sm:p-4 rounded-lg border border-[#e2e8f0] bg-[#f7fafc] text-[#4a5568] hover:bg-[#edf2f7] transition-colors"
+                className="p-3 sm:p-4 rounded-lg border border-[#e2e8f0] bg-[#f7fafc] text-[#4a5568] hover:bg-[#edf2f7] transition-colors shrink-0"
                 title="Wishlist"
                 aria-label={isInWishlist(String(product._id)) ? 'Remove from Wishlist' : 'Add to Wishlist'}
               >
@@ -475,7 +472,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               <button
                 type="button"
                 onClick={handleShare}
-                className="p-3 sm:p-4 rounded-lg border border-[#e2e8f0] bg-[#f7fafc] text-[#4a5568] hover:bg-[#edf2f7] transition-colors"
+                className="p-3 sm:p-4 rounded-lg border border-[#e2e8f0] bg-[#f7fafc] text-[#4a5568] hover:bg-[#edf2f7] transition-colors shrink-0"
                 title="Share"
               >
                 <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -489,12 +486,12 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               </button>
             </div>
 
-            {/* Below section: Buy Now + Buy from Amazon */}
-            <div className="flex flex-col gap-3 sm:gap-4">
+            {/* Row 2: Buy Now + Buy from Amazon (side by side) */}
+            <div className="flex flex-wrap gap-3 sm:gap-4">
               <button
                 onClick={handleBuyNow}
                 disabled={product.stockQuantity === 0}
-                className={`w-full sm:w-auto py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold text-sm sm:text-base flex items-center justify-center gap-2 border-2 border-[#ff6b35] text-[#ff6b35] bg-white hover:bg-[#fff5f2] transition-colors ${
+                className={`py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold text-sm sm:text-base flex items-center justify-center gap-2 border-2 border-[#ff6b35] text-[#ff6b35] bg-white hover:bg-[#fff5f2] transition-colors ${
                   product.stockQuantity === 0 ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
@@ -506,7 +503,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   href={product.amazonLink.trim()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-3 sm:py-4 px-4 rounded-lg font-semibold text-sm sm:text-base bg-[#ff9900] text-black hover:bg-[#e88b00] transition-colors border border-[#cc7a00]"
+                  className="flex items-center justify-center gap-2 py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold text-sm sm:text-base bg-[#ff9900] text-black hover:bg-[#e88b00] transition-colors border border-[#cc7a00]"
                 >
                   <ExternalLink className="h-5 w-5" />
                   Buy from Amazon
