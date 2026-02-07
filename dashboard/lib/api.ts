@@ -557,6 +557,24 @@ export const createBackup = async () => {
   return response.data;
 };
 
+// Product attributes (Settings > Product Attributes)
+export const getProductAttributes = async (): Promise<{ success: boolean; data: ProductAttribute[] }> => {
+  const response = await api.get('/settings/product-attributes');
+  return response.data;
+};
+
+export const updateProductAttributes = async (attributes: ProductAttribute[]): Promise<{ success: boolean; data: ProductAttribute[] }> => {
+  const response = await api.put('/settings/product-attributes', { attributes });
+  return response.data;
+};
+
+export interface ProductAttribute {
+  id: string;
+  name: string;
+  type: string;
+  values: string[];
+}
+
 export default api;
 
 

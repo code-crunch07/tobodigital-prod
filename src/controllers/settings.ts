@@ -186,3 +186,44 @@ export const createBackup = async (req: Request, res: Response) => {
     });
   }
 };
+
+const PRODUCT_ATTRIBUTES_KEY = 'productAttributes';
+
+/** GET /api/settings/product-attributes */
+export const getProductAttributes = async (req: Request, res: Response) => {
+  try {
+    const doc = await Setting.findOne({ key: PRODUCT_ATTRIBUTES_KEY }).lean();
+    const value = (doc?.value as { attributes?: unknown[] }) || {};
+    const attributes = Array.isArray(value.attributes) ? value.attributes : [];
+    res.json({ success: true, data: attributes });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error?.message || 'Failed to fetch product attributes',
+    });
+  }
+};
+
+/** PUT /api/settings/product-attributes */
+export const updateProductAttributes = async (req: Request, res: Response) => {
+  try {
+    const { attributes } = req.body;
+    if (!Array.isArray(attributes)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Request body must include an "attributes" array',
+      });
+    }
+    await Setting.findOneAndUpdate(
+      { key: PRODUCT_ATTRIBUTES_KEY },
+      { $set: { value: { attributes } }, $setOnInsert: { key: PRODUCT_ATTRIBUTES_KEY } },
+      { upsert: true, new: true }
+    );
+    res.json({ success: true, data: attributes });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error?.message || 'Failed to update product attributes',
+    });
+  }
+};

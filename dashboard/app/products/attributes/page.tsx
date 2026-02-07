@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,29 +8,70 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowLeft, Plus, X, Tag, Edit, Trash2 } from 'lucide-react';
+import { getProductAttributes, updateProductAttributes, type ProductAttribute } from '@/lib/api';
 
 export default function ProductAttributesPage() {
   const router = useRouter();
-  const [attributes, setAttributes] = useState([
-    { id: '1', name: 'Color', values: ['Red', 'Blue', 'Green', 'Black'], type: 'select' },
-    { id: '2', name: 'Size', values: ['S', 'M', 'L', 'XL'], type: 'select' },
-    { id: '3', name: 'Material', values: ['Cotton', 'Polyester', 'Wool'], type: 'select' },
-  ]);
+  const [attributes, setAttributes] = useState<ProductAttribute[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newAttribute, setNewAttribute] = useState({ name: '', type: 'select', values: [''] });
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const handleAddAttribute = () => {
-    if (newAttribute.name.trim()) {
-      setAttributes([...attributes, {
-        id: Date.now().toString(),
-        name: newAttribute.name,
-        type: newAttribute.type,
-        values: newAttribute.values.filter(v => v.trim())
-      }]);
-      setNewAttribute({ name: '', type: 'select', values: [''] });
-      setShowAddForm(false);
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await getProductAttributes();
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          setAttributes(res.data);
+        }
+      } catch (e: any) {
+        if (!cancelled) {
+          setError(e?.message || 'Failed to load attributes');
+          setAttributes([]);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  const saveAttributes = async (next: ProductAttribute[]) => {
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await updateProductAttributes(next);
+      if (res.success && Array.isArray(res.data)) {
+        setAttributes(res.data);
+      }
+    } catch (e: any) {
+      setError(e?.message || 'Failed to save attributes');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAddAttribute = async () => {
+    if (!newAttribute.name.trim()) return;
+    const next: ProductAttribute[] = [
+      ...attributes,
+      {
+        id: Date.now().toString(),
+        name: newAttribute.name.trim(),
+        type: newAttribute.type,
+        values: newAttribute.values.filter(v => v.trim()),
+      },
+    ];
+    setNewAttribute({ name: '', type: 'select', values: [''] });
+    setShowAddForm(false);
+    await saveAttributes(next);
   };
 
   const handleAddValue = (index: number) => {
@@ -51,8 +92,10 @@ export default function ProductAttributesPage() {
     setNewAttribute(updated);
   };
 
-  const handleDelete = (id: string) => {
-    setAttributes(attributes.filter(a => a.id !== id));
+  const handleDelete = async (id: string) => {
+    const next = attributes.filter(a => a.id !== id);
+    setAttributes(next);
+    await saveAttributes(next);
   };
 
   return (
@@ -71,11 +114,17 @@ export default function ProductAttributesPage() {
             <p className="text-muted-foreground">Manage product attributes like Color, Size, etc.</p>
           </div>
         </div>
-        <Button onClick={() => setShowAddForm(!showAddForm)}>
+        <Button onClick={() => setShowAddForm(!showAddForm)} disabled={loading || saving}>
           <Plus className="h-4 w-4 mr-2" />
           Add Attribute
         </Button>
       </div>
+
+      {error && (
+        <div className="rounded-md bg-destructive/10 text-destructive px-4 py-3 text-sm">
+          {error}
+        </div>
+      )}
 
       {showAddForm && (
         <Card>
@@ -141,7 +190,7 @@ export default function ProductAttributesPage() {
               <Button variant="outline" onClick={() => setShowAddForm(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleAddAttribute}>Create Attribute</Button>
+              <Button onClick={handleAddAttribute} disabled={saving}>Create Attribute</Button>
             </div>
           </CardContent>
         </Card>
@@ -163,7 +212,13 @@ export default function ProductAttributesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {attributes.length === 0 ? (
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                    Loading attributes...
+                  </TableCell>
+                </TableRow>
+              ) : attributes.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                     No attributes found. Click "Add Attribute" to create one.
@@ -192,10 +247,10 @@ export default function ProductAttributesPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" disabled title="Edit coming soon">
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(attr.id)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(attr.id)} disabled={saving}>
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>

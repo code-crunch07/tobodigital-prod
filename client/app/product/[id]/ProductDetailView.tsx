@@ -685,11 +685,11 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 if (product.itemCondition) specRows.push({ label: 'Condition', value: product.itemCondition });
                 if (product.manufacturerName)
                   specRows.push({ label: 'Manufacturer', value: product.manufacturerName });
-                if (
-                  product.itemDimensions &&
-                  (product.itemDimensions.length ?? product.itemDimensions.width ?? product.itemDimensions.height)
-                ) {
-                  const d = product.itemDimensions;
+                const d = product.itemDimensions;
+                const hasDimensions = d && (
+                  d.length != null || d.width != null || d.height != null
+                );
+                if (hasDimensions && d) {
                   specRows.push({
                     label: 'Dimensions',
                     value: `${d.length ?? '-'} × ${d.width ?? '-'} × ${d.height ?? '-'} ${d.unit || 'cm'}`,
@@ -702,6 +702,13 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 if (product.hsnCode) specRows.push({ label: 'HSN Code', value: product.hsnCode });
                 if (product.warrantyDescription)
                   specRows.push({ label: 'Warranty', value: product.warrantyDescription });
+                if (specRows.length === 0) {
+                  return (
+                    <div className="bg-white w-full overflow-hidden py-8 px-4 text-center text-[#718096] text-sm">
+                      No specifications available for this product.
+                    </div>
+                  );
+                }
                 return (
                   <div className="bg-white w-full overflow-hidden">
                     <dl className="divide-y divide-[#e0e0e0]">

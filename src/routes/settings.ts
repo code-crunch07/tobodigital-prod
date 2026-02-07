@@ -6,6 +6,8 @@ import {
   updateIntegration,
   listBackups,
   createBackup,
+  getProductAttributes,
+  updateProductAttributes,
 } from '../controllers/settings';
 import { requireAdmin } from '../controllers/auth';
 
@@ -19,5 +21,7 @@ router.get('/integrations', getIntegrations);
 router.patch('/integrations/:id', updateIntegration);
 router.get('/backups', listBackups);
 router.post('/backups', createBackup);
+router.get('/product-attributes', getProductAttributes);
+router.put('/product-attributes', updateProductAttributes);
 
 export default router;
