@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 import Order from '../models/Order';
+import User from '../models/User';
 import { createOrderNotification, createPaymentNotification } from './notifications';
 
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
@@ -18,6 +19,7 @@ const getAllOrders = async (req: Request, res: Response) => {
       status,
       paymentStatus,
       customer,
+      search,
     } = req.query;
 
     const query: any = {};
@@ -35,6 +37,23 @@ const getAllOrders = async (req: Request, res: Response) => {
 
     if (paymentStatus) {
       query.paymentStatus = paymentStatus;
+    }
+
+    if (search && typeof search === 'string' && search.trim()) {
+      const searchRegex = new RegExp(search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      const orConditions: any[] = [{ orderNumber: searchRegex }];
+      const matchingUsers = await User.find({
+        $or: [
+          { name: searchRegex },
+          { email: searchRegex },
+        ],
+      })
+        .select('_id')
+        .lean();
+      if (matchingUsers.length > 0) {
+        orConditions.push({ customer: { $in: matchingUsers.map((u) => u._id) } });
+      }
+      query.$or = orConditions;
     }
 
     const orders = await Order.find(query)
