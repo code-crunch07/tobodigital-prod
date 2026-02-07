@@ -239,7 +239,11 @@ export default function ProductForm({ product, categories, subCategories = [], o
   };
 
   const getSubCategoriesForCategory = (categoryId: string) => {
-    return subCategories.filter((sub) => sub.category === categoryId);
+    if (!categoryId) return [];
+    return subCategories.filter((sub) => {
+      const catId = sub.category?._id ?? sub.category;
+      return catId != null && String(catId) === String(categoryId);
+    });
   };
 
   const toggleSection = (section: keyof typeof expandedSections) => {
@@ -461,9 +465,12 @@ export default function ProductForm({ product, categories, subCategories = [], o
               disabled={!formData.productCategory}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select subcategory" />
+                <SelectValue placeholder={formData.productCategory ? "Select subcategory" : "Select category first"} />
               </SelectTrigger>
               <SelectContent>
+                {getSubCategoriesForCategory(formData.productCategory).length === 0 && formData.productCategory ? (
+                  <SelectItem value="__none__" disabled>No subcategories for this category</SelectItem>
+                ) : null}
                 {getSubCategoriesForCategory(formData.productCategory).map((sub) => (
                   <SelectItem key={sub._id} value={String(sub._id)}>
                     {sub.name}
