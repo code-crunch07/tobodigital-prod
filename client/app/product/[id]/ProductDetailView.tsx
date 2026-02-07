@@ -140,95 +140,114 @@ export function ProductDetailView(props: ProductDetailViewProps) {
           <span className="truncate max-w-[200px]">{product.itemName}</span>
         </nav>
 
-        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-12 bg-white p-3 sm:p-6 lg:p-8 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] mb-8 sm:mb-12 min-w-0">
-          <div className="lg:sticky lg:top-[100px] lg:self-start h-fit min-w-0">
-            {/* Two-panel zoom: main image + magnified view (lg+). Right column always reserved to avoid layout shift. */}
-            <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 mb-4">
-              {/* Left: main image with zoom overlay */}
-              <div className="relative flex-1 min-w-0 lg:min-w-0">
-                <div
-                  ref={setImageRef}
-                  className="aspect-square rounded-lg overflow-hidden relative cursor-zoom-in flex items-center justify-center bg-gray-50"
-                  onMouseMove={handleMouseMove}
-                  onMouseEnter={handleMouseEnter}
-                  onMouseLeave={handleMouseLeave}
-                  onClick={handleImageClick}
-                >
-                  <img
-                    src={selectedImage || product.mainImage}
-                    alt={product.itemName}
-                    className="w-full h-full object-contain relative z-0"
-                    draggable={false}
-                  />
-                  {/* Overlay positioned by % to avoid pixel jitter; size in px for consistent lens */}
-                  {showZoom && (
-                    <div
-                      className="absolute pointer-events-none border-2 border-blue-300/60 rounded shadow-lg z-10 w-[140px] h-[140px]"
-                      style={{
-                        left: `${zoomPosition.percentX}%`,
-                        top: `${zoomPosition.percentY}%`,
-                        transform: 'translate(-50%, -50%)',
-                        background: 'repeating-linear-gradient(0deg, rgba(147, 197, 253, 0.45) 0px, rgba(147, 197, 253, 0.45) 2px, rgba(147, 197, 253, 0.2) 2px, rgba(147, 197, 253, 0.2) 6px)',
-                      }}
-                    />
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={handleImageClick}
-                  className="absolute top-3 right-3 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-600 hover:text-[#ff6b35] transition-colors"
-                  aria-label="Full screen"
-                >
-                  <ZoomIn className="h-5 w-5" />
-                </button>
-                <p className="mt-2 text-sm text-gray-500 text-center lg:text-left">
-                  <button type="button" onClick={handleImageClick} className="text-[#4299e1] hover:underline focus:outline-none">
-                    Click to see full view
-                  </button>
-                </p>
-              </div>
-              {/* Right: magnified view - always in DOM on lg to prevent layout shift, visibility toggled. Centered on hover point. */}
-              <div
-                className={`hidden lg:flex flex-col flex-1 min-w-0 max-w-full lg:max-w-[min(100%,380px)] transition-opacity duration-150 ${showZoom ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                aria-hidden={!showZoom}
-              >
-                <div
-                  className="aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex-1 min-h-[200px] shadow-sm"
-                  style={{
-                    backgroundImage: `url(${selectedImage || product.mainImage})`,
-                    backgroundSize: '250%',
-                    backgroundRepeat: 'no-repeat',
-                    // Center the point under the overlay in the zoom panel (with 250% zoom)
-                    backgroundPosition: `${(5 * zoomPosition.percentX - 100) / 3}% ${(5 * zoomPosition.percentY - 100) / 3}%`,
-                  }}
-                />
-                <p className="mt-2 text-xs text-gray-500 truncate" title={product.itemName}>
-                  {product.itemName}
-                </p>
-              </div>
-            </div>
-            {images.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-1 -mx-1">
-                {images.map((img, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => setSelectedImage(img)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 bg-[#f7fafc] transition-colors ${
-                      selectedImage === img || (!selectedImage && index === 0)
-                        ? 'border-[#ff6b35]'
-                        : 'border-[#e2e8f0] hover:border-[#cbd5e0]'
-                    }`}
+        {/* Layout: left = small zoom area + magnified panel; right = large main image (reference layout) */}
+        <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-4 sm:gap-6 lg:gap-8 bg-white p-3 sm:p-6 lg:p-8 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] mb-8 sm:mb-12 min-w-0">
+          <div className="min-w-0">
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 min-w-0 order-2 lg:order-1">
+            {/* Left pane: small zoomable image + magnified view + "Click to see full view" + thumbnails */}
+            <div className="lg:sticky lg:top-[100px] lg:self-start h-fit min-w-0 flex flex-col gap-3">
+              <div className="flex flex-row gap-3 items-start">
+                <div className="relative flex-shrink-0 w-full max-w-[260px] mx-auto lg:mx-0">
+                  <div
+                    ref={setImageRef}
+                    className="aspect-square rounded-lg overflow-hidden relative cursor-zoom-in flex items-center justify-center bg-gray-50 border border-gray-100"
+                    onMouseMove={handleMouseMove}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                    onClick={handleImageClick}
                   >
                     <img
-                      src={img}
-                      alt={`${product.itemName} ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      src={selectedImage || product.mainImage}
+                      alt={product.itemName}
+                      className="w-full h-full object-contain relative z-0"
+                      draggable={false}
                     />
+                    {showZoom && (
+                      <div
+                        className="absolute pointer-events-none border-2 border-blue-300/60 rounded shadow-lg z-10 w-[90px] h-[90px]"
+                        style={{
+                          left: `${zoomPosition.percentX}%`,
+                          top: `${zoomPosition.percentY}%`,
+                          transform: 'translate(-50%, -50%)',
+                          background: 'repeating-linear-gradient(0deg, rgba(147, 197, 253, 0.45) 0px, rgba(147, 197, 253, 0.45) 2px, rgba(147, 197, 253, 0.2) 2px, rgba(147, 197, 253, 0.2) 6px)',
+                        }}
+                      />
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleImageClick}
+                    className="absolute top-2 right-2 z-20 w-8 h-8 rounded-full bg-white/90 shadow flex items-center justify-center text-gray-600 hover:text-[#ff6b35] transition-colors"
+                    aria-label="Full screen"
+                  >
+                    <ZoomIn className="h-4 w-4" />
                   </button>
-                ))}
+                </div>
+                <div
+                  className={`hidden lg:flex flex-col flex-1 min-w-0 min-h-[160px] transition-opacity duration-150 ${showZoom ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                  aria-hidden={!showZoom}
+                >
+                  <div
+                    className="aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex-1 min-h-[160px] shadow-sm"
+                    style={{
+                      backgroundImage: `url(${selectedImage || product.mainImage})`,
+                      backgroundSize: '300%',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: `${1.5 * zoomPosition.percentX - 25}% ${1.5 * zoomPosition.percentY - 25}%`,
+                    }}
+                  />
+                </div>
               </div>
-            )}
+              <p className="text-sm text-gray-500 text-center lg:text-left">
+                <button type="button" onClick={handleImageClick} className="text-[#4299e1] hover:underline focus:outline-none">
+                  Click to see full view
+                </button>
+              </p>
+              {images.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto pb-1 -mx-1">
+                  {images.map((img, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setSelectedImage(img)}
+                      className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 bg-[#f7fafc] transition-colors ${
+                        selectedImage === img || (!selectedImage && index === 0)
+                          ? 'border-[#ff6b35]'
+                          : 'border-[#e2e8f0] hover:border-[#cbd5e0]'
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        alt={`${product.itemName} ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Right pane: large main product image only (no overlay) */}
+            <div className="relative min-w-0 order-1 lg:order-2 flex-1">
+              <button
+                type="button"
+                onClick={handleImageClick}
+                className="absolute top-3 right-3 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-600 hover:text-[#ff6b35] transition-colors"
+                aria-label="Full screen"
+              >
+                <ZoomIn className="h-5 w-5" />
+              </button>
+              <div
+                className="aspect-square rounded-lg overflow-hidden bg-gray-50 border border-gray-100 cursor-zoom-in flex items-center justify-center"
+                onClick={handleImageClick}
+              >
+                <img
+                  src={selectedImage || product.mainImage}
+                  alt={product.itemName}
+                  className="w-full h-full object-contain"
+                  draggable={false}
+                />
+              </div>
+            </div>
           </div>
 
           {lightboxOpen && (
@@ -340,6 +359,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               </div>
             </div>
           )}
+          </div>
 
           <div className="flex flex-col gap-4 sm:gap-6 min-w-0">
             <h1 className="text-base sm:text-lg lg:text-xl font-bold text-[#1a202c] leading-tight break-words">

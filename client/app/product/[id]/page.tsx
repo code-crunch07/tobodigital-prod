@@ -410,7 +410,7 @@ export default function ProductDetailPage() {
       const ev = lastMoveRef.current;
       if (!ev || !imageRef) return;
       const rect = imageRef.getBoundingClientRect();
-      const lensSize = 140;
+      const lensSize = 90;
       const halfLens = lensSize / 2;
       const mouseX = ev.clientX - rect.left;
       const mouseY = ev.clientY - rect.top;
