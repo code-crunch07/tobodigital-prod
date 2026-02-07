@@ -403,7 +403,7 @@ export default function ProductDetailPage() {
     if (!imageRef) return;
     
     const rect = imageRef.getBoundingClientRect();
-    const lensSize = 150; // Size of zoom lens in pixels
+    const lensSize = 140; // Matches zoom overlay size in ProductDetailView
     const halfLens = lensSize / 2;
     
     // Calculate mouse position relative to image
