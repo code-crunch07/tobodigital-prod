@@ -187,18 +187,19 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   </button>
                 </p>
               </div>
-              {/* Right: magnified view - always in DOM on lg to prevent layout shift, visibility toggled */}
+              {/* Right: magnified view - always in DOM on lg to prevent layout shift, visibility toggled. Centered on hover point. */}
               <div
                 className={`hidden lg:flex flex-col flex-1 min-w-0 max-w-full lg:max-w-[min(100%,380px)] transition-opacity duration-150 ${showZoom ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                 aria-hidden={!showZoom}
               >
                 <div
-                  className="aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex-1 min-h-[200px]"
+                  className="aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex-1 min-h-[200px] shadow-sm"
                   style={{
                     backgroundImage: `url(${selectedImage || product.mainImage})`,
-                    backgroundSize: '300%',
-                    backgroundPosition: `${zoomPosition.percentX}% ${zoomPosition.percentY}%`,
+                    backgroundSize: '250%',
                     backgroundRepeat: 'no-repeat',
+                    // Center the point under the overlay in the zoom panel (with 250% zoom)
+                    backgroundPosition: `${(5 * zoomPosition.percentX - 100) / 3}% ${(5 * zoomPosition.percentY - 100) / 3}%`,
                   }}
                 />
                 <p className="mt-2 text-xs text-gray-500 truncate" title={product.itemName}>
