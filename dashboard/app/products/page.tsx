@@ -28,7 +28,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, Edit, Trash2, Search, Package, Filter, Columns, ChevronLeft, ChevronRight, Download, Upload, Copy, Power } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Package, Filter, Columns, ChevronLeft, ChevronRight, Download, Upload, Copy, Power, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
@@ -45,6 +45,8 @@ interface ColumnVisibility {
   status: boolean;
   actions: boolean;
 }
+
+const STOREFRONT_BASE = process.env.NEXT_PUBLIC_STOREFRONT_URL || 'http://localhost:3001';
 
 export default function ProductsPage() {
   const router = useRouter();
@@ -748,7 +750,7 @@ export default function ProductsPage() {
                 />
               </TableHead>
               {columnVisibility.image && <TableHead>Image</TableHead>}
-              {columnVisibility.productName && <TableHead>Product</TableHead>}
+              {columnVisibility.productName && <TableHead className="max-w-[280px] w-[280px]">Product</TableHead>}
               {columnVisibility.brand && <TableHead>Brand</TableHead>}
               {columnVisibility.sku && <TableHead>SKU</TableHead>}
               {columnVisibility.category && <TableHead>Category</TableHead>}
@@ -794,11 +796,16 @@ export default function ProductsPage() {
                     </TableCell>
                   )}
                   {columnVisibility.productName && (
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{product.itemName}</div>
+                    <TableCell className="max-w-[280px] min-w-0">
+                      <div className="min-w-0">
+                        <div
+                          className="font-medium truncate"
+                          title={product.itemName || ''}
+                        >
+                          {product.itemName}
+                        </div>
                         {!columnVisibility.brand && !columnVisibility.sku && (
-                          <div className="text-sm text-muted-foreground">
+                          <div className="text-sm text-muted-foreground truncate">
                             {product.brandName} {product.productId ? `- ${product.productId}` : ''}
                           </div>
                         )}
@@ -915,6 +922,21 @@ export default function ProductsPage() {
                   {columnVisibility.actions && (
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          asChild
+                          title="View on storefront"
+                        >
+                          <a
+                            href={`${STOREFRONT_BASE.replace(/\/$/, '')}/product/${product._id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </a>
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
