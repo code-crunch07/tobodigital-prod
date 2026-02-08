@@ -121,7 +121,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
       className="min-h-screen text-[#2d3748] overflow-x-hidden"
       style={{ backgroundColor: 'rgb(239 239 239 / 33%)' }}
     >
-      <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 sm:mb-12 w-full min-w-0">
+      <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 mb-6 w-full min-w-0">
         <nav className="flex items-center gap-2 text-[0.9rem] text-[#718096] mb-6" aria-label="Breadcrumb">
           <Link href="/" className="text-[#4299e1] hover:underline">Home</Link>
           <span>/</span>
@@ -142,15 +142,15 @@ export function ProductDetailView(props: ProductDetailViewProps) {
         </nav>
 
         {/* Layout: left = main product image (capped size) + zoom + thumbnails; right = product info */}
-        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-10 bg-white p-3 sm:p-6 lg:p-8 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] mb-8 sm:mb-12 min-w-0">
-          <div className="min-w-0 lg:max-w-[480px]">
-            <div className="flex flex-col gap-4">
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-10 bg-white p-3 sm:p-6 lg:p-8 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] mb-6 min-w-0">
+          <div className="min-w-0">
+            <div className="flex flex-col gap-3">
             {/* Main image with zoom: one image + magnified panel when hover */}
             <div className="flex flex-row gap-4 items-start">
               <div className="relative flex-1 min-w-0 max-w-full">
                 <div
                   ref={setImageRef}
-                  className="aspect-square max-h-[420px] w-full rounded-lg overflow-hidden relative cursor-zoom-in flex items-center justify-center bg-gray-50 border border-gray-100"
+                  className="aspect-square min-h-[320px] sm:min-h-[420px] w-full max-h-[560px] rounded-lg overflow-hidden relative cursor-zoom-in flex items-center justify-center bg-gray-50 border border-gray-100"
                   onMouseMove={handleMouseMove}
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}
