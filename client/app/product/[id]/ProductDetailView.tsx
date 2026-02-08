@@ -149,12 +149,13 @@ export function ProductDetailView(props: ProductDetailViewProps) {
         <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-10 bg-white p-3 sm:p-6 lg:p-8 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] mb-6 min-w-0">
           <div className="min-w-0">
             <div className="flex flex-col gap-3">
-            {/* Main image with zoom: one image + magnified panel when hover */}
-            <div className="flex flex-row gap-4 items-start">
-              <div className="relative flex-1 min-w-0 max-w-full">
+            {/* Amazon-style: main image (left) + zoom panel (right). Panel space reserved so layout is stable. */}
+            <div className="flex flex-row gap-4 items-start flex-nowrap">
+              {/* Main image - never scaled; lens follows cursor on hover */}
+              <div className="relative flex-shrink-0 w-full max-w-[400px] lg:max-w-[360px]">
                 <div
                   ref={setImageRef}
-                  className="aspect-square min-h-[320px] sm:min-h-[420px] w-full max-h-[560px] rounded-lg overflow-hidden relative cursor-zoom-in flex items-center justify-center bg-gray-50 border border-gray-100"
+                  className="aspect-square w-full rounded-lg overflow-hidden relative cursor-zoom-in flex items-center justify-center bg-gray-50 border border-gray-100"
                   onMouseMove={handleMouseMove}
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}
@@ -188,21 +189,21 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   <ZoomIn className="h-5 w-5" />
                 </button>
               </div>
-              {showZoom && (
-                <div className="hidden lg:block flex-shrink-0 ml-2 w-[420px] h-[420px]">
-                  <div
-                    className="w-full h-full border border-gray-200 rounded-lg overflow-hidden bg-gray-50 shadow-md"
-                    style={{
-                      minWidth: ZOOM_PANEL_SIZE,
-                      minHeight: ZOOM_PANEL_SIZE,
-                      backgroundImage: `url(${selectedImage || product.mainImage})`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundSize: `${(ZOOM_PANEL_SIZE / LENS_SIZE) * 100}%`,
-                      backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
-                    }}
-                  />
-                </div>
-              )}
+              {/* Zoom panel - always on the right on lg; visible on hover, updates with mouse */}
+              <div
+                className={`hidden lg:flex flex-shrink-0 w-[420px] h-[420px] ml-2 transition-opacity duration-150 ${showZoom ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                aria-hidden={!showZoom}
+              >
+                <div
+                  className="w-full h-full border border-gray-200 rounded-lg overflow-hidden bg-gray-100 shadow-md"
+                  style={{
+                    backgroundImage: `url(${selectedImage || product.mainImage})`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: `${(ZOOM_PANEL_SIZE / LENS_SIZE) * 100}%`,
+                    backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                  }}
+                />
+              </div>
             </div>
             {images.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-1 -mx-1">
