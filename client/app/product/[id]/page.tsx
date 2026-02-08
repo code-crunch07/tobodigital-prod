@@ -404,29 +404,33 @@ export default function ProductDetailPage() {
   };
 
   const zoomRafRef = useRef<number | null>(null);
-  const lastMoveRef = useRef<React.MouseEvent<HTMLDivElement> | null>(null);
+  const lastMoveRef = useRef<{ x: number; y: number } | null>(null);
 
-  /** Amazon-style: track mouse as 0–100% only; zoom panel uses background-position with these values */
+  /** Amazon-style: track mouse as 0–100% only. Capture rect/position synchronously (currentTarget is null in rAF). */
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    lastMoveRef.current = e;
+    const el = e.currentTarget;
+    const rect = el.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    const clamped = {
+      x: Math.min(100, Math.max(0, x)),
+      y: Math.min(100, Math.max(0, y)),
+    };
+    lastMoveRef.current = clamped;
     if (zoomRafRef.current != null) return;
     zoomRafRef.current = requestAnimationFrame(() => {
       zoomRafRef.current = null;
-      const ev = lastMoveRef.current;
-      if (!ev) return;
-      const rect = ev.currentTarget.getBoundingClientRect();
-      const x = ((ev.clientX - rect.left) / rect.width) * 100;
-      const y = ((ev.clientY - rect.top) / rect.height) * 100;
-      setZoomPosition({
-        x: Math.min(100, Math.max(0, x)),
-        y: Math.min(100, Math.max(0, y)),
-      });
+      const next = lastMoveRef.current;
+      if (next) setZoomPosition(next);
     });
   };
 
-  /** Only show hover zoom on desktop (Amazon behavior) */
+  /** Show hover zoom on desktop (lg breakpoint) so the zoom panel is visible */
   const handleMouseEnter = () => {
-    if (typeof window !== 'undefined' && window.innerWidth >= 1024) setShowZoom(true);
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      setShowZoom(true);
+      setZoomPosition((prev) => (prev.x === 0 && prev.y === 0 ? { x: 50, y: 50 } : prev));
+    }
   };
 
   const handleMouseLeave = () => {

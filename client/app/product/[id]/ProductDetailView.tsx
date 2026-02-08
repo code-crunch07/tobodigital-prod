@@ -189,12 +189,12 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 </button>
               </div>
               {showZoom && (
-                <div className="hidden lg:block flex-shrink-0 ml-1">
+                <div className="hidden lg:block flex-shrink-0 ml-2 w-[420px] h-[420px]">
                   <div
-                    className="border border-gray-200 rounded-lg overflow-hidden bg-gray-50 shadow-md"
+                    className="w-full h-full border border-gray-200 rounded-lg overflow-hidden bg-gray-50 shadow-md"
                     style={{
-                      width: ZOOM_PANEL_SIZE,
-                      height: ZOOM_PANEL_SIZE,
+                      minWidth: ZOOM_PANEL_SIZE,
+                      minHeight: ZOOM_PANEL_SIZE,
                       backgroundImage: `url(${selectedImage || product.mainImage})`,
                       backgroundRepeat: 'no-repeat',
                       backgroundSize: `${(ZOOM_PANEL_SIZE / LENS_SIZE) * 100}%`,
@@ -204,11 +204,6 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 </div>
               )}
             </div>
-            <p className="text-sm text-gray-500 text-center lg:text-left">
-              <button type="button" onClick={handleImageClick} className="text-[#4299e1] hover:underline focus:outline-none">
-                Click to see full view
-              </button>
-            </p>
             {images.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-1 -mx-1">
                 {images.map((img, index) => (
