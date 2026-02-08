@@ -149,10 +149,10 @@ export function ProductDetailView(props: ProductDetailViewProps) {
         <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-10 bg-white p-3 sm:p-6 lg:p-8 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] mb-6 min-w-0">
           <div className="min-w-0">
             <div className="flex flex-col gap-3">
-            {/* Amazon-style: main image (left) + zoom panel (right). Panel space reserved so layout is stable. */}
+            {/* Amazon-style: main image (left) fills column; zoom panel (right) fixed width. */}
             <div className="flex flex-row gap-4 items-start flex-nowrap">
-              {/* Main image - never scaled; lens follows cursor on hover */}
-              <div className="relative flex-shrink-0 w-full max-w-[400px] lg:max-w-[360px]">
+              {/* Main image - fills available column width */}
+              <div className="relative flex-1 min-w-0">
                 <div
                   ref={setImageRef}
                   className="aspect-square w-full rounded-lg overflow-hidden relative cursor-zoom-in flex items-center justify-center bg-gray-50 border border-gray-100"
