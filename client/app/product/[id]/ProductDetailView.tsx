@@ -116,6 +116,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
   } = props;
 
   return (
+    <>
     <div
       className="min-h-screen text-[#2d3748] overflow-x-hidden"
       style={{ backgroundColor: 'rgb(239 239 239 / 33%)' }}
@@ -143,7 +144,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
         {/* Layout: left = main product image (capped size) + zoom + thumbnails; right = product info */}
         <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-10 bg-white p-3 sm:p-6 lg:p-8 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] mb-8 sm:mb-12 min-w-0">
           <div className="min-w-0 lg:max-w-[480px]">
-          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4">
             {/* Main image with zoom: one image + magnified panel when hover */}
             <div className="flex flex-row gap-4 items-start">
               <div className="relative flex-1 min-w-0 max-w-full">
@@ -224,8 +225,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 ))}
               </div>
             )}
-          </div>
-          </div>
+            </div>
 
           {lightboxOpen && (
             <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4">
@@ -811,5 +811,6 @@ export function ProductDetailView(props: ProductDetailViewProps) {
         )}
       </div>
     </div>
+    </>
   );
 }
