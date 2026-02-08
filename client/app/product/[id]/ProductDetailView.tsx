@@ -32,7 +32,7 @@ export interface ProductDetailViewProps {
   setSelectedImage: (url: string) => void;
   setImageRef: (el: HTMLDivElement | null) => void;
   showZoom: boolean;
-  zoomPosition: { x: number; y: number };
+  zoomPosition: { px: number; py: number; percentX: number; percentY: number };
   handleMouseMove: (e: React.MouseEvent<HTMLDivElement>) => void;
   handleMouseEnter: () => void;
   handleMouseLeave: () => void;
@@ -164,7 +164,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   <img
                     src={selectedImage || product.mainImage}
                     alt={product.itemName}
-                    className="w-full h-full object-contain relative z-0"
+                    className="w-full h-full object-cover relative z-0"
                     draggable={false}
                   />
                   {showZoom && (
@@ -173,8 +173,8 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                       style={{
                         width: LENS_SIZE,
                         height: LENS_SIZE,
-                        left: `${zoomPosition.x}%`,
-                        top: `${zoomPosition.y}%`,
+                        left: zoomPosition.px,
+                        top: zoomPosition.py,
                         transform: 'translate(-50%, -50%)',
                       }}
                     />
@@ -200,7 +200,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                     backgroundImage: `url(${selectedImage || product.mainImage})`,
                     backgroundRepeat: 'no-repeat',
                     backgroundSize: `${(ZOOM_PANEL_SIZE / LENS_SIZE) * 100}%`,
-                    backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                    backgroundPosition: `${zoomPosition.percentX}% ${zoomPosition.percentY}%`,
                   }}
                 />
               </div>

@@ -32,7 +32,12 @@ export default function ProductDetailPage() {
   const [selectedImage, setSelectedImage] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
-  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  const [zoomPosition, setZoomPosition] = useState({
+    px: 0,
+    py: 0,
+    percentX: 50,
+    percentY: 50,
+  });
   const [showZoom, setShowZoom] = useState(false);
   const [imageRef, setImageRef] = useState<HTMLDivElement | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -403,33 +408,31 @@ export default function ProductDetailPage() {
     }
   };
 
-  const zoomRafRef = useRef<number | null>(null);
-  const lastMoveRef = useRef<{ x: number; y: number } | null>(null);
-
-  /** Amazon-style: track mouse as 0–100% only. Capture rect/position synchronously (currentTarget is null in rAF). */
+  /** Amazon-style: lens in pixels (clamped), zoom panel uses percent. Pixel + percent kept in sync. */
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = e.currentTarget;
     const rect = el.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    const clamped = {
-      x: Math.min(100, Math.max(0, x)),
-      y: Math.min(100, Math.max(0, y)),
-    };
-    lastMoveRef.current = clamped;
-    if (zoomRafRef.current != null) return;
-    zoomRafRef.current = requestAnimationFrame(() => {
-      zoomRafRef.current = null;
-      const next = lastMoveRef.current;
-      if (next) setZoomPosition(next);
+    let x = e.clientX - rect.left;
+    let y = e.clientY - rect.top;
+    x = Math.max(LENS_SIZE / 2, Math.min(rect.width - LENS_SIZE / 2, x));
+    y = Math.max(LENS_SIZE / 2, Math.min(rect.height - LENS_SIZE / 2, y));
+    setZoomPosition({
+      px: x,
+      py: y,
+      percentX: (x / rect.width) * 100,
+      percentY: (y / rect.height) * 100,
     });
   };
 
-  /** Show hover zoom on desktop (lg breakpoint) so the zoom panel is visible */
   const handleMouseEnter = () => {
     if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
       setShowZoom(true);
-      setZoomPosition((prev) => (prev.x === 0 && prev.y === 0 ? { x: 50, y: 50 } : prev));
+      if (imageRef) {
+        const rect = imageRef.getBoundingClientRect();
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
+        setZoomPosition({ px: cx, py: cy, percentX: 50, percentY: 50 });
+      }
     }
   };
 
