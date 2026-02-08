@@ -18,6 +18,10 @@ function toPlainText(html: string): string {
     .trim();
 }
 
+/** Amazon-style zoom: lens size and zoom panel size (no img scaling, background-image zoom) */
+const LENS_SIZE = 120;
+const ZOOM_PANEL_SIZE = 420;
+
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params.id as string;
@@ -28,7 +32,7 @@ export default function ProductDetailPage() {
   const [selectedImage, setSelectedImage] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
-  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0, percentX: 0, percentY: 0 });
+  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
   const [showZoom, setShowZoom] = useState(false);
   const [imageRef, setImageRef] = useState<HTMLDivElement | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -402,35 +406,27 @@ export default function ProductDetailPage() {
   const zoomRafRef = useRef<number | null>(null);
   const lastMoveRef = useRef<React.MouseEvent<HTMLDivElement> | null>(null);
 
+  /** Amazon-style: track mouse as 0–100% only; zoom panel uses background-position with these values */
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     lastMoveRef.current = e;
     if (zoomRafRef.current != null) return;
     zoomRafRef.current = requestAnimationFrame(() => {
       zoomRafRef.current = null;
       const ev = lastMoveRef.current;
-      if (!ev || !imageRef) return;
-      const rect = imageRef.getBoundingClientRect();
-      const lensSize = 100;
-      const halfLens = lensSize / 2;
-      const mouseX = ev.clientX - rect.left;
-      const mouseY = ev.clientY - rect.top;
-      const maxX = rect.width - halfLens;
-      const maxY = rect.height - halfLens;
-      const constrainedX = Math.max(halfLens, Math.min(maxX, mouseX));
-      const constrainedY = Math.max(halfLens, Math.min(maxY, mouseY));
-      const percentX = (constrainedX / rect.width) * 100;
-      const percentY = (constrainedY / rect.height) * 100;
+      if (!ev) return;
+      const rect = ev.currentTarget.getBoundingClientRect();
+      const x = ((ev.clientX - rect.left) / rect.width) * 100;
+      const y = ((ev.clientY - rect.top) / rect.height) * 100;
       setZoomPosition({
-        x: constrainedX,
-        y: constrainedY,
-        percentX,
-        percentY,
+        x: Math.min(100, Math.max(0, x)),
+        y: Math.min(100, Math.max(0, y)),
       });
     });
   };
 
+  /** Only show hover zoom on desktop (Amazon behavior) */
   const handleMouseEnter = () => {
-    setShowZoom(true);
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) setShowZoom(true);
   };
 
   const handleMouseLeave = () => {

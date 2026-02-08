@@ -18,6 +18,10 @@ import {
 } from 'lucide-react';
 import type { Product } from './types';
 
+/** Amazon-style zoom: fixed lens size, zoom panel uses background-image (no img scale) */
+const LENS_SIZE = 120;
+const ZOOM_PANEL_SIZE = 420;
+
 export interface ProductDetailViewProps {
   product: Product;
   images: string[];
@@ -28,7 +32,7 @@ export interface ProductDetailViewProps {
   setSelectedImage: (url: string) => void;
   setImageRef: (el: HTMLDivElement | null) => void;
   showZoom: boolean;
-  zoomPosition: { x: number; y: number; percentX: number; percentY: number };
+  zoomPosition: { x: number; y: number };
   handleMouseMove: (e: React.MouseEvent<HTMLDivElement>) => void;
   handleMouseEnter: () => void;
   handleMouseLeave: () => void;
@@ -164,12 +168,13 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   />
                   {showZoom && (
                     <div
-                      className="absolute pointer-events-none border-2 border-blue-300/60 rounded shadow-lg z-10 w-[100px] h-[100px]"
+                      className="absolute pointer-events-none border-2 border-blue-400 bg-blue-200/20 shadow-sm z-10"
                       style={{
-                        left: `${zoomPosition.percentX}%`,
-                        top: `${zoomPosition.percentY}%`,
+                        width: LENS_SIZE,
+                        height: LENS_SIZE,
+                        left: `${zoomPosition.x}%`,
+                        top: `${zoomPosition.y}%`,
                         transform: 'translate(-50%, -50%)',
-                        background: 'repeating-linear-gradient(0deg, rgba(147, 197, 253, 0.45) 0px, rgba(147, 197, 253, 0.45) 2px, rgba(147, 197, 253, 0.2) 2px, rgba(147, 197, 253, 0.2) 6px)',
                       }}
                     />
                   )}
@@ -183,20 +188,21 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   <ZoomIn className="h-5 w-5" />
                 </button>
               </div>
-              <div
-                className={`hidden lg:flex flex-col flex-shrink-0 w-[200px] min-h-[200px] transition-opacity duration-150 ${showZoom ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                aria-hidden={!showZoom}
-              >
-                <div
-                  className="aspect-square w-[200px] h-[200px] rounded-lg overflow-hidden border border-gray-200 bg-gray-50 shadow-sm"
-                  style={{
-                    backgroundImage: `url(${selectedImage || product.mainImage})`,
-                    backgroundSize: '300%',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: `${1.5 * zoomPosition.percentX - 25}% ${1.5 * zoomPosition.percentY - 25}%`,
-                  }}
-                />
-              </div>
+              {showZoom && (
+                <div className="hidden lg:block flex-shrink-0 ml-1">
+                  <div
+                    className="border border-gray-200 rounded-lg overflow-hidden bg-gray-50 shadow-md"
+                    style={{
+                      width: ZOOM_PANEL_SIZE,
+                      height: ZOOM_PANEL_SIZE,
+                      backgroundImage: `url(${selectedImage || product.mainImage})`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: `${(ZOOM_PANEL_SIZE / LENS_SIZE) * 100}%`,
+                      backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                    }}
+                  />
+                </div>
+              )}
             </div>
             <p className="text-sm text-gray-500 text-center lg:text-left">
               <button type="button" onClick={handleImageClick} className="text-[#4299e1] hover:underline focus:outline-none">
