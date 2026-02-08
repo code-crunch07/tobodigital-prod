@@ -145,14 +145,14 @@ export function ProductDetailView(props: ProductDetailViewProps) {
           <span className="truncate max-w-[200px]">{product.itemName}</span>
         </nav>
 
-        {/* Layout: left = main product image (capped size) + zoom + thumbnails; right = product info */}
-        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-10 bg-white p-3 sm:p-6 lg:p-8 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] mb-6 min-w-0">
+        {/* Layout: left column at least 856px so main image (420px+) and zoom (420px) fit; right = product info */}
+        <div className="grid lg:grid-cols-[minmax(856px,1.4fr)_1fr] gap-4 sm:gap-6 lg:gap-10 bg-white p-3 sm:p-6 lg:p-8 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] mb-6 min-w-0">
           <div className="min-w-0">
             <div className="flex flex-col gap-3">
-            {/* Amazon-style: main image (left) fills column; zoom panel (right) fixed width. */}
+            {/* Amazon-style: main image (left) at least as large as zoom panel; zoom panel (right) fixed. */}
             <div className="flex flex-row gap-4 items-start flex-nowrap">
-              {/* Main image - fills available column width */}
-              <div className="relative flex-1 min-w-0">
+              {/* Main image - at least 420px so it's as big as zoom panel, fills remaining column width */}
+              <div className="relative flex-1 min-w-[420px]">
                 <div
                   ref={setImageRef}
                   className="aspect-square w-full rounded-lg overflow-hidden relative cursor-zoom-in flex items-center justify-center bg-gray-50 border border-gray-100"
