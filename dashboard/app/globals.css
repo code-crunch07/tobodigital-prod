@@ -132,7 +132,8 @@
 }
 
 .ProseMirror p {
-  margin: 0.5rem 0;
+  margin: 0.75rem 0;
+  line-height: 1.6;
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
@@ -147,43 +148,146 @@
   opacity: 0.5;
 }
 
-.ProseMirror img {
+/* Image Resize Styles */
+.ProseMirror .image-wrapper {
+  position: relative;
+  display: inline-block;
   max-width: 100%;
-  height: auto;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  display: block;
-  transition: outline 0.2s;
+  margin: 1rem 0;
 }
 
-.ProseMirror img.ProseMirror-selectednode {
-  outline: 2px solid #8B5CF6;
+.ProseMirror .image-wrapper:hover {
+  outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
 
-.ProseMirror .image-container {
-  position: relative;
-  display: inline-block;
-  margin: 0.5rem 0;
+.ProseMirror .image-wrapper img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.25rem;
+  display: block;
+  margin: 0 auto;
+  cursor: default;
 }
 
-.ProseMirror .image-container:hover img {
-  outline: 2px solid #8B5CF6;
+.ProseMirror .resize-handle {
+  position: absolute;
+  background: #3b82f6;
+  border: 2px solid white;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.1s;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.ProseMirror .image-wrapper:hover .resize-handle {
+  opacity: 1;
+}
+
+.ProseMirror .resize-handle-se {
+  bottom: -6px;
+  right: -6px;
+  cursor: nwse-resize;
+}
+
+.ProseMirror .resize-handle-e {
+  top: 50%;
+  right: -6px;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.ProseMirror .resize-handle-s {
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.ProseMirror .resize-handle:hover {
+  background: #2563eb;
+  transform: scale(1.2);
+}
+
+.ProseMirror .resize-handle-e:hover {
+  transform: translateY(-50%) scale(1.2);
+}
+
+.ProseMirror .resize-handle-s:hover {
+  transform: translateX(-50%) scale(1.2);
+}
+
+/* Better spacing for paragraphs and lists */
+.ProseMirror ul,
+.ProseMirror ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.ProseMirror li {
+  margin: 0.25rem 0;
+}
+
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3 {
+  margin: 1rem 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.ProseMirror blockquote {
+  margin: 1rem 0;
+  padding-left: 1rem;
+  border-left: 3px solid #e5e7eb;
+}
+
+.ProseMirror code {
+  background: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.ProseMirror pre {
+  background: #f3f4f6;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+
+.ProseMirror pre code {
+  background: transparent;
+  padding: 0;
+}
+
+/* Image wrapper styles - updated for new resize implementation */
+.ProseMirror .image-wrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin: 1rem 0;
+}
+
+.ProseMirror .image-wrapper:hover {
+  outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
 
 .ProseMirror .resize-handle {
   position: absolute;
-  width: 16px;
-  height: 16px;
-  background: #8B5CF6;
+  background: #3b82f6;
   border: 2px solid white;
   border-radius: 50%;
-  cursor: nwse-resize;
-  z-index: 1000;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  bottom: -8px;
-  right: -8px;
+  width: 12px;
+  height: 12px;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.1s;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: all 0.2s;
 }
 

@@ -36,6 +36,9 @@ import {
   Heading3,
   Minus,
   Plus,
+  Link as LinkIcon,
+  Maximize2,
+  Move,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,9 +58,251 @@ interface RichTextEditorProps {
   placeholder?: string;
 }
 
+// Custom Image extension with resize handles
+const ResizableImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: null,
+        renderHTML: attributes => {
+          if (!attributes.width) {
+            return {};
+          }
+          return {
+            width: attributes.width,
+          };
+        },
+        parseHTML: element => {
+          const width = element.getAttribute('width');
+          return width ? parseInt(width, 10) : null;
+        },
+      },
+      height: {
+        default: null,
+        renderHTML: attributes => {
+          if (!attributes.height) {
+            return {};
+          }
+          return {
+            height: attributes.height,
+          };
+        },
+        parseHTML: element => {
+          const height = element.getAttribute('height');
+          return height ? parseInt(height, 10) : null;
+        },
+      },
+      style: {
+        default: null,
+        renderHTML: attributes => {
+          if (!attributes.width && !attributes.height) {
+            return {};
+          }
+          const styles: string[] = [];
+          if (attributes.width) {
+            styles.push(`width: ${attributes.width}px`);
+          }
+          if (attributes.height) {
+            styles.push(`height: ${attributes.height}px`);
+          }
+          styles.push('max-width: 100%');
+          styles.push('height: auto');
+          return {
+            style: styles.join('; '),
+          };
+        },
+      },
+      align: {
+        default: 'left',
+        renderHTML: attributes => {
+          if (!attributes.align || attributes.align === 'left') {
+            return {};
+          }
+          return {
+            style: `display: block; margin-left: ${attributes.align === 'center' ? 'auto' : '0'}; margin-right: ${attributes.align === 'right' ? 'auto' : '0'};`,
+          };
+        },
+        parseHTML: element => {
+          const style = element.getAttribute('style') || '';
+          if (style.includes('margin-left: auto') && style.includes('margin-right: auto')) {
+            return 'center';
+          }
+          if (style.includes('margin-right: auto')) {
+            return 'right';
+          }
+          return 'left';
+        },
+      },
+    };
+  },
+
+  addNodeView() {
+    return ({ node, HTMLAttributes, getPos, editor }) => {
+      const dom = document.createElement('div');
+      dom.className = 'image-wrapper relative inline-block group';
+      dom.style.display = 'inline-block';
+      dom.style.maxWidth = '100%';
+
+      const img = document.createElement('img');
+      Object.entries(HTMLAttributes).forEach(([key, value]) => {
+        if (key === 'style') {
+          img.setAttribute('style', value as string);
+        } else {
+          img.setAttribute(key, value as string);
+        }
+      });
+
+      if (node.attrs.src) {
+        img.src = node.attrs.src;
+      }
+      if (node.attrs.alt) {
+        img.alt = node.attrs.alt;
+      }
+      if (node.attrs.width) {
+        img.width = node.attrs.width;
+        img.style.width = `${node.attrs.width}px`;
+      }
+      if (node.attrs.height) {
+        img.height = node.attrs.height;
+        img.style.height = `${node.attrs.height}px`;
+      }
+      img.style.maxWidth = '100%';
+      img.style.height = 'auto';
+      img.style.display = 'block';
+      img.draggable = false;
+
+      // Add resize handles
+      const createHandle = (position: string) => {
+        const handle = document.createElement('div');
+        handle.className = `resize-handle resize-handle-${position}`;
+        handle.style.cssText = `
+          position: absolute;
+          background: #3b82f6;
+          border: 2px solid white;
+          border-radius: 50%;
+          width: 12px;
+          height: 12px;
+          cursor: ${position.includes('e') ? 'ew-resize' : position.includes('s') ? 'ns-resize' : 'nwse-resize'};
+          opacity: 0;
+          transition: opacity 0.2s;
+          z-index: 10;
+        `;
+        
+        if (position.includes('n')) handle.style.top = '-6px';
+        if (position.includes('s')) handle.style.bottom = '-6px';
+        if (position.includes('e')) handle.style.right = '-6px';
+        if (position.includes('w')) handle.style.left = '-6px';
+        if (position === 'se') {
+          handle.style.bottom = '-6px';
+          handle.style.right = '-6px';
+        }
+
+        let isResizing = false;
+        let startX = 0;
+        let startY = 0;
+        let startWidth = 0;
+        let startHeight = 0;
+
+        handle.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          isResizing = true;
+          startX = e.clientX;
+          startY = e.clientY;
+          startWidth = img.offsetWidth;
+          startHeight = img.offsetHeight;
+
+          const onMouseMove = (e: MouseEvent) => {
+            if (!isResizing) return;
+            const diffX = e.clientX - startX;
+            const diffY = e.clientY - startY;
+            
+            let newWidth = startWidth;
+            let newHeight = startHeight;
+
+            if (position.includes('e')) {
+              newWidth = Math.max(50, startWidth + diffX);
+            }
+            if (position.includes('w')) {
+              newWidth = Math.max(50, startWidth - diffX);
+            }
+            if (position.includes('s')) {
+              newHeight = Math.max(50, startHeight + diffY);
+            }
+            if (position.includes('n')) {
+              newHeight = Math.max(50, startHeight - diffY);
+            }
+
+            // Maintain aspect ratio for corner handles
+            if (position === 'se' || position === 'ne' || position === 'sw' || position === 'nw') {
+              const aspectRatio = startWidth / startHeight;
+              if (position.includes('e') || position.includes('w')) {
+                newHeight = newWidth / aspectRatio;
+              } else {
+                newWidth = newHeight * aspectRatio;
+              }
+            }
+
+            img.style.width = `${newWidth}px`;
+            img.style.height = `${newHeight}px`;
+          };
+
+          const onMouseUp = () => {
+            isResizing = false;
+            const pos = getPos();
+            if (typeof pos === 'number') {
+              editor.commands.updateAttributes('image', {
+                width: parseInt(img.style.width),
+                height: parseInt(img.style.height),
+              });
+            }
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+          };
+
+          document.addEventListener('mousemove', onMouseMove);
+          document.addEventListener('mouseup', onMouseUp);
+        });
+
+        return handle;
+      };
+
+      // Show handles on hover
+      dom.addEventListener('mouseenter', () => {
+        dom.querySelectorAll('.resize-handle').forEach((h: any) => {
+          h.style.opacity = '1';
+        });
+      });
+
+      dom.addEventListener('mouseleave', () => {
+        dom.querySelectorAll('.resize-handle').forEach((h: any) => {
+          h.style.opacity = '0';
+        });
+      });
+
+      dom.appendChild(img);
+      dom.appendChild(createHandle('se')); // Bottom-right corner
+      dom.appendChild(createHandle('e')); // Right edge
+      dom.appendChild(createHandle('s')); // Bottom edge
+
+      return {
+        dom,
+        contentDOM: null,
+      };
+    };
+  },
+}).configure({
+  inline: false,
+  allowBase64: true,
+});
+
 export default function RichTextEditor({ value, onChange, placeholder = 'Enter description...' }: RichTextEditorProps) {
   const [showImageDialog, setShowImageDialog] = useState(false);
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkText, setLinkText] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const skipNextSyncRef = useRef(false);
@@ -69,64 +314,14 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
         heading: {
           levels: [1, 2, 3],
         },
-        underline: false, // Disable underline in StarterKit since we're adding it separately
-      }),
-      Image.extend({
-        addAttributes() {
-          return {
-            ...this.parent?.(),
-            width: {
-              default: null,
-              renderHTML: attributes => {
-                if (!attributes.width) {
-                  return {};
-                }
-                return {
-                  width: attributes.width,
-                };
-              },
-              parseHTML: element => {
-                return element.getAttribute('width');
-              },
-            },
-            height: {
-              default: null,
-              renderHTML: attributes => {
-                if (!attributes.height) {
-                  return {};
-                }
-                return {
-                  height: attributes.height,
-                };
-              },
-              parseHTML: element => {
-                return element.getAttribute('height');
-              },
-            },
-            style: {
-              default: null,
-              renderHTML: attributes => {
-                if (!attributes.width && !attributes.height) {
-                  return {};
-                }
-                return {
-                  style: `max-width: 100%; width: ${attributes.width || 'auto'}; height: ${attributes.height || 'auto'};`,
-                };
-              },
-            },
-          };
-        },
-      }).configure({
-        inline: false,
-        allowBase64: true,
-        resize: {
-          enabled: true,
-          directions: ['top', 'bottom', 'left', 'right'],
-          minWidth: 50,
-          minHeight: 50,
-          alwaysPreserveAspectRatio: true,
+        underline: false,
+        paragraph: {
+          HTMLAttributes: {
+            class: 'my-2',
+          },
         },
       }),
+      ResizableImage,
       Table.configure({
         resizable: true,
       }),
@@ -134,7 +329,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
       TableHeader,
       TableCell,
       TextAlign.configure({
-        types: ['heading', 'paragraph'],
+        types: ['heading', 'paragraph', 'image'],
       }),
       TextStyle,
       Color,
@@ -157,8 +352,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
     },
   });
 
-  // Update editor content when value prop changes (for editing existing products).
-  // Skip syncing when the change came from the editor (onUpdate) to avoid cursor jump.
+  // Update editor content when value prop changes
   useEffect(() => {
     if (!editor) return;
     if (skipNextSyncRef.current) {
@@ -168,23 +362,19 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
     if (value !== editor.getHTML()) {
       editor.commands.setContent(value || '', { emitUpdate: false });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [value, editor]);
 
   // Handle editor focus when dialog is open
   useEffect(() => {
     if (!editor) return;
-
-    if (showImageDialog) {
-      // Blur the editor when dialog opens to prevent focus issues
+    if (showImageDialog || showLinkDialog) {
       editor.commands.blur();
-      // Remove focus from the editor element to prevent accessibility warnings
       const editorElement = editor.view.dom;
       if (editorElement && document.activeElement === editorElement) {
         (editorElement as HTMLElement).blur();
       }
     }
-  }, [showImageDialog, editor]);
+  }, [showImageDialog, showLinkDialog, editor]);
 
   if (!editor) {
     return null;
@@ -232,6 +422,26 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
     if (imageUrl.trim()) {
       insertImage(imageUrl.trim());
     }
+  };
+
+  const addLink = () => {
+    const { from, to } = editor.state.selection;
+    const selectedText = editor.state.doc.textBetween(from, to);
+    setLinkText(selectedText);
+    setLinkUrl('');
+    setShowLinkDialog(true);
+  };
+
+  const insertLink = () => {
+    if (!linkUrl.trim()) return;
+    editor
+      .chain()
+      .focus()
+      .insertContent(`<a href="${linkUrl}" target="_blank" rel="noopener noreferrer">${linkText || linkUrl}</a>`)
+      .run();
+    setShowLinkDialog(false);
+    setLinkUrl('');
+    setLinkText('');
   };
 
   const addTable = () => {
@@ -441,6 +651,15 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
           type="button"
           variant="ghost"
           size="sm"
+          onClick={addLink}
+          title="Insert Link"
+        >
+          <LinkIcon className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
           onClick={addTable}
           title="Insert Table"
         >
@@ -488,8 +707,8 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
       {/* Editor Content */}
       <div 
         className="bg-white"
-        style={showImageDialog ? { pointerEvents: 'none', opacity: 0.6 } : {}}
-        tabIndex={showImageDialog ? -1 : undefined}
+        style={showImageDialog || showLinkDialog ? { pointerEvents: 'none', opacity: 0.6 } : {}}
+        tabIndex={showImageDialog || showLinkDialog ? -1 : undefined}
       >
         <EditorContent editor={editor} />
       </div>
@@ -506,7 +725,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
           <DialogHeader>
             <DialogTitle>Insert Image</DialogTitle>
             <DialogDescription>
-              Upload an image file or enter an image URL
+              Upload an image file or enter an image URL. You can resize images after inserting by hovering over them.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -568,6 +787,61 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
                 disabled={!imageUrl.trim() || uploading}
               >
                 Insert Image
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Link Dialog */}
+      <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Insert Link</DialogTitle>
+            <DialogDescription>
+              Add a link to your content
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Link URL</Label>
+              <Input
+                type="url"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="https://example.com"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    insertLink();
+                  }
+                }}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Link Text (optional)</Label>
+              <Input
+                type="text"
+                value={linkText}
+                onChange={(e) => setLinkText(e.target.value)}
+                placeholder="Click here"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowLinkDialog(false);
+                  setLinkUrl('');
+                  setLinkText('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={insertLink}
+                disabled={!linkUrl.trim()}
+              >
+                Insert Link
               </Button>
             </div>
           </div>
