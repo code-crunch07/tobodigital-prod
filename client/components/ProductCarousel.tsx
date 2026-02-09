@@ -88,8 +88,8 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    const cardWidth = 280; // Approximate card width
-    const gap = 24;
+    const gap = 16;
+    const cardWidth = container.querySelector('.flex-shrink-0')?.getBoundingClientRect().width ?? 200;
     const scrollAmount = cardWidth + gap;
 
     if (direction === 'left') {
@@ -175,7 +175,7 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
         <div className="relative">
           <div 
             ref={scrollContainerRef}
-            className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+            className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {products.map((product) => {
@@ -199,7 +199,7 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
               const buttonClass = 'bg-[rgb(17,24,39)] hover:bg-[rgb(15,23,42)]';
 
               return (
-                <div key={product._id} className="flex-shrink-0 w-[220px] md:w-[240px] group">
+                <div key={product._id} className="flex-shrink-0 w-[calc(50%-6px)] min-w-[calc(50%-6px)] sm:min-w-0 sm:w-[200px] md:w-[240px] group">
                   <div className="group relative bg-white border border-gray-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md h-full flex flex-col">
                     <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
                       <Link href={getProductUrl(product)} className="block w-full h-full">
