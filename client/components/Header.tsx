@@ -213,15 +213,27 @@ export default function Header() {
     >
       <div className="w-full min-w-0 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 min-w-0 gap-2">
-          {/* Logo - reduced size */}
-          <Link href="/" className="flex items-center space-x-2 group flex-shrink-0">
+          {/* Logo - high quality rendering */}
+          <Link 
+            href="/" 
+            className="flex items-center space-x-2 group flex-shrink-0"
+            onClick={(e) => {
+              // If already on home page, force full reload to refresh content
+              if (pathname === '/') {
+                e.preventDefault();
+                window.location.href = '/';
+              }
+            }}
+          >
             <Image
               src={siteLogo}
               alt="Tobo Digital"
-              width={100}
-              height={40}
+              width={300}
+              height={120}
               className="object-contain h-7 w-auto sm:h-8"
               priority
+              quality={100}
+              style={{ imageRendering: 'auto' }}
             />
           </Link>
 
