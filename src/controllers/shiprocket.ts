@@ -20,12 +20,16 @@ async function getAuthToken(): Promise<string> {
   }
 
   try {
-    const response = await axios.post(`${SHIPROCKET_BASE_URL}/auth/login`, {
+    const response = await axios.post<{ token?: string }>(`${SHIPROCKET_BASE_URL}/auth/login`, {
       email,
       password,
     });
 
-    authToken = response.data.token;
+    const token = response.data.token;
+    if (typeof token !== 'string') {
+      throw new Error('Invalid token from Shiprocket');
+    }
+    authToken = token;
     // Set token expiry to 24 hours from now (adjust based on actual token expiry)
     tokenExpiry = Date.now() + 24 * 60 * 60 * 1000;
 
@@ -37,7 +41,7 @@ async function getAuthToken(): Promise<string> {
 }
 
 // Check pincode serviceability
-export const checkPincode = async (req: Request, res: Response) => {
+export const checkPincode = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { pickup_pincode, delivery_pincode, weight } = req.body;
 
@@ -145,7 +149,7 @@ export const checkPincode = async (req: Request, res: Response) => {
 };
 
 // Calculate shipping rate
-export const calculateShipping = async (req: Request, res: Response) => {
+export const calculateShipping = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { pickup_pincode, delivery_pincode, weight, cod_amount } = req.body;
 
