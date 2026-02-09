@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   Truck, 
   Headphones, 
@@ -253,7 +254,13 @@ export default function Footer() {
             <div>
               <h3 className="font-bold text-lg mb-4 text-gray-900">Shipping Partner:</h3>
               <div className="bg-white px-6 py-3 rounded-lg inline-block">
-                <span className="text-gray-900 font-bold text-lg">Shipprocket</span>
+                <Image
+                  src="/shiprocket-logo.svg"
+                  alt="Shiprocket"
+                  width={210}
+                  height={44}
+                  className="h-8 w-auto"
+                />
               </div>
             </div>
           </div>
