@@ -145,65 +145,63 @@ export function ProductDetailView(props: ProductDetailViewProps) {
           <span className="truncate max-w-[200px]">{product.itemName}</span>
         </nav>
 
-        {/* Layout: left column at least 856px so main image (420px+) and zoom (420px) fit; right = product info */}
-        <div className="grid lg:grid-cols-[minmax(856px,1.4fr)_1fr] gap-4 sm:gap-6 lg:gap-10 bg-white p-3 sm:p-6 lg:p-8 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] mb-6 min-w-0">
-          <div className="min-w-0">
+        {/* Layout: left = full-width main image + thumbnails; right = product info. Zoom panel overlaps right on hover. */}
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-10 bg-white p-3 sm:p-6 lg:p-8 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] mb-6 min-w-0 relative">
+          <div className="min-w-0 relative">
             <div className="flex flex-col gap-3">
-            {/* Amazon-style: main image (left) at least as large as zoom panel; zoom panel (right) fixed. */}
-            <div className="flex flex-row gap-4 items-start flex-nowrap">
-              {/* Main image - at least 420px so it's as big as zoom panel, fills remaining column width */}
-              <div className="relative flex-1 min-w-[420px]">
-                <div
-                  ref={setImageRef}
-                  className="aspect-square w-full rounded-lg overflow-hidden relative cursor-zoom-in flex items-center justify-center bg-gray-50 border border-gray-100"
-                  onMouseMove={handleMouseMove}
-                  onMouseEnter={handleMouseEnter}
-                  onMouseLeave={handleMouseLeave}
-                  onClick={handleImageClick}
-                >
-                  <img
-                    src={selectedImage || product.mainImage}
-                    alt={product.itemName}
-                    className="w-full h-full object-cover relative z-0"
-                    draggable={false}
-                  />
-                  {showZoom && (
-                    <div
-                      className="absolute pointer-events-none border-2 border-blue-400 bg-blue-200/20 shadow-sm z-10"
-                      style={{
-                        width: LENS_SIZE,
-                        height: LENS_SIZE,
-                        left: zoomPosition.px,
-                        top: zoomPosition.py,
-                        transform: 'translate(-50%, -50%)',
-                      }}
-                    />
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={handleImageClick}
-                  className="absolute top-3 right-3 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-600 hover:text-[#ff6b35] transition-colors"
-                  aria-label="Full screen"
-                >
-                  <ZoomIn className="h-5 w-5" />
-                </button>
-              </div>
-              {/* Zoom panel - always on the right on lg; visible on hover, updates with mouse */}
+            {/* Main image - full width of left column */}
+            <div className="relative w-full">
               <div
-                className={`hidden lg:flex flex-shrink-0 w-[420px] h-[420px] ml-2 transition-opacity duration-150 ${showZoom ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                aria-hidden={!showZoom}
+                ref={setImageRef}
+                className="aspect-square w-full rounded-lg overflow-hidden relative cursor-zoom-in flex items-center justify-center bg-gray-50 border border-gray-100"
+                onMouseMove={handleMouseMove}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                onClick={handleImageClick}
               >
-                <div
-                  className="w-full h-full border border-gray-200 rounded-lg overflow-hidden bg-gray-100 shadow-md"
-                  style={{
-                    backgroundImage: `url(${selectedImage || product.mainImage})`,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundSize: `${(ZOOM_PANEL_SIZE / LENS_SIZE) * 100}%`,
-                    backgroundPosition: `${zoomPosition.percentX}% ${zoomPosition.percentY}%`,
-                  }}
+                <img
+                  src={selectedImage || product.mainImage}
+                  alt={product.itemName}
+                  className="w-full h-full object-cover relative z-0"
+                  draggable={false}
                 />
+                {showZoom && (
+                  <div
+                    className="absolute pointer-events-none border-2 border-blue-400 bg-blue-200/20 shadow-sm z-10"
+                    style={{
+                      width: LENS_SIZE,
+                      height: LENS_SIZE,
+                      left: zoomPosition.px,
+                      top: zoomPosition.py,
+                      transform: 'translate(-50%, -50%)',
+                    }}
+                  />
+                )}
               </div>
+              <button
+                type="button"
+                onClick={handleImageClick}
+                className="absolute top-3 right-3 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-600 hover:text-[#ff6b35] transition-colors"
+                aria-label="Full screen"
+              >
+                <ZoomIn className="h-5 w-5" />
+              </button>
+            </div>
+            {/* Zoom panel - appears on hover, positioned to the right and overlapping product info */}
+            <div
+              className={`hidden lg:block absolute left-full top-0 ml-4 z-30 w-[420px] h-[420px] transition-opacity duration-150 pointer-events-none ${showZoom ? 'opacity-100' : 'opacity-0'}`}
+              style={{ minWidth: ZOOM_PANEL_SIZE }}
+              aria-hidden={!showZoom}
+            >
+              <div
+                className="w-full h-full border border-gray-200 rounded-lg overflow-hidden bg-white shadow-xl"
+                style={{
+                  backgroundImage: `url(${selectedImage || product.mainImage})`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundSize: `${(ZOOM_PANEL_SIZE / LENS_SIZE) * 100}%`,
+                  backgroundPosition: `${zoomPosition.percentX}% ${zoomPosition.percentY}%`,
+                }}
+              />
             </div>
             {images.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-1 -mx-1">
