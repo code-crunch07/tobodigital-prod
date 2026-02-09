@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { parseProductSlugId, getProductUrl } from '@/lib/product-url';
 import { ShoppingCart, Heart, Check, X, ZoomIn, ZoomOut, ChevronLeft, ChevronRight, MapPin, Zap, Package, Info, Truck, Shield, FileText, Ruler, Weight, Globe, Battery, Box, Star, Home, Eye, Layers, RefreshCw, Tag, ExternalLink } from 'lucide-react';
 import { getProductById, getProducts } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
@@ -24,7 +25,9 @@ const ZOOM_PANEL_SIZE = 800;
 
 export default function ProductDetailPage() {
   const params = useParams();
-  const productId = params.id as string;
+  const router = useRouter();
+  const rawParam = (params.id as string) || '';
+  const productId = parseProductSlugId(rawParam);
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const [product, setProduct] = useState<Product | null>(null);
@@ -71,6 +74,16 @@ export default function ProductDetailPage() {
       };
     }
   }, [product?.itemName]);
+
+  // Update URL bar to show product name (slug-id) when user landed on id-only URL
+  useEffect(() => {
+    if (!product || typeof window === 'undefined') return;
+    const prettyPath = getProductUrl(product);
+    const currentPath = window.location.pathname;
+    if (currentPath !== prettyPath && rawParam === product._id) {
+      router.replace(prettyPath, { scroll: false });
+    }
+  }, [product, rawParam, router]);
 
   const loadProduct = async () => {
     try {
@@ -124,7 +137,7 @@ export default function ProductDetailPage() {
     const url =
       typeof window !== 'undefined'
         ? window.location.href
-        : `${fallbackUrl}/product/${product._id}`;
+        : `${fallbackUrl}${getProductUrl(product)}`;
 
     const title = product.itemName;
     const text = `Check out this product on Tobo Digital: ${product.itemName}`;
@@ -262,7 +275,7 @@ export default function ProductDetailPage() {
     return (
       <div className="group relative bg-white border border-gray-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md h-full flex flex-col">
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
-          <Link href={`/product/${product._id}`} className="block w-full h-full">
+          <Link href={getProductUrl(product)} className="block w-full h-full">
             {product.mainImage ? (
               <>
                 <img
@@ -312,13 +325,13 @@ export default function ProductDetailPage() {
             <button type="button" className="w-9 h-9 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-gray-700 hover:text-[#ff006e] transition-colors" title="Compare" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
               <Layers className="h-4 w-4" />
             </button>
-            <Link href={`/product/${product._id}`} className="w-9 h-9 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-gray-700 hover:text-[#ff006e] transition-colors" title="Quick View" onClick={(e) => e.stopPropagation()}>
+            <Link href={getProductUrl(product)} className="w-9 h-9 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-gray-700 hover:text-[#ff006e] transition-colors" title="Quick View" onClick={(e) => e.stopPropagation()}>
               <Eye className="h-4 w-4" />
             </Link>
           </div>
         </div>
         <div className="px-5 pb-14 pt-4 flex-1 flex flex-col min-h-0 transition-transform duration-300 group-hover:-translate-y-3">
-          <Link href={`/product/${product._id}`}>
+          <Link href={getProductUrl(product)}>
             <h3 className="product-title leading-snug line-clamp-2 min-h-[20px] hover:text-[#ff006e] transition-colors">{product.itemName}</h3>
           </Link>
           <div className="mt-3 flex items-center gap-2">

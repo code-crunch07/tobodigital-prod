@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Home, Lock, CreditCard, MapPin, User, Phone, Mail, LogIn } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import LoginSignupDialog from '@/components/LoginSignupDialog';
+import { getProductUrl } from '@/lib/product-url';
 
 declare global {
   interface Window {
@@ -742,7 +743,7 @@ export default function CheckoutPage() {
                 {cartItems.map((item) => (
                   <div key={item._id} className="flex gap-3 items-start">
                     <Link
-                      href={`/product/${item._id}`}
+                      href={getProductUrl(item)}
                       className="flex-shrink-0 w-16 h-16 rounded overflow-hidden hover:opacity-90 transition-opacity block relative"
                     >
                       <img
@@ -758,7 +759,7 @@ export default function CheckoutPage() {
                     </Link>
                     <div className="flex-1 min-w-0">
                       <Link
-                        href={`/product/${item._id}`}
+                        href={getProductUrl(item)}
                         className="text-sm font-semibold text-gray-900 line-clamp-2 hover:text-[#ff6b35] transition-colors block"
                       >
                         {item.itemName}

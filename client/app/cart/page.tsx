@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Minus, Plus, Trash2, Gift, Truck, Home } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useRouter } from 'next/navigation';
+import { getProductUrl } from '@/lib/product-url';
 
 export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
@@ -107,7 +108,7 @@ export default function CartPage() {
                           <td className="px-6 py-6">
                             <div className="flex gap-4">
                               <Link
-                                href={`/product/${item._id}`}
+                                href={getProductUrl(item)}
                                 className="flex-shrink-0 w-24 h-24 rounded overflow-hidden hover:opacity-90 transition-opacity block"
                               >
                                 <img
@@ -118,7 +119,7 @@ export default function CartPage() {
                               </Link>
                               <div className="flex flex-col justify-center min-w-0">
                                 <Link
-                                  href={`/product/${item._id}`}
+                                  href={getProductUrl(item)}
                                   className="font-medium text-gray-900 mb-1 hover:text-[#ff6b35] transition-colors line-clamp-2"
                                 >
                                   {item.itemName}

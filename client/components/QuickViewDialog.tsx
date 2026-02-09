@@ -6,6 +6,7 @@ import { X, ShoppingCart, Star, Heart, Check, Tag } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import Link from 'next/link';
+import { getProductUrl } from '@/lib/product-url';
 
 interface QuickViewDialogProps {
   product: any;
@@ -192,7 +193,7 @@ export default function QuickViewDialog({
                   {isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}
                 </button>
                 <Link
-                  href={`/product/${product._id}`}
+                  href={getProductUrl(product)}
                   className="flex-1 py-2 px-4 rounded-lg border-2 border-gray-300 text-gray-700 font-medium hover:border-gray-400 transition-colors text-center"
                 >
                   View Details

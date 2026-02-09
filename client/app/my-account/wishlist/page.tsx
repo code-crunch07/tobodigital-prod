@@ -7,6 +7,7 @@ import { Heart, ShoppingCart, Eye, Trash2 } from 'lucide-react';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { getProducts } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
+import { getProductUrl } from '@/lib/product-url';
 
 interface Product {
   _id: string;
@@ -110,7 +111,7 @@ export default function WishlistPage() {
                 className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden group"
               >
                 {/* Product Image */}
-                <Link href={`/product/${product._id}`}>
+                <Link href={getProductUrl(product)}>
                   <div className="relative aspect-square bg-gray-100 overflow-hidden">
                     {product.images && product.images.length > 0 ? (
                       <Image
@@ -140,7 +141,7 @@ export default function WishlistPage() {
 
                 {/* Product Info */}
                 <div className="p-4">
-                  <Link href={`/product/${product._id}`}>
+                  <Link href={getProductUrl(product)}>
                     <h3 className="product-title mb-2 line-clamp-2 hover:text-[#ff006e] transition-colors">
                       {product.itemName}
                     </h3>
@@ -161,7 +162,7 @@ export default function WishlistPage() {
                   {/* Action Buttons */}
                   <div className="flex gap-2">
                     <Link
-                      href={`/product/${product._id}`}
+                      href={getProductUrl(product)}
                       className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
                     >
                       <Eye className="h-4 w-4" />

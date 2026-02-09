@@ -8,6 +8,7 @@ import { getProducts, getCategoryBySlug, getSubCategories, getCategories, getBan
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import QuickViewDialog from '@/components/QuickViewDialog';
+import { getProductUrl } from '@/lib/product-url';
 
 interface Product {
   _id: string;
@@ -147,7 +148,7 @@ const ProductCard = ({
   return (
     <div className="group relative bg-white border border-gray-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md h-full flex flex-col">
       <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
-        <Link href={`/product/${product._id}`} className="block w-full h-full">
+        <Link href={getProductUrl(product)} className="block w-full h-full">
           {product.mainImage ? (
             <>
               <img src={product.mainImage} alt={product.itemName} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110" />
@@ -195,7 +196,7 @@ const ProductCard = ({
         </div>
       </div>
       <div className="px-5 pb-14 pt-4 flex-1 flex flex-col min-h-0 transition-transform duration-300 group-hover:-translate-y-3">
-        <Link href={`/product/${product._id}`}>
+        <Link href={getProductUrl(product)}>
           <h3 className="product-title leading-snug line-clamp-2 min-h-[20px] hover:text-[#ff006e] transition-colors">{product.itemName}</h3>
         </Link>
         <div className="mt-3 flex items-center gap-2">
