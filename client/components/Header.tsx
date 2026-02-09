@@ -206,6 +206,7 @@ export default function Header() {
   };
 
   const cartItemCount = getCartItemCount();
+  const wishlistCount = wishlistItems.length;
 
   return (
     <header
