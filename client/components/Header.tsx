@@ -61,6 +61,7 @@ export default function Header() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [userData, setUserData] = useState<any>(null);
   const [headerVisible, setHeaderVisible] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const lastScrollY = useRef(0);
 
   // Smart sticky: hide header on scroll down, show on scroll up
@@ -206,7 +207,7 @@ export default function Header() {
   };
 
   const cartItemCount = getCartItemCount();
-  const wishlistCount = wishlistItems.length;
+  const wishlistCount = mounted ? wishlistItems.length : 0;
 
   return (
     <header
