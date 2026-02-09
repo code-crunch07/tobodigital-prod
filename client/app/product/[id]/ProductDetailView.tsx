@@ -402,9 +402,6 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 {(product as any).shortDescription}
               </p>
             )}
-            {plainDescription && (
-              <p className="text-[#4a5568] text-[1.05rem] leading-[1.7] line-clamp-4">{plainDescription}</p>
-            )}
 
             <div className="pb-4 border-b border-[#e2e8f0]">
               <form onSubmit={handlePincodeCheck} className="space-y-3">
