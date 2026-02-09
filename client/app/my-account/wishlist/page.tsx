@@ -14,7 +14,11 @@ interface Product {
   itemName: string;
   yourPrice: number;
   originalPrice?: number;
+  maximumRetailPrice?: number;
+  maxRetailPrice?: number;
+  mainImage?: string;
   images?: string[];
+  galleryImages?: string[];
   slug?: string;
 }
 
@@ -37,12 +41,12 @@ export default function WishlistPage() {
 
     try {
       setLoading(true);
-      // Load all products and filter by wishlist IDs
+      // Load all products and filter by wishlist IDs (API returns { data: { products: [...] } })
       const response = await getProducts({ limit: 1000 });
-      const allProducts = response.data || [];
-      // Filter products that are in wishlist
+      const allProducts = response?.data?.products ?? [];
+      const idList = wishlistItems.map((id) => String(id));
       const wishlistProducts = allProducts.filter((product: Product) =>
-        wishlistItems.includes(product._id)
+        product._id && idList.includes(String(product._id))
       );
       setProducts(wishlistProducts);
     } catch (error) {
@@ -62,7 +66,7 @@ export default function WishlistPage() {
       _id: product._id,
       itemName: product.itemName,
       yourPrice: product.yourPrice,
-      mainImage: product.images?.[0] ?? '',
+      mainImage: product.mainImage ?? product.images?.[0] ?? '',
     });
   };
 
@@ -113,9 +117,9 @@ export default function WishlistPage() {
                 {/* Product Image */}
                 <Link href={getProductUrl(product)}>
                   <div className="relative aspect-square bg-gray-100 overflow-hidden">
-                    {product.images && product.images.length > 0 ? (
+                    {(product.mainImage || (product.images && product.images.length > 0)) ? (
                       <Image
-                        src={product.images[0]}
+                        src={product.mainImage || product.images![0]}
                         alt={product.itemName}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
