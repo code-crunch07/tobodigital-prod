@@ -63,17 +63,84 @@ export default function ProductDetailPage() {
     }
   }, [productId]);
 
-  // Set page title to product name for browser tab and SEO
+  // Set page title and meta tags for SEO and social sharing
   useEffect(() => {
     if (product?.itemName) {
       const siteName = 'Tobo Digital';
       const title = `${product.itemName} | ${siteName}`;
       document.title = title;
+
+      // Get absolute image URL (product.mainImage should already be resolved by API, but ensure it's absolute)
+      const getAbsoluteImageUrl = (img: string | undefined): string => {
+        if (!img) return '';
+        if (img.startsWith('http://') || img.startsWith('https://')) return img;
+        const apiOrigin = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || 'http://localhost:5000';
+        return `${apiOrigin}${img.startsWith('/') ? '' : '/'}${img}`;
+      };
+      const imageUrl = getAbsoluteImageUrl(product.mainImage);
+
+      // Get absolute page URL
+      const pageUrl = typeof window !== 'undefined' 
+        ? window.location.href 
+        : `${process.env.NEXT_PUBLIC_STOREFRONT_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://tobodigital.com'}${getProductUrl(product)}`;
+
+      // Description from product description or short description
+      const description = product.productDescription 
+        ? product.productDescription.replace(/<[^>]*>/g, '').substring(0, 160)
+        : (product as any).shortDescription || `Check out ${product.itemName} on ${siteName}`;
+
+      // Set or update meta tags for Open Graph and Twitter
+      const setMetaTag = (property: string, content: string) => {
+        let element = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement;
+        if (!element) {
+          element = document.createElement('meta');
+          element.setAttribute('property', property);
+          document.head.appendChild(element);
+        }
+        element.setAttribute('content', content);
+      };
+
+      const setMetaName = (name: string, content: string) => {
+        let element = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement;
+        if (!element) {
+          element = document.createElement('meta');
+          element.setAttribute('name', name);
+          document.head.appendChild(element);
+        }
+        element.setAttribute('content', content);
+      };
+
+      // Open Graph tags
+      setMetaTag('og:title', title);
+      setMetaTag('og:description', description);
+      setMetaTag('og:type', 'product');
+      setMetaTag('og:url', pageUrl);
+      if (imageUrl) {
+        setMetaTag('og:image', imageUrl);
+        setMetaTag('og:image:width', '1200');
+        setMetaTag('og:image:height', '630');
+        setMetaTag('og:image:alt', product.itemName);
+      }
+
+      // Twitter Card tags
+      setMetaName('twitter:card', 'summary_large_image');
+      setMetaName('twitter:title', title);
+      setMetaName('twitter:description', description);
+      if (imageUrl) {
+        setMetaName('twitter:image', imageUrl);
+      }
+
       return () => {
         document.title = siteName;
+        // Clean up meta tags on unmount
+        document.querySelectorAll('meta[property^="og:"], meta[name^="twitter:"]').forEach(el => {
+          if (el.getAttribute('property')?.startsWith('og:') || el.getAttribute('name')?.startsWith('twitter:')) {
+            el.remove();
+          }
+        });
       };
     }
-  }, [product?.itemName]);
+  }, [product]);
 
   // Update URL bar to show product name (slug-id) when user landed on id-only URL
   useEffect(() => {
@@ -142,9 +209,33 @@ export default function ProductDetailPage() {
     const title = product.itemName;
     const text = `Check out this product on Tobo Digital: ${product.itemName}`;
 
+    // Get absolute image URL for sharing (product.mainImage should already be resolved)
+    const getAbsoluteImageUrl = (img: string | undefined): string => {
+      if (!img) return '';
+      if (img.startsWith('http://') || img.startsWith('https://')) return img;
+      const apiOrigin = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || 'http://localhost:5000';
+      return `${apiOrigin}${img.startsWith('/') ? '' : '/'}${img}`;
+    };
+    const imageUrl = getAbsoluteImageUrl(product.mainImage);
+
     try {
       if (typeof navigator !== 'undefined' && (navigator as any).share) {
-        await (navigator as any).share({ title, text, url });
+        const shareData: any = { title, text, url };
+        // Some platforms support files/images in Web Share API
+        if (imageUrl && (navigator as any).canShare) {
+          try {
+            // Try to fetch and share as file (limited browser support)
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const file = new File([blob], 'product-image.jpg', { type: blob.type });
+            if ((navigator as any).canShare({ files: [file] })) {
+              shareData.files = [file];
+            }
+          } catch (e) {
+            // Fallback to URL-only share
+          }
+        }
+        await (navigator as any).share(shareData);
       } else if (typeof navigator !== 'undefined' && navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(url);
         alert('Product link copied to clipboard');

@@ -136,38 +136,65 @@ export default function ProductForm({ product, categories, subCategories = [], o
         ? String(product.subCategory._id)
         : (product.subCategory ? String(product.subCategory) : '');
 
-      setFormData((prev) => ({
-        ...prev,
-        ...product,
+      // Extract MRP - check both field names
+      const mrp = product.maxRetailPrice ?? product.maximumRetailPrice ?? 0;
+
+      // Extract attributeValues - ensure it's an object
+      const attrs = product.attributeValues && typeof product.attributeValues === 'object' 
+        ? { ...product.attributeValues } 
+        : {};
+
+      setFormData({
+        mainImage: product.mainImage || '',
+        galleryImages: product.galleryImages || [],
+        videoLink: product.videoLink || '',
+        amazonLink: product.amazonLink || '',
+        productType: product.productType || '',
+        itemName: product.itemName || '',
+        brandName: product.brandName || '',
+        productId: product.productId || '',
         productCategory: productCategoryId,
         subCategory: subCategoryId,
-        galleryImages: product.galleryImages || [],
-        bulletPoints: product.bulletPoints || [],
-        genericKeyword: product.genericKeyword || [],
+        modelNo: product.modelNo || '',
+        manufacturerName: product.manufacturerName || '',
+        shortDescription: product.shortDescription || '',
+        productDescription: product.productDescription || '',
+        bulletPoints: Array.isArray(product.bulletPoints) ? product.bulletPoints : [],
+        genericKeyword: Array.isArray(product.genericKeyword) ? product.genericKeyword : [],
         specialFeatures: Array.isArray(product.specialFeatures) 
           ? product.specialFeatures 
           : (product.specialFeatures ? product.specialFeatures.split(',').map((f: string) => f.trim()).filter((f: string) => f) : []),
-        compatibleDevices: product.compatibleDevices || [],
-        includedComponents: product.includedComponents || [],
-        itemDimensions: product.itemDimensions || { length: 0, width: 0, height: 0, unit: 'cm' },
-        itemPackageDimensions: product.itemPackageDimensions || product.packageDimensions || { length: 0, width: 0, height: 0, unit: 'cm' },
+        itemTypeName: product.itemTypeName || '',
+        partNumber: product.partNumber || '',
+        color: product.color || '',
+        attributeValues: attrs,
+        yourPrice: product.yourPrice || 0,
+        maximumRetailPrice: mrp,
+        salePrice: product.salePrice || 0,
+        saleStartDate: product.saleStartDate || '',
+        saleEndDate: product.saleEndDate || '',
+        stockQuantity: product.stockQuantity || 0,
         itemCondition: product.itemCondition || 'New',
+        compatibleDevices: Array.isArray(product.compatibleDevices) ? product.compatibleDevices : [],
+        includedComponents: Array.isArray(product.includedComponents) ? product.includedComponents : [],
+        itemDimensions: product.itemDimensions || { length: 0, width: 0, height: 0, unit: 'cm' },
+        itemWeight: product.itemWeight || 0,
+        itemPackageDimensions: product.itemPackageDimensions || product.packageDimensions || { length: 0, width: 0, height: 0, unit: 'cm' },
+        packageWeight: product.packageWeight || 0,
+        hsnCode: product.hsnCode || '',
+        countryOfOrigin: product.countryOfOrigin || '',
+        warrantyDescription: product.warrantyDescription || '',
         areBatteriesRequired: product.areBatteriesRequired ?? product.batteriesRequired ?? false,
-        isActive: product.isActive !== undefined ? product.isActive : true,
-        // Map backend field names to form field names so inputs show correct values
-        maximumRetailPrice: product.maxRetailPrice ?? product.maximumRetailPrice ?? 0,
         importerContactInformation: product.importerContactInfo ?? product.importerContactInformation ?? '',
         packerContactInformation: product.packerContactInfo ?? product.packerContactInformation ?? '',
-        seoTitle: product.seoTitle ?? '',
-        seoDescription: product.seoDescription ?? '',
-        seoKeywords: product.seoKeywords ?? '',
-        slug: product.slug ?? '',
+        seoTitle: product.seoTitle || '',
+        seoDescription: product.seoDescription || '',
+        seoKeywords: product.seoKeywords || '',
+        slug: product.slug || '',
+        isActive: product.isActive !== undefined ? product.isActive : true,
         isFeatured: product.isFeatured ?? false,
         showOnHomepage: product.showOnHomepage ?? false,
-        videoLink: product.videoLink ?? '',
-        amazonLink: product.amazonLink ?? '',
-        attributeValues: product.attributeValues && typeof product.attributeValues === 'object' ? { ...product.attributeValues } : {},
-      }));
+      });
     }
   }, [product]);
 
@@ -392,12 +419,15 @@ export default function ProductForm({ product, categories, subCategories = [], o
           <div className="space-y-2">
                   <Label>Category *</Label>
             <Select
+              key={`category-${formData.productCategory}`}
               value={formData.productCategory || ''}
               onValueChange={(value) => setFormData({ ...formData, productCategory: value, subCategory: '' })}
               required
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select category" />
+                <SelectValue placeholder="Select category">
+                  {formData.productCategory && categories.find(c => String(c._id) === String(formData.productCategory))?.name}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {categories.map((cat) => (
@@ -460,12 +490,15 @@ export default function ProductForm({ product, categories, subCategories = [], o
           <div className="space-y-2">
             <Label>Sub Category</Label>
             <Select
+              key={`subcategory-${formData.subCategory}`}
               value={formData.subCategory || ''}
               onValueChange={(value) => setFormData({ ...formData, subCategory: value })}
               disabled={!formData.productCategory}
             >
               <SelectTrigger>
-                <SelectValue placeholder={formData.productCategory ? "Select subcategory" : "Select category first"} />
+                <SelectValue placeholder={formData.productCategory ? "Select subcategory" : "Select category first"}>
+                  {formData.subCategory && getSubCategoriesForCategory(formData.productCategory).find(s => String(s._id) === String(formData.subCategory))?.name}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {getSubCategoriesForCategory(formData.productCategory).length === 0 && formData.productCategory ? (
@@ -556,27 +589,33 @@ export default function ProductForm({ product, categories, subCategories = [], o
                     </div>
                   );
                 })()}
-                {productAttributes.filter((a) => a.name.toLowerCase() !== 'color').map((attr) => (
-                  <div key={attr.id} className="space-y-2">
-                    <Label>{attr.name}</Label>
-                    <Select
-                      value={formData.attributeValues[attr.name] || ''}
-                      onValueChange={(v) => setFormData({
-                        ...formData,
-                        attributeValues: { ...formData.attributeValues, [attr.name]: v },
-                      })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={`Select ${attr.name.toLowerCase()}`} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {attr.values.map((val) => (
-                          <SelectItem key={val} value={val}>{val}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                ))}
+                {productAttributes.filter((a) => a.name.toLowerCase() !== 'color').map((attr) => {
+                  const attrValue = formData.attributeValues[attr.name] || '';
+                  return (
+                    <div key={attr.id} className="space-y-2">
+                      <Label>{attr.name}</Label>
+                      <Select
+                        key={`attr-${attr.id}-${attrValue}`}
+                        value={attrValue}
+                        onValueChange={(v) => setFormData({
+                          ...formData,
+                          attributeValues: { ...formData.attributeValues, [attr.name]: v },
+                        })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={`Select ${attr.name.toLowerCase()}`}>
+                            {attrValue && attr.values.includes(attrValue) ? attrValue : ''}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {attr.values.map((val) => (
+                            <SelectItem key={val} value={val}>{val}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  );
+                })}
             </div>
               <div className="space-y-2">
                 <Label>Product Description *</Label>

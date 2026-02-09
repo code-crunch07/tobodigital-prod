@@ -370,6 +370,16 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                     )}
                   </>
                 )}
+                {(product as any).salePrice && (product as any).salePrice > 0 && (product as any).salePrice !== product.yourPrice && (
+                  <div className="mt-2 text-sm text-[#48bb78] font-semibold">
+                    Sale Price: {formatPrice((product as any).salePrice)}
+                  </div>
+                )}
+                {(product as any).saleStartDate && (product as any).saleEndDate && (
+                  <div className="mt-2 text-xs text-[#718096]">
+                    Sale Period: {new Date((product as any).saleStartDate).toLocaleDateString()} - {new Date((product as any).saleEndDate).toLocaleDateString()}
+                  </div>
+                )}
               </div>
               {product.stockQuantity !== undefined && (
                 <div
@@ -387,6 +397,11 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               )}
             </div>
 
+            {(product as any).shortDescription && (
+              <p className="text-[#4a5568] text-[1.05rem] leading-[1.7] font-medium">
+                {(product as any).shortDescription}
+              </p>
+            )}
             {plainDescription && (
               <p className="text-[#4a5568] text-[1.05rem] leading-[1.7] line-clamp-4">{plainDescription}</p>
             )}
@@ -690,6 +705,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               (() => {
                 const specRows: { label: string; value: string }[] = [];
                 if (product.productType) specRows.push({ label: 'Product Type', value: product.productType });
+                if ((product as any).itemTypeName) specRows.push({ label: 'Item Type', value: (product as any).itemTypeName });
                 if (product.modelNo) specRows.push({ label: 'Model Number', value: product.modelNo });
                 if (product.brandName) specRows.push({ label: 'Brand', value: product.brandName });
                 if (product.productId) specRows.push({ label: 'Product ID', value: product.productId });
@@ -710,11 +726,33 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 }
                 if (product.itemWeight != null)
                   specRows.push({ label: 'Weight', value: `${product.itemWeight} kg` });
+                const pd = product.itemPackageDimensions || product.packageDimensions;
+                const hasPackageDimensions = pd && (
+                  pd.length != null || pd.width != null || pd.height != null
+                );
+                if (hasPackageDimensions && pd) {
+                  specRows.push({
+                    label: 'Package Dimensions',
+                    value: `${pd.length ?? '-'} × ${pd.width ?? '-'} × ${pd.height ?? '-'} ${pd.unit || 'cm'}`,
+                  });
+                }
+                if (product.packageWeight != null)
+                  specRows.push({ label: 'Package Weight', value: `${product.packageWeight} kg` });
                 if (product.countryOfOrigin)
                   specRows.push({ label: 'Country of Origin', value: product.countryOfOrigin });
                 if (product.hsnCode) specRows.push({ label: 'HSN Code', value: product.hsnCode });
                 if (product.warrantyDescription)
                   specRows.push({ label: 'Warranty', value: product.warrantyDescription });
+                if (product.areBatteriesRequired || product.batteriesRequired)
+                  specRows.push({ label: 'Batteries Required', value: 'Yes' });
+                if (product.compatibleDevices && Array.isArray(product.compatibleDevices) && product.compatibleDevices.length > 0)
+                  specRows.push({ label: 'Compatible Devices', value: product.compatibleDevices.join(', ') });
+                if (product.includedComponents && Array.isArray(product.includedComponents) && product.includedComponents.length > 0)
+                  specRows.push({ label: 'Included Components', value: product.includedComponents.join(', ') });
+                if ((product as any).importerContactInformation || (product as any).importerContactInfo)
+                  specRows.push({ label: 'Importer Contact', value: (product as any).importerContactInformation || (product as any).importerContactInfo });
+                if ((product as any).packerContactInformation || (product as any).packerContactInfo)
+                  specRows.push({ label: 'Packer Contact', value: (product as any).packerContactInformation || (product as any).packerContactInfo });
                 if (product.attributeValues && typeof product.attributeValues === 'object') {
                   Object.entries(product.attributeValues).forEach(([name, value]) => {
                     if (value != null && String(value).trim()) specRows.push({ label: name, value: String(value).trim() });
