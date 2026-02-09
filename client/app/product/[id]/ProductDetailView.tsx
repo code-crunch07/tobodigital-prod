@@ -19,7 +19,7 @@ import {
 import type { Product } from './types';
 
 /** Amazon-style zoom: fixed lens size, zoom panel uses background-image (no img scale) */
-const LENS_SIZE = 120;
+const LENS_SIZE = 250;
 const ZOOM_PANEL_SIZE = 800;
 
 export interface ProductDetailViewProps {
