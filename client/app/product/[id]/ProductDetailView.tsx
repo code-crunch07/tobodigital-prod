@@ -769,9 +769,9 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   <div className="bg-white w-full overflow-hidden">
                     <dl className="divide-y divide-[#e0e0e0]">
                       {specRows.map((row, index) => (
-                        <div key={index} className="flex justify-between items-center py-4 px-4 sm:px-6 text-sm">
-                          <dt className="text-[#4a4a4a] font-semibold pr-4">{row.label}</dt>
-                          <dd className="text-[#333] font-normal text-left flex-1">{row.value}</dd>
+                        <div key={index} className="flex items-center py-4 px-4 sm:px-6 text-sm">
+                          <dt className="text-[#4a4a4a] font-semibold pr-4 flex-shrink-0">{row.label}</dt>
+                          <dd className="text-[#333] font-normal text-right flex-1 ml-auto">{row.value}</dd>
                         </div>
                       ))}
                     </dl>
