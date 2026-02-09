@@ -20,7 +20,7 @@ import type { Product } from './types';
 
 /** Amazon-style zoom: fixed lens size, zoom panel uses background-image (no img scale) */
 const LENS_SIZE = 120;
-const ZOOM_PANEL_SIZE = 420;
+const ZOOM_PANEL_SIZE = 800;
 
 export interface ProductDetailViewProps {
   product: Product;
@@ -189,7 +189,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </div>
             {/* Zoom panel - appears on hover, positioned to the right and overlapping product info */}
             <div
-              className={`hidden lg:block absolute left-full top-0 ml-4 z-30 w-[420px] h-[420px] transition-opacity duration-150 pointer-events-none ${showZoom ? 'opacity-100' : 'opacity-0'}`}
+              className={`hidden lg:block absolute left-full top-0 ml-4 z-30 w-[800px] h-[800px] transition-opacity duration-150 pointer-events-none ${showZoom ? 'opacity-100' : 'opacity-0'}`}
               style={{ minWidth: ZOOM_PANEL_SIZE }}
               aria-hidden={!showZoom}
             >

@@ -20,7 +20,7 @@ function toPlainText(html: string): string {
 
 /** Amazon-style zoom: lens size and zoom panel size (no img scaling, background-image zoom) */
 const LENS_SIZE = 120;
-const ZOOM_PANEL_SIZE = 420;
+const ZOOM_PANEL_SIZE = 800;
 
 export default function ProductDetailPage() {
   const params = useParams();
