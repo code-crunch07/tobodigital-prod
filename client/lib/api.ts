@@ -237,4 +237,34 @@ export const getNotifications = async (params?: { limit?: number; unreadOnly?: b
   }
 };
 
+// Shiprocket API functions
+export const checkPincodeServiceability = async (data: {
+  pickup_pincode: string;
+  delivery_pincode: string;
+  weight?: number;
+}) => {
+  try {
+    const response = await api.post('/shiprocket/check-pincode', data);
+    return response.data;
+  } catch (error: any) {
+    console.error('Pincode check error:', error?.response?.data || error?.message);
+    throw error;
+  }
+};
+
+export const calculateShippingRate = async (data: {
+  pickup_pincode: string;
+  delivery_pincode: string;
+  weight: number;
+  cod_amount?: number;
+}) => {
+  try {
+    const response = await api.post('/shiprocket/calculate-shipping', data);
+    return response.data;
+  } catch (error: any) {
+    console.error('Shipping rate calculation error:', error?.response?.data || error?.message);
+    throw error;
+  }
+};
+
 export default api;

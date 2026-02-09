@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { parseProductSlugId, getProductUrl } from '@/lib/product-url';
 import { ShoppingCart, Heart, Check, X, ZoomIn, ZoomOut, ChevronLeft, ChevronRight, MapPin, Zap, Package, Info, Truck, Shield, FileText, Ruler, Weight, Globe, Battery, Box, Star, Home, Eye, Layers, RefreshCw, Tag, ExternalLink } from 'lucide-react';
-import { getProductById, getProducts } from '@/lib/api';
+import { getProductById, getProducts, checkPincodeServiceability } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import type { Product } from './types';
@@ -491,26 +491,51 @@ export default function ProductDetailPage() {
     }
   };
 
-  const handlePincodeCheck = (e: React.FormEvent) => {
+  const handlePincodeCheck = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (pincode.trim().length === 6) {
-      // Mock pincode check - replace with actual API call
-      const isValidPincode = /^\d{6}$/.test(pincode);
-      if (isValidPincode) {
+    
+    if (pincode.trim().length !== 6 || !/^\d{6}$/.test(pincode)) {
+      setPincodeCheckResult({
+        available: false,
+        message: 'Please enter a valid 6-digit pincode.'
+      });
+      return;
+    }
+
+    // Show loading state
+    setPincodeCheckResult({
+      available: false,
+      message: 'Checking serviceability...'
+    });
+
+    try {
+      // Get warehouse pincode from environment or use default
+      const warehousePincode = process.env.NEXT_PUBLIC_WAREHOUSE_PINCODE || '110001';
+      const productWeight = product?.itemWeight || product?.packageWeight || 0.5;
+
+      const response = await checkPincodeServiceability({
+        pickup_pincode: warehousePincode,
+        delivery_pincode: pincode,
+        weight: productWeight,
+      });
+
+      if (response.success && response.serviceable) {
+        const estimatedDays = response.data?.estimated_days || '3-5';
         setPincodeCheckResult({
           available: true,
-          message: `Delivery available to ${pincode}. Estimated delivery: 3-5 business days.`
+          message: `✓ Delivery available to ${pincode}. Estimated delivery: ${estimatedDays} business days.`
         });
       } else {
         setPincodeCheckResult({
           available: false,
-          message: 'Please enter a valid 6-digit pincode.'
+          message: `✗ Delivery not available to pincode ${pincode}. ${response.message || 'Please try another pincode.'}`
         });
       }
-    } else {
+    } catch (error: any) {
+      console.error('Pincode check error:', error);
       setPincodeCheckResult({
         available: false,
-        message: 'Please enter a 6-digit pincode.'
+        message: error.response?.data?.message || 'Unable to check serviceability. Please try again later.'
       });
     }
   };

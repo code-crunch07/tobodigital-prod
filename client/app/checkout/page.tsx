@@ -238,10 +238,17 @@ export default function CheckoutPage() {
       // Create Razorpay order
       const razorpayOrder = await createRazorpayOrder();
 
+      const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+      if (!razorpayKeyId) {
+        alert('Payment gateway not configured. Please contact support.');
+        setLoading(false);
+        return;
+      }
+
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_1DP5mmOlF5G5ag', // Replace with your Razorpay key
+        key: razorpayKeyId,
         amount: razorpayOrder.amount,
-        currency: razorpayOrder.currency,
+        currency: razorpayOrder.currency || 'INR',
         name: 'Tobo Digital',
         description: `Order for ${cartItems.length} item(s)`,
         order_id: razorpayOrder.id,
@@ -262,15 +269,18 @@ export default function CheckoutPage() {
               }),
             });
 
-            if (verifyResponse.ok) {
+            const verifyData = await verifyResponse.json();
+
+            if (verifyResponse.ok && verifyData.success) {
               // Create order in database
               await createOrder(response.razorpay_payment_id);
             } else {
-              throw new Error('Payment verification failed');
+              throw new Error(verifyData.message || 'Payment verification failed');
             }
-          } catch (error) {
+          } catch (error: any) {
             console.error('Payment verification error:', error);
-            alert('Payment verification failed. Please contact support.');
+            alert(`Payment verification failed: ${error.message || 'Please contact support with payment ID: ' + response.razorpay_payment_id}`);
+            setLoading(false);
           }
         },
         prefill: {
@@ -289,13 +299,23 @@ export default function CheckoutPage() {
             setLoading(false);
           },
         },
+        onClose: function () {
+          setLoading(false);
+        },
       };
 
       const razorpay = new window.Razorpay(options);
+      
+      razorpay.on('payment.failed', function (response: any) {
+        console.error('Payment failed:', response.error);
+        alert(`Payment failed: ${response.error.description || response.error.reason || 'Please try again'}`);
+        setLoading(false);
+      });
+
       razorpay.open();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Payment error:', error);
-      alert('Failed to initiate payment. Please try again.');
+      alert(`Failed to initiate payment: ${error.message || 'Please try again'}`);
       setLoading(false);
     }
   };

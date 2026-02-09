@@ -309,17 +309,32 @@ export const verifyPayment = async (req: Request, res: Response) => {
         message: 'Missing payment verification fields',
       });
     }
+    
+    // Verify signature
     const body = razorpay_order_id + '|' + razorpay_payment_id;
     const expected = crypto
       .createHmac('sha256', RAZORPAY_KEY_SECRET)
       .update(body)
       .digest('hex');
     const verified = expected === razorpay_signature;
+    
+    if (!verified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid payment signature',
+      });
+    }
+
     res.json({
-      success: verified,
-      message: verified ? 'Payment verified' : 'Invalid signature',
+      success: true,
+      message: 'Payment verified successfully',
+      data: {
+        order_id: razorpay_order_id,
+        payment_id: razorpay_payment_id,
+      },
     });
   } catch (error: any) {
+    console.error('Payment verification error:', error);
     res.status(500).json({
       success: false,
       message: error?.message || 'Verification failed',

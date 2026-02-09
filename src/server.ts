@@ -20,6 +20,7 @@ import uploadRoutes from './routes/upload';
 import couponRoutes from './routes/coupons';
 import settingsRoutes from './routes/settings';
 import reportsRoutes from './routes/reports';
+import shiprocketRoutes from './routes/shiprocket';
 
 // Load environment variables
 dotenv.config();
@@ -55,6 +56,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/reports', reportsRoutes);
+app.use('/api/shiprocket', shiprocketRoutes);
 
 // Public routes (for client frontend)
 app.use('/api/public', publicRoutes);

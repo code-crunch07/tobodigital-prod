@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import Link from 'next/link';
 import {
   ShoppingCart,
@@ -119,6 +119,27 @@ export function ProductDetailView(props: ProductDetailViewProps) {
     renderProductCard,
   } = props;
 
+  const touchStartX = useRef(0);
+
+  const currentImageIndex = selectedImage
+    ? Math.max(0, images.findIndex((img) => img === selectedImage))
+    : 0;
+  const setImageByIndex = (index: number) => {
+    const i = Math.max(0, Math.min(index, images.length - 1));
+    setSelectedImage(images[i] || product.mainImage);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const endX = e.changedTouches[0].clientX;
+    const delta = touchStartX.current - endX;
+    if (images.length <= 1) return;
+    if (delta > 50) setImageByIndex(currentImageIndex + 1);
+    else if (delta < -50) setImageByIndex(currentImageIndex - 1);
+  };
+
   return (
     <>
     <div
@@ -148,7 +169,84 @@ export function ProductDetailView(props: ProductDetailViewProps) {
         {/* Layout: left = full-width main image + thumbnails; right = product info. Zoom panel overlaps right on hover. */}
         <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-10 bg-white p-3 sm:p-6 lg:p-8 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] mb-6 min-w-0 relative">
           <div className="min-w-0 relative">
-            <div className="flex flex-col gap-3">
+            {/* Mobile: image carousel with dots + wishlist/share below image */}
+            <div className="lg:hidden flex flex-col gap-3">
+              <div
+                className="relative aspect-square w-full rounded-lg overflow-hidden bg-gray-50 border border-gray-100 touch-pan-y"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                onClick={handleImageClick}
+              >
+                <img
+                  src={images[currentImageIndex] || product.mainImage}
+                  alt={`${product.itemName} ${currentImageIndex + 1}`}
+                  className="w-full h-full object-cover select-none"
+                  draggable={false}
+                />
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleImageClick();
+                  }}
+                  className="absolute top-3 right-3 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-600 hover:text-[#ff6b35] transition-colors"
+                  aria-label="Full screen"
+                >
+                  <ZoomIn className="h-5 w-5" />
+                </button>
+              </div>
+              {images.length > 1 && (
+                <div className="flex justify-center items-center gap-2 py-1">
+                  {images.map((_, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setImageByIndex(index)}
+                      className={`rounded-full transition-all ${
+                        index === currentImageIndex
+                          ? 'w-2.5 h-2.5 bg-gray-900'
+                          : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
+                      }`}
+                      aria-label={`Image ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+              <div className="flex justify-end items-center gap-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleWishlist(String(product._id));
+                  }}
+                  className="p-3 rounded-full border border-gray-200 bg-white shadow-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                  aria-label={isInWishlist(String(product._id)) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                >
+                  <Heart
+                    className={`h-5 w-5 ${isInWishlist(String(product._id)) ? 'fill-red-500 text-red-500' : ''}`}
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="p-3 rounded-full border border-gray-200 bg-white shadow-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                  aria-label="Share"
+                >
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Desktop: main image + zoom + thumbnails */}
+            <div className="hidden lg:flex flex-col gap-3">
             {/* Main image - full width of left column */}
             <div className="relative w-full">
               <div
