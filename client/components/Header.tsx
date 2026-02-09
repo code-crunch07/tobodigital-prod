@@ -81,6 +81,11 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Client-only mount so wishlist count doesn't hydrate mismatch (localStorage)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
