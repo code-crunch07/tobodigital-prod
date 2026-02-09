@@ -56,8 +56,8 @@ export default function Favicon() {
     };
 
     // Delay favicon update significantly to ensure navigation completes first
-    const timeoutId = setTimeout(setFavicon, 300);
-    return () => clearTimeout(timeoutId);
+    //const timeoutId = setTimeout(setFavicon, 300);
+    //return () => clearTimeout(timeoutId);
   }, []);
 
   return null;
