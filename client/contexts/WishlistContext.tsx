@@ -30,6 +30,8 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   // Save wishlist to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('wishlist', JSON.stringify(wishlistItems));
+    // Dispatch custom event to notify Header component
+    window.dispatchEvent(new CustomEvent('wishlistUpdated'));
   }, [wishlistItems]);
 
   const addToWishlist = (productId: string) => {

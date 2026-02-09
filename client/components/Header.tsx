@@ -10,6 +10,7 @@ import { getCategories, getNavigations, getPublicSiteSettings } from '@/lib/api'
 import LoginSignupDialog from './LoginSignupDialog';
 import CartPanel from './CartPanel';
 import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 
 interface Category {
   _id: string;
@@ -45,6 +46,7 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const { cartItems, updateQuantity, removeFromCart, getCartItemCount } = useCart();
+  const { wishlistItems } = useWishlist();
   const [categories, setCategories] = useState<Category[]>([]);
   const [navigations, setNavigations] = useState<NavigationLink[]>([]);
   const [siteLogo, setSiteLogo] = useState<string>('/tobo-logo.png');
@@ -431,6 +433,11 @@ export default function Header() {
               aria-label="Wishlist"
             >
               <Heart className="h-5 w-5" />
+              {wishlistCount > 0 && (
+                <span className="absolute top-0 right-0 bg-[#ff006e] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                  {wishlistCount > 9 ? '9+' : wishlistCount}
+                </span>
+              )}
             </Link>
 
             {/* User Icon - Opens Login/Signup or User Dropdown Menu */}
@@ -483,10 +490,17 @@ export default function Header() {
                         <Link
                           href="/my-account/wishlist"
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                         >
-                          <Heart className="h-4 w-4 mr-3 text-gray-500" />
-                          Wishlist
+                          <div className="flex items-center">
+                            <Heart className="h-4 w-4 mr-3 text-gray-500" />
+                            Wishlist
+                          </div>
+                          {wishlistCount > 0 && (
+                            <span className="bg-[#ff006e] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold ml-2">
+                              {wishlistCount > 9 ? '9+' : wishlistCount}
+                            </span>
+                          )}
                         </Link>
                         <div className="border-t border-gray-200 my-1"></div>
                         <button
