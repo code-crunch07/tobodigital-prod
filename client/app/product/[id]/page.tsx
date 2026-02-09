@@ -147,7 +147,10 @@ export default function ProductDetailPage() {
     if (!product || typeof window === 'undefined') return;
     const prettyPath = getProductUrl(product);
     const currentPath = window.location.pathname;
-    if (currentPath !== prettyPath && rawParam === product._id) {
+    // Only replace if we're on the old ID-only URL format (exactly matches /product/{id})
+    // Don't interfere with normal navigation
+    if (currentPath === `/product/${product._id}` && currentPath !== prettyPath) {
+      // Use replace with scroll: false to avoid navigation issues
       router.replace(prettyPath, { scroll: false });
     }
   }, [product, rawParam, router]);
