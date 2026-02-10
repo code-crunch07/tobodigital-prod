@@ -207,16 +207,14 @@ export default function CartPage() {
                       ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                       : 'text-white'
                   }`}
-                  style={!giftWrap ? { backgroundColor: 'rgb(22, 176, 238)' } : {}}
+                  style={giftWrap ? {} : { backgroundColor: 'rgb(22, 176, 238)' }}
                   onMouseEnter={(e) => {
-                    if (!giftWrap) {
-                      e.currentTarget.style.backgroundColor = 'rgb(18, 150, 200)';
-                    }
+                    if (giftWrap) return;
+                    e.currentTarget.style.backgroundColor = 'rgb(18, 150, 200)';
                   }}
                   onMouseLeave={(e) => {
-                    if (!giftWrap) {
-                      e.currentTarget.style.backgroundColor = 'rgb(22, 176, 238)';
-                    }
+                    if (giftWrap) return;
+                    e.currentTarget.style.backgroundColor = 'rgb(22, 176, 238)';
                   }}
                 >
                   {giftWrap ? 'REMOVE GIFT WRAP' : 'ADD A GIFT WRAP'}
