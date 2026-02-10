@@ -687,7 +687,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 <h2 className="text-lg sm:text-xl font-bold text-gray-900">Product Description</h2>
                 {product.productDescription && (
                   <div
-                    className="prose max-w-none prose-img:max-w-full prose-img:h-auto"
+                    className="product-description-content"
                     dangerouslySetInnerHTML={{ __html: product.productDescription }}
                   />
                 )}

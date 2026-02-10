@@ -68,3 +68,26 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;  /* Chrome, Safari and Opera */
 }
+
+/* Product description: spacing between paragraphs and images */
+.product-description-content {
+  max-width: 100%;
+  line-height: 1.6;
+}
+.product-description-content p {
+  margin-bottom: 1rem;
+}
+.product-description-content p:last-child {
+  margin-bottom: 0;
+}
+.product-description-content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.product-description-content p + img,
+.product-description-content img:first-child {
+  margin-top: 1rem;
+}
