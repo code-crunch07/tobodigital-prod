@@ -276,14 +276,52 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   />
                 )}
               </div>
-              <button
-                type="button"
-                onClick={handleImageClick}
-                className="absolute top-3 right-3 z-20 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-600 hover:text-[#ff6b35] transition-colors"
-                aria-label="Full screen"
-              >
-                <ZoomIn className="h-5 w-5" />
-              </button>
+              <div className="absolute top-3 right-3 z-20 flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={handleImageClick}
+                  className="w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-600 hover:text-[#ff6b35] transition-colors"
+                  aria-label="Full screen"
+                  title="Full screen"
+                >
+                  <ZoomIn className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleWishlist(String(product._id));
+                  }}
+                  className="w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-600 hover:text-[#ff006e] transition-colors"
+                  aria-label={isInWishlist(String(product._id)) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                  title={isInWishlist(String(product._id)) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                >
+                  <Heart
+                    className={`h-5 w-5 ${isInWishlist(String(product._id)) ? 'fill-red-500 text-red-500' : ''}`}
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleShare();
+                  }}
+                  className="w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-600 hover:text-[#ff6b35] transition-colors"
+                  aria-label="Share"
+                  title="Share"
+                >
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
             {/* Zoom panel - appears on hover, positioned to the right and overlapping product info */}
             <div
