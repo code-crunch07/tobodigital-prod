@@ -100,6 +100,32 @@ export default function CheckoutPage() {
     }
   }, [cartItems, router]);
 
+  // Detect already logged-in user and pre-fill from profile
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      setIsLoggedIn(true);
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      fetch(`${API_URL}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
+        .then((res) => res.ok ? res.json() : null)
+        .then((json) => {
+          if (!json?.data) return;
+          const u = json.data;
+          const nameParts = (u.name || '').trim().split(/\s+/);
+          const firstName = nameParts[0] || '';
+          const lastName = nameParts.slice(1).join(' ') || '';
+          setShippingAddress((prev) => ({
+            ...prev,
+            firstName: firstName || prev.firstName,
+            lastName: lastName || prev.lastName,
+            email: u.email || prev.email,
+          }));
+        })
+        .catch(() => {});
+    }
+  }, []);
+
   const handleInputChange = (field: string, value: string, isBilling = false) => {
     if (isBilling) {
       setBillingAddress((prev) => ({ ...prev, [field]: value }));

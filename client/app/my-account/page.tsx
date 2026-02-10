@@ -101,14 +101,16 @@ export default function MyAccountPage() {
         fetch(`${API_URL}/auth/me`, { headers: { Authorization: `Bearer ${token}` } }),
         fetch(`${API_URL}/orders`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
+      let userEmail: string | null = null;
       if (userRes.ok) {
         const userJson = await userRes.json();
         const u = userJson.data || userJson;
+        userEmail = u.email || null;
         setUserData({
           name: u.name || u.email || '',
           email: u.email || '',
           phone: u.phone || '',
-          joinDate: u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '',
+          joinDate: u.createdAt || '',
         });
         setProfileForm({
           name: u.name || '',
@@ -130,7 +132,23 @@ export default function MyAccountPage() {
         setOrders([]);
       }
 
-      setAddresses([]);
+      // Load saved addresses from localStorage (keyed by user email)
+      if (userEmail && typeof window !== 'undefined') {
+        try {
+          const saved = localStorage.getItem(`user_addresses_${userEmail}`);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            const list = Array.isArray(parsed) ? parsed : [];
+            setAddresses(list.map((a: any, i: number) => ({ ...a, id: a.id || `addr-${i}-${Date.now()}` })));
+          } else {
+            setAddresses([]);
+          }
+        } catch {
+          setAddresses([]);
+        }
+      } else {
+        setAddresses([]);
+      }
     } catch (error) {
       console.error('Error loading user data:', error);
     } finally {
@@ -186,31 +204,63 @@ export default function MyAccountPage() {
       alert('Passwords do not match!');
       return;
     }
+    if (passwordForm.newPassword.length < 6) {
+      alert('New password must be at least 6 characters');
+      return;
+    }
     try {
-      // TODO: API call to change password
-      alert('Password changed successfully!');
-      setPasswordForm({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      if (!token) {
+        alert('Please sign in again');
+        return;
+      }
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${API_URL}/auth/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+        }),
       });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        alert('Password changed successfully!');
+        setPasswordForm({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: '',
+        });
+      } else {
+        alert(data.message || 'Failed to change password');
+      }
     } catch (error) {
-      alert('Failed to change password');
+      alert('Failed to change password. Please try again.');
+    }
+  };
+
+  const persistAddresses = (newAddresses: typeof addresses) => {
+    if (typeof window === 'undefined' || !userData?.email) return;
+    try {
+      localStorage.setItem(`user_addresses_${userData.email}`, JSON.stringify(newAddresses));
+    } catch {
+      // ignore
     }
   };
 
   const handleAddressSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (editingAddress) {
-        // TODO: Update address API call
-        setAddresses(addresses.map(addr => 
-          addr.id === editingAddress.id ? { ...addressForm, id: editingAddress.id } : addr
-        ));
-      } else {
-        // TODO: Create address API call
-        setAddresses([...addresses, { ...addressForm, id: Date.now().toString() }]);
-      }
+      const nextAddresses = editingAddress
+        ? addresses.map(addr =>
+            addr.id === editingAddress.id ? { ...addressForm, id: editingAddress.id } : addr
+          )
+        : [...addresses, { ...addressForm, id: Date.now().toString() }];
+      setAddresses(nextAddresses);
+      persistAddresses(nextAddresses);
       setShowAddressForm(false);
       setEditingAddress(null);
       setAddressForm({
@@ -232,13 +282,16 @@ export default function MyAccountPage() {
 
   const handleDeleteAddress = (id: string) => {
     if (confirm('Are you sure you want to delete this address?')) {
-      setAddresses(addresses.filter(addr => addr.id !== id));
+      const nextAddresses = addresses.filter(addr => addr.id !== id);
+      setAddresses(nextAddresses);
+      persistAddresses(nextAddresses);
     }
   };
 
   const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {
       localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
       setIsLoggedIn(false);
       router.push('/');
     }
