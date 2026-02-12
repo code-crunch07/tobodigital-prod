@@ -334,6 +334,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
     label, 
     value, 
     tags, 
+    onChange,
     onAdd, 
     onRemove, 
     placeholder 
@@ -341,6 +342,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
     label: string; 
     value: string; 
     tags: string[]; 
+    onChange: (v: string) => void;
     onAdd: (v: string) => void; 
     onRemove: (i: number) => void; 
     placeholder?: string;
@@ -349,9 +351,11 @@ export default function ProductForm({ product, categories, subCategories = [], o
       <Label>{label}</Label>
       <div className="flex gap-2">
         <Input
+          type="text"
           value={value}
-          onChange={(e) => onAdd(e.target.value)}
+          onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
+          className="whitespace-nowrap overflow-x-auto"
           onKeyPress={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
@@ -629,6 +633,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
                 label="Bullet Points"
                 value={bulletPointInput}
                 tags={formData.bulletPoints}
+                onChange={(v) => setBulletPointInput(v)}
                 onAdd={(v) => {
                   addToArray('bulletPoints', v, setBulletPointInput);
                 }}
@@ -637,14 +642,15 @@ export default function ProductForm({ product, categories, subCategories = [], o
               />
               <TagInput
                 label="Generic Keywords"
-            value={keywordInput}
+                value={keywordInput}
                 tags={formData.genericKeyword}
+                onChange={(v) => setKeywordInput(v)}
                 onAdd={(v) => {
                   addToArray('genericKeyword', v, setKeywordInput);
                 }}
                 onRemove={(i) => removeFromArray('genericKeyword', i)}
                 placeholder="Add keyword"
-          />
+              />
             </CardContent>
         )}
         </Card>
@@ -919,6 +925,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
                 label="Special Features"
                 value={featureInput}
                 tags={Array.isArray(formData.specialFeatures) ? formData.specialFeatures : []}
+                onChange={(v) => setFeatureInput(v)}
                 onAdd={(v) => {
                   addToArray('specialFeatures', v, setFeatureInput);
                 }}
@@ -929,6 +936,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
                 label="Compatible Devices"
                 value={deviceInput}
                 tags={formData.compatibleDevices}
+                onChange={(v) => setDeviceInput(v)}
                 onAdd={(v) => {
                   addToArray('compatibleDevices', v, setDeviceInput);
                 }}
@@ -939,6 +947,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
                 label="Included Components"
                 value={componentInput}
                 tags={formData.includedComponents}
+                onChange={(v) => setComponentInput(v)}
                 onAdd={(v) => {
                   addToArray('includedComponents', v, setComponentInput);
                 }}
@@ -1195,6 +1204,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
                 label="Meta Keywords"
                 value={seoKeywordInput}
                 tags={formData.seoKeywords ? formData.seoKeywords.split(',').map((k: string) => k.trim()).filter(Boolean) : []}
+                onChange={(v) => setSeoKeywordInput(v)}
                 onAdd={(v) => {
                   if (v) {
                     const keywords = formData.seoKeywords ? formData.seoKeywords.split(',').map((k: string) => k.trim()).filter(Boolean) : [];
