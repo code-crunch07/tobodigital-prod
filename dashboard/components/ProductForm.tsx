@@ -43,6 +43,70 @@ interface ProductFormProps {
   onSuccess: () => void;
 }
 
+// TagInput component - moved outside to prevent recreation on each render (fixes focus loss)
+const TagInput = ({ 
+  label, 
+  value, 
+  tags, 
+  onChange,
+  onAdd, 
+  onRemove, 
+  placeholder 
+}: { 
+  label: string; 
+  value: string; 
+  tags: string[]; 
+  onChange: (v: string) => void;
+  onAdd: (v: string) => void; 
+  onRemove: (i: number) => void; 
+  placeholder?: string;
+}) => (
+  <div className="space-y-2">
+    <Label>{label}</Label>
+    <div className="flex gap-2">
+      <Input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="whitespace-nowrap overflow-x-auto"
+        onKeyPress={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            if (value.trim()) {
+              onAdd(value.trim());
+            }
+          }
+        }}
+      />
+      <Button
+        type="button"
+        onClick={() => value.trim() && onAdd(value.trim())}
+        variant="outline"
+        size="icon"
+      >
+        <Plus className="h-4 w-4" />
+      </Button>
+    </div>
+    {tags.length > 0 && (
+      <div className="flex flex-wrap gap-2 mt-2">
+        {tags.map((tag, i) => (
+          <Badge key={i} variant="secondary" className="gap-1">
+            {tag}
+            <button
+              type="button"
+              onClick={() => onRemove(i)}
+              className="ml-1 hover:text-destructive"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </Badge>
+        ))}
+      </div>
+    )}
+  </div>
+);
+
 export default function ProductForm({ product, categories, subCategories = [], onSuccess }: ProductFormProps) {
   const [formData, setFormData] = useState({
     mainImage: '',
@@ -328,69 +392,6 @@ export default function ProductForm({ product, categories, subCategories = [], o
             <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </button>
-  );
-
-  const TagInput = ({ 
-    label, 
-    value, 
-    tags, 
-    onChange,
-    onAdd, 
-    onRemove, 
-    placeholder 
-  }: { 
-    label: string; 
-    value: string; 
-    tags: string[]; 
-    onChange: (v: string) => void;
-    onAdd: (v: string) => void; 
-    onRemove: (i: number) => void; 
-    placeholder?: string;
-  }) => (
-    <div className="space-y-2">
-      <Label>{label}</Label>
-      <div className="flex gap-2">
-        <Input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className="whitespace-nowrap overflow-x-auto"
-          onKeyPress={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              if (value.trim()) {
-                onAdd(value.trim());
-              }
-            }
-          }}
-        />
-        <Button
-          type="button"
-          onClick={() => value.trim() && onAdd(value.trim())}
-          variant="outline"
-          size="icon"
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
-      </div>
-      {tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2">
-          {tags.map((tag, i) => (
-            <Badge key={i} variant="secondary" className="gap-1">
-              {tag}
-              <button
-                type="button"
-                onClick={() => onRemove(i)}
-                className="ml-1 hover:text-destructive"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-        </div>
-      )}
-    </div>
   );
 
   return (
