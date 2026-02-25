@@ -532,7 +532,7 @@ export const getSiteSettings = async () => {
   return response.data;
 };
 
-export const updateSiteSettings = async (data: Record<string, string>) => {
+export const updateSiteSettings = async (data: Record<string, any>) => {
   const response = await api.patch('/settings/site', data);
   return response.data;
 };
