@@ -257,7 +257,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             <div className="relative w-full">
               <div
                 ref={setImageRef}
-                className="aspect-square w-full rounded-lg overflow-hidden relative cursor-zoom-in flex items-center justify-center bg-gray-50 border border-gray-100"
+                className="aspect-square w-full rounded-lg overflow-hidden relative cursor-zoom-in flex items-center justify-center bg-gray-50"
                 onMouseMove={handleMouseMove}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
@@ -346,7 +346,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               />
             </div>
             {images.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-1 -mx-1">
+            <div className="flex flex-wrap gap-3 pb-1">
                 {images.map((img, index) => (
                   <button
                     key={index}
@@ -481,10 +481,37 @@ export function ProductDetailView(props: ProductDetailViewProps) {
           </div>
 
           <div className="flex flex-col gap-4 sm:gap-6 min-w-0">
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#1a202c] leading-tight break-words tracking-tight">
+            {/* Title */}
+            <h1 className="text-xl sm:text-2xl lg:text-[1.75rem] font-bold text-[#111111] leading-tight break-words tracking-tight">
               {product.itemName}
             </h1>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#4a5568]">
+
+            {/* Meta line: Brand / Category */}
+            {(product.brandName || product.productCategory) && (
+              <div className="flex flex-wrap items-center gap-2 text-sm text-[#4b5563]">
+                {product.brandName && (
+                  <>
+                    <span className="text-[#6b7280]">Brand</span>
+                    <span className="font-medium text-[#111827]">{product.brandName}</span>
+                    {product.productCategory && <span className="text-[#d1d5db] mx-1">|</span>}
+                  </>
+                )}
+                {product.productCategory && (
+                  <>
+                    <span className="text-[#6b7280]">Category</span>
+                    <Link
+                      href={`/product-category/${product.productCategory.slug || product.productCategory._id}`}
+                      className="font-medium text-[#1d4ed8] hover:underline"
+                    >
+                      {product.productCategory.name}
+                    </Link>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Rating / reviews */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#4b5563]">
               {reviewCount > 0 && averageRating != null && Number.isFinite(averageRating) ? (
                 <>
                   <div className="flex items-center gap-1.5">
@@ -506,53 +533,56 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               )}
             </div>
 
-            <div className="p-4 sm:p-6 bg-[#f7fafc] rounded-lg border-l-4 border-[#ff6b35]">
-              <div className="flex flex-wrap items-baseline gap-2 sm:gap-4">
-                <span className="text-2xl sm:text-3xl lg:text-[2.5rem] font-bold text-[#ff6b35]">
+            {/* Price + stock */}
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
+                <span className="text-2xl sm:text-3xl lg:text-[2.25rem] font-semibold text-[#111111]">
                   {formatPrice(product.yourPrice)}
                 </span>
                 {(product.maximumRetailPrice || product.maxRetailPrice) &&
                   (product.maximumRetailPrice || product.maxRetailPrice)! > product.yourPrice && (
                   <>
-                    <span className="text-[1.2rem] text-[#a0aec0] line-through ml-1">
+                    <span className="text-base sm:text-lg text-[#9ca3af] line-through">
                       {formatPrice((product.maximumRetailPrice || product.maxRetailPrice)!)}
                     </span>
                     {discount > 0 && (
-                      <span className="ml-4 px-3 py-1 bg-[#fef5e7] text-[#d69e2e] rounded text-[0.9rem] font-semibold">
+                      <span className="text-xs sm:text-sm font-semibold text-[#16a34a]">
                         Save {discount}%
                       </span>
                     )}
                   </>
                 )}
-                {(product as any).salePrice && (product as any).salePrice > 0 && (product as any).salePrice !== product.yourPrice && (
-                  <div className="mt-2 text-sm text-[#48bb78] font-semibold">
-                    Sale Price: {formatPrice((product as any).salePrice)}
-                  </div>
-                )}
-                {(product as any).saleStartDate && (product as any).saleEndDate && (
-                  <div className="mt-2 text-xs text-[#718096]">
-                    Sale Period: {new Date((product as any).saleStartDate).toLocaleDateString()} - {new Date((product as any).saleEndDate).toLocaleDateString()}
-                  </div>
-                )}
               </div>
               {product.stockQuantity !== undefined && (
-                <div
-                  className={`mt-3 flex items-center gap-2 font-semibold ${
-                    product.stockQuantity > 0 ? 'text-[#48bb78]' : 'text-[#ed8936]'
-                  }`}
-                >
-                  <Check className={`h-4 w-4 flex-shrink-0 ${product.stockQuantity > 0 ? '' : 'hidden'}`} />
-                  {product.stockQuantity > 0 ? (
-                    <>In Stock - {product.stockQuantity} units available</>
-                  ) : (
-                    <>Out of Stock</>
-                  )}
+                <div className="flex items-center gap-2 text-sm">
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border ${
+                      product.stockQuantity > 0
+                        ? 'border-[#16a34a] bg-[#dcfce7]'
+                        : 'border-[#f97316] bg-[#ffedd5]'
+                    }`}
+                  >
+                    <span
+                      className={`h-2.5 w-2.5 rounded-full ${
+                        product.stockQuantity > 0 ? 'bg-[#16a34a]' : 'bg-[#f97316]'
+                      }`}
+                    />
+                  </span>
+                  <span
+                    className={`font-medium ${
+                      product.stockQuantity > 0 ? 'text-[#166534]' : 'text-[#9a3412]'
+                    }`}
+                  >
+                    {product.stockQuantity > 0
+                      ? `Available in stock (${product.stockQuantity})`
+                      : 'Out of stock'}
+                  </span>
                 </div>
               )}
             </div>
 
             {(product as any).shortDescription && (
-              <p className="text-[#4a5568] text-[1.05rem] leading-[1.7] font-medium">
+              <p className="text-[#4b5563] text-[0.95rem] sm:text-base leading-relaxed max-w-2xl">
                 {(product as any).shortDescription}
               </p>
             )}
