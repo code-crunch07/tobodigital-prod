@@ -25,6 +25,7 @@ interface Product {
   stockQuantity?: number;
   productCategory?: { _id: string; name: string };
   productSubCategory?: { _id: string; name: string };
+  freeShipping?: boolean;
 }
 
 interface Category {
