@@ -73,4 +73,5 @@ export interface Product {
   isActive?: boolean;
   /** Values for product attributes (e.g. Size, Material) from dashboard Product Attributes */
   attributeValues?: Record<string, string>;
+  freeShipping?: boolean;
 }

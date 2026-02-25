@@ -20,6 +20,7 @@ interface Product {
   images?: string[];
   galleryImages?: string[];
   slug?: string;
+  freeShipping?: boolean;
 }
 
 export default function WishlistPage() {
