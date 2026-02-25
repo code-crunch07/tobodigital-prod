@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   ShoppingCart,
@@ -126,6 +126,38 @@ export function ProductDetailView(props: ProductDetailViewProps) {
   } = props;
 
   const touchStartX = useRef(0);
+  const thumbStripRef = useRef<HTMLDivElement | null>(null);
+  const [thumbScroll, setThumbScroll] = useState({ canScrollLeft: false, canScrollRight: false });
+
+  const updateThumbScroll = useCallback(() => {
+    const el = thumbStripRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setThumbScroll({
+      canScrollLeft: scrollLeft > 2,
+      canScrollRight: scrollLeft < scrollWidth - clientWidth - 2,
+    });
+  }, []);
+
+  useEffect(() => {
+    updateThumbScroll();
+    const el = thumbStripRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(updateThumbScroll);
+    ro.observe(el);
+    el.addEventListener('scroll', updateThumbScroll);
+    return () => {
+      ro.disconnect();
+      el.removeEventListener('scroll', updateThumbScroll);
+    };
+  }, [images.length, updateThumbScroll]);
+
+  const scrollThumbs = (dir: 'left' | 'right') => {
+    const el = thumbStripRef.current;
+    if (!el) return;
+    const step = el.clientWidth * 0.6;
+    el.scrollBy({ left: dir === 'left' ? -step : step, behavior: 'smooth' });
+  };
 
   const currentImageIndex = selectedImage
     ? Math.max(0, images.findIndex((img) => img === selectedImage))
@@ -346,7 +378,32 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               />
             </div>
             {images.length > 1 && (
-            <div className="flex flex-wrap gap-3 pb-1">
+            <div className="relative -mx-1">
+              {thumbScroll.canScrollLeft && (
+                <button
+                  type="button"
+                  onClick={() => scrollThumbs('left')}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white border border-[#e2e8f0] shadow-md flex items-center justify-center text-[#4a5568] hover:bg-[#f7fafc] hover:border-[#ff6b35] hover:text-[#ff6b35] transition-colors"
+                  aria-label="Scroll thumbnails left"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+              )}
+              {thumbScroll.canScrollRight && (
+                <button
+                  type="button"
+                  onClick={() => scrollThumbs('right')}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white border border-[#e2e8f0] shadow-md flex items-center justify-center text-[#4a5568] hover:bg-[#f7fafc] hover:border-[#ff6b35] hover:text-[#ff6b35] transition-colors"
+                  aria-label="Scroll thumbnails right"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              )}
+              <div
+                ref={thumbStripRef}
+                className="flex gap-3 overflow-x-auto overflow-y-hidden pb-1 scrollbar-hide scroll-smooth"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
                 {images.map((img, index) => (
                   <button
                     key={index}
@@ -366,6 +423,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   </button>
                 ))}
               </div>
+            </div>
             )}
             </div>
 
