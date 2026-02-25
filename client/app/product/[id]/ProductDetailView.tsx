@@ -15,6 +15,10 @@ import {
   Zap,
   Star,
   ExternalLink,
+  Truck,
+  RotateCcw,
+  ShieldCheck,
+  Lock,
 } from 'lucide-react';
 import type { Product } from './types';
 
@@ -645,31 +649,42 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               </p>
             )}
 
-            <div className="pb-4 border-b border-[#e2e8f0]">
+            {/* Pincode + primary CTAs card */}
+            <div className="mt-4 space-y-4 rounded-2xl border border-[#ffe1d0] bg-[#fff7f2] p-4 sm:p-5 shadow-sm">
               <form onSubmit={handlePincodeCheck} className="space-y-3">
-                <label className="block font-semibold text-sm sm:text-base text-[#2d3748] mb-3 flex items-center gap-2">
-                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-[#ff6b35] flex-shrink-0" />
-                  <span className="text-xs sm:text-sm">Check Delivery & Serviceability</span>
-                </label>
+                <div className="flex items-center justify-between gap-2 text-xs sm:text-sm font-semibold text-[#2d3748]">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-[#ff6b35]" />
+                    <span>Enter pincode for delivery estimate</span>
+                  </div>
+                  <span className="hidden sm:inline text-[0.75rem] font-medium text-[#718096]">
+                    Check COD, delivery time & availability
+                  </span>
+                </div>
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <input
-                    type="text"
-                    value={pincode}
-                    onChange={(e) => onPincodeChange(e.target.value)}
-                    placeholder="Enter 6-digit pincode"
-                    className="flex-1 px-4 py-2.5 border border-[#e2e8f0] rounded-lg bg-[#f7fafc] text-sm focus:ring-2 focus:ring-[#ff6b35] focus:border-[#ff6b35]"
-                    maxLength={6}
-                  />
+                  <div className="flex-1 relative">
+                    <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#a0aec0]">
+                      <MapPin className="h-4 w-4" />
+                    </span>
+                    <input
+                      type="text"
+                      value={pincode}
+                      onChange={(e) => onPincodeChange(e.target.value)}
+                      placeholder="Enter pincode for delivery estimate"
+                      className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-white text-sm border border-[#fed7c3] focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-[#ff6b35]"
+                      maxLength={6}
+                    />
+                  </div>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 bg-[#ff6b35] text-white text-sm font-semibold rounded-lg hover:bg-[#e85a28] transition-colors whitespace-nowrap"
+                    className="px-6 py-2.5 rounded-lg bg-[#ff6b35] text-white text-sm sm:text-base font-semibold shadow-sm hover:bg-[#e85a28] transition-colors whitespace-nowrap"
                   >
                     Check
                   </button>
                 </div>
                 {pincodeCheckResult && (
                   <div
-                    className={`mt-3 p-3 rounded-lg text-sm font-medium ${
+                    className={`mt-2 p-3 rounded-lg text-xs sm:text-sm font-medium ${
                       pincodeCheckResult.available ? 'bg-[#c6f6d5] text-[#22543d]' : 'bg-[#fed7d7] text-[#742a2a]'
                     }`}
                   >
@@ -677,124 +692,156 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   </div>
                 )}
               </form>
+
+              {/* Main CTA buttons: Add to Cart / Buy Now / Amazon */}
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <button
+                  onClick={handleAddToCart}
+                  disabled={product.stockQuantity === 0}
+                  className={`w-full sm:flex-1 py-3 sm:py-3.5 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-sm transition-all ${
+                    addedToCart
+                      ? 'bg-[#22c55e] text-white'
+                      : product.stockQuantity === 0
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-[#ff6b35] text-white hover:bg-[#e85a28] hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(255,107,53,0.45)]'
+                  }`}
+                >
+                  {addedToCart ? (
+                    <>
+                      <Check className="h-5 w-5" />
+                      Added to Cart
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="h-5 w-5" />
+                      Add to Cart
+                    </>
+                  )}
+                </button>
+
+                <button
+                  onClick={handleBuyNow}
+                  disabled={product.stockQuantity === 0}
+                  className={`w-full sm:w-auto py-3 sm:py-3.5 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-sm transition-all ${
+                    product.stockQuantity === 0
+                      ? 'bg-gray-800 text-white/70 cursor-not-allowed opacity-60'
+                      : 'bg-[#111827] text-white hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(0,0,0,0.45)]'
+                  }`}
+                >
+                  <Zap className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span>Buy Now</span>
+                </button>
+
+                {product.amazonLink && product.amazonLink.trim() && (
+                  <a
+                    href={product.amazonLink.trim()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto py-3 sm:py-3.5 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base bg-[#ff9900] text-black hover:bg-[#e88b00] transition-all border border-[#cc7a00] flex items-center justify-center gap-2 shadow-sm hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(250,204,21,0.5)]"
+                  >
+                    <ExternalLink className="h-5 w-5" />
+                    Amazon
+                  </a>
+                )}
+              </div>
+
+              {/* Secondary row: quantity + wishlist + share */}
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1">
+                <div>
+                  <div className="font-semibold text-[0.75rem] sm:text-xs text-[#4b5563] mb-1.5">Quantity</div>
+                  <div className="flex border border-[#fbd1b8] rounded-md overflow-hidden bg-white">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      disabled={quantity <= 1}
+                      className="px-3 py-2 text-[#4a5568] text-base hover:bg-[#fff7f2] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      −
+                    </button>
+                    <span className="w-[52px] text-center py-2 border-x border-[#fbd1b8] text-sm font-semibold bg-white">
+                      {quantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="px-3 py-2 text-[#4a5568] text-base hover:bg-[#fff7f2]"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleWishlist(String(product._id));
+                  }}
+                  className="p-2.5 sm:p-3 rounded-full border border-[#fbd1b8] bg-white text-[#4a5568] hover:bg-[#fff7f2] transition-colors shrink-0"
+                  title="Wishlist"
+                  aria-label={isInWishlist(String(product._id)) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                >
+                  <Heart
+                    className={`h-4 w-4 sm:h-5 sm:w-5 ${isInWishlist(String(product._id)) ? 'fill-red-500 text-red-500' : ''}`}
+                  />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="p-2.5 sm:p-3 rounded-full border border-[#fbd1b8] bg-white text-[#4a5568] hover:bg-[#fff7f2] transition-colors shrink-0"
+                  title="Share"
+                >
+                  <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
 
-            {/* Row 1: Quantity (left) + Add to Cart + Wishlist + Share */}
-            <div className="pb-4 border-b border-[#e2e8f0] flex flex-wrap items-end gap-3 sm:gap-4">
-              <div>
-                <div className="font-semibold text-[#2d3748] mb-2">Quantity</div>
-                <div className="flex border border-[#e2e8f0] rounded-md overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    disabled={quantity <= 1}
-                    className="px-4 py-2 bg-[#f7fafc] text-[#4a5568] text-lg hover:bg-[#edf2f7] disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    −
-                  </button>
-                  <span className="w-[60px] text-center py-2 border-x border-[#e2e8f0] text-base font-semibold bg-white">
-                    {quantity}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="px-4 py-2 bg-[#f7fafc] text-[#4a5568] text-lg hover:bg-[#edf2f7]"
-                  >
-                    +
-                  </button>
+            {/* Benefits: reassurance icons row */}
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 rounded-2xl border border-[#e5e7eb] bg-white p-4 sm:p-6 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#ecfdf3] text-[#16a34a]">
+                  <Truck className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="text-sm sm:text-base font-semibold text-[#111827]">Free Shipping</div>
+                  <div className="text-xs sm:text-sm text-[#6b7280]">On orders over ₹999</div>
                 </div>
               </div>
-              <button
-                onClick={handleAddToCart}
-                disabled={product.stockQuantity === 0}
-                className={`flex-1 min-w-[140px] py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold text-sm sm:text-base flex items-center justify-center gap-2 transition-all ${
-                  addedToCart
-                    ? 'bg-[#48bb78] text-white'
-                    : product.stockQuantity === 0
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-[#ff6b35] text-white hover:bg-[#e85a28] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(255,107,53,0.3)]'
-                }`}
-              >
-                {addedToCart ? (
-                  <><Check className="h-5 w-5" /> Added to Cart</>
-                ) : (
-                  <><ShoppingCart className="h-5 w-5" /> Add to Cart</>
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  toggleWishlist(String(product._id));
-                }}
-                className="p-3 sm:p-4 rounded-lg border border-[#e2e8f0] bg-[#f7fafc] text-[#4a5568] hover:bg-[#edf2f7] transition-colors shrink-0"
-                title="Wishlist"
-                aria-label={isInWishlist(String(product._id)) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-              >
-                <Heart
-                  className={`h-4 w-4 sm:h-5 sm:w-5 ${isInWishlist(String(product._id)) ? 'fill-red-500 text-red-500' : ''}`}
-                />
-              </button>
-              <button
-                type="button"
-                onClick={handleShare}
-                className="p-3 sm:p-4 rounded-lg border border-[#e2e8f0] bg-[#f7fafc] text-[#4a5568] hover:bg-[#edf2f7] transition-colors shrink-0"
-                title="Share"
-              >
-                <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            {/* Row 2: Buy Now + Buy from Amazon (side by side) */}
-            <div className="flex flex-wrap gap-3 sm:gap-4">
-              <button
-                onClick={handleBuyNow}
-                disabled={product.stockQuantity === 0}
-                className={`py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold text-sm sm:text-base flex items-center justify-center gap-2 border-2 border-[#ff6b35] text-[#ff6b35] bg-white hover:bg-[#fff5f2] transition-colors ${
-                  product.stockQuantity === 0 ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              >
-                <Zap className="h-4 w-4 sm:h-5 sm:w-5" /> <span className="hidden sm:inline">Buy Now</span>
-                <span className="sm:hidden">Buy</span>
-              </button>
-              {product.amazonLink && product.amazonLink.trim() && (
-                <a
-                  href={product.amazonLink.trim()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold text-sm sm:text-base bg-[#ff9900] text-black hover:bg-[#e88b00] transition-colors border border-[#cc7a00]"
-                >
-                  <ExternalLink className="h-5 w-5" />
-                  Buy from Amazon
-                </a>
-              )}
-            </div>
-
-            {/* Benefits: after Buy Now / Buy from Amazon */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 p-4 sm:p-6 bg-[#f7fafc] rounded-lg">
-              <div className="flex items-center gap-3 text-[0.9rem] text-[#2d3748]">
-                <span className="text-[#48bb78] text-lg">✓</span>
-                <span>Free shipping on orders over ₹999</span>
+              <div className="flex items-start gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#ecfdf3] text-[#16a34a]">
+                  <RotateCcw className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="text-sm sm:text-base font-semibold text-[#111827]">30 Day Returns</div>
+                  <div className="text-xs sm:text-sm text-[#6b7280]">Money back guarantee</div>
+                </div>
               </div>
-              <div className="flex items-center gap-3 text-[0.9rem] text-[#2d3748]">
-                <span className="text-[#48bb78] text-lg">✓</span>
-                <span>30-day money back guarantee</span>
+              <div className="flex items-start gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#ecfdf3] text-[#16a34a]">
+                  <ShieldCheck className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="text-sm sm:text-base font-semibold text-[#111827]">2 Year Warranty</div>
+                  <div className="text-xs sm:text-sm text-[#6b7280]">Manufacturer warranty</div>
+                </div>
               </div>
-              <div className="flex items-center gap-3 text-[0.9rem] text-[#2d3748]">
-                <span className="text-[#48bb78] text-lg">✓</span>
-                <span>2-year manufacturer warranty</span>
-              </div>
-              <div className="flex items-center gap-3 text-[0.9rem] text-[#2d3748]">
-                <span className="text-[#48bb78] text-lg">✓</span>
-                <span>Secure payment processing</span>
+              <div className="flex items-start gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#ecfdf3] text-[#16a34a]">
+                  <Lock className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="text-sm sm:text-base font-semibold text-[#111827]">Secure Checkout</div>
+                  <div className="text-xs sm:text-sm text-[#6b7280]">Safe & encrypted payment</div>
+                </div>
               </div>
             </div>
           </div>
