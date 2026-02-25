@@ -141,8 +141,10 @@ export default function ProductForm({ product, categories, subCategories = [], o
     includedComponents: [] as string[],
     itemDimensions: { length: 0, width: 0, height: 0, unit: 'cm' },
     itemWeight: 0,
+    weightUnit: 'grams',
     itemPackageDimensions: { length: 0, width: 0, height: 0, unit: 'cm' },
     packageWeight: 0,
+    packageWeightUnit: 'grams',
     hsnCode: '',
     countryOfOrigin: '',
     warrantyDescription: '',
@@ -156,6 +158,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
     isActive: true,
     isFeatured: false,
     showOnHomepage: false,
+    freeShipping: false,
   });
 
   const [loading, setLoading] = useState(false);
@@ -243,8 +246,10 @@ export default function ProductForm({ product, categories, subCategories = [], o
         includedComponents: Array.isArray(product.includedComponents) ? product.includedComponents : [],
         itemDimensions: product.itemDimensions || { length: 0, width: 0, height: 0, unit: 'cm' },
         itemWeight: product.itemWeight || 0,
+        weightUnit: product.weightUnit || 'grams',
         itemPackageDimensions: product.itemPackageDimensions || product.packageDimensions || { length: 0, width: 0, height: 0, unit: 'cm' },
         packageWeight: product.packageWeight || 0,
+        packageWeightUnit: product.packageWeightUnit || 'grams',
         hsnCode: product.hsnCode || '',
         countryOfOrigin: product.countryOfOrigin || '',
         warrantyDescription: product.warrantyDescription || '',
@@ -258,6 +263,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
         isActive: product.isActive !== undefined ? product.isActive : true,
         isFeatured: product.isFeatured ?? false,
         showOnHomepage: product.showOnHomepage ?? false,
+        freeShipping: product.freeShipping ?? false,
       });
     }
   }, [product]);
@@ -1011,13 +1017,29 @@ export default function ProductForm({ product, categories, subCategories = [], o
               />
             </div>
                   <div className="space-y-2">
-                    <Label>Weight (grams)</Label>
-              <Input
-                type="number"
-                step="0.01"
-                      value={formData.itemWeight || ''}
-                onChange={(e) => setFormData({ ...formData, itemWeight: parseFloat(e.target.value) || 0 })}
-              />
+                    <Label>Item Weight</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  step="0.01"
+                  min={0}
+                  className="flex-1"
+                  value={formData.itemWeight || ''}
+                  onChange={(e) => setFormData({ ...formData, itemWeight: parseFloat(e.target.value) || 0 })}
+                />
+                <Select
+                  value={formData.weightUnit || 'grams'}
+                  onValueChange={(v) => setFormData({ ...formData, weightUnit: v })}
+                >
+                  <SelectTrigger className="w-[100px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="grams">grams</SelectItem>
+                    <SelectItem value="kg">kg</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
               </div>
@@ -1061,13 +1083,29 @@ export default function ProductForm({ product, categories, subCategories = [], o
               />
             </div>
                   <div className="space-y-2">
-                    <Label>Pkg Weight (grams)</Label>
-              <Input
-                type="number"
-                step="0.01"
-                      value={formData.packageWeight || ''}
-                onChange={(e) => setFormData({ ...formData, packageWeight: parseFloat(e.target.value) || 0 })}
-              />
+                    <Label>Package Weight</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  step="0.01"
+                  min={0}
+                  className="flex-1"
+                  value={formData.packageWeight || ''}
+                  onChange={(e) => setFormData({ ...formData, packageWeight: parseFloat(e.target.value) || 0 })}
+                />
+                <Select
+                  value={formData.packageWeightUnit || 'grams'}
+                  onValueChange={(v) => setFormData({ ...formData, packageWeightUnit: v })}
+                >
+                  <SelectTrigger className="w-[100px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="grams">grams</SelectItem>
+                    <SelectItem value="kg">kg</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
               </div>
@@ -1272,6 +1310,18 @@ export default function ProductForm({ product, categories, subCategories = [], o
             />
             <Label htmlFor="showOnHomepage" className="cursor-pointer font-medium">
               Show on Homepage
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="freeShipping"
+              checked={formData.freeShipping}
+              onChange={(e) => setFormData({ ...formData, freeShipping: e.target.checked })}
+              className="h-4 w-4"
+            />
+            <Label htmlFor="freeShipping" className="cursor-pointer font-medium">
+              Free Shipping
             </Label>
           </div>
             </CardContent>

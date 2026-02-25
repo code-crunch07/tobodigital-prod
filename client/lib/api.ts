@@ -203,7 +203,7 @@ export const getPublicSiteSettings = async () => {
 };
 
 // Auth functions
-export const signup = async (data: { name: string; email: string; password: string; role?: string }) => {
+export const signup = async (data: { name: string; email: string; phone?: string; password: string; role?: string }) => {
   const response = await authApi.post('/auth/signup', data);
   return response.data;
 };

@@ -7,6 +7,7 @@ import { Home, Lock, CreditCard, MapPin, User, Phone, Mail, LogIn } from 'lucide
 import { useCart } from '@/contexts/CartContext';
 import LoginSignupDialog from '@/components/LoginSignupDialog';
 import { getProductUrl } from '@/lib/product-url';
+import { getPublicSiteSettings } from '@/lib/api';
 
 declare global {
   interface Window {
@@ -51,6 +52,7 @@ export default function CheckoutPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [continueAsGuest, setContinueAsGuest] = useState(false);
   const [checkoutEmail, setCheckoutEmail] = useState('');
+  const [defaultShippingCharge, setDefaultShippingCharge] = useState(50);
 
   // Indian States
   const indianStates = [
@@ -79,6 +81,18 @@ export default function CheckoutPage() {
     };
   }, []);
 
+  // Load site settings for shipping charge
+  useEffect(() => {
+    getPublicSiteSettings()
+      .then((res) => {
+        const charge = res?.data?.defaultShippingCharge;
+        if (typeof charge === 'number' && Number.isFinite(charge) && charge >= 0) {
+          setDefaultShippingCharge(charge);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -88,7 +102,8 @@ export default function CheckoutPage() {
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.yourPrice * item.quantity, 0);
-  const shipping = 50; // Fixed shipping cost
+  const allItemsFreeShipping = cartItems.length > 0 && cartItems.every((item) => item.freeShipping);
+  const shipping = allItemsFreeShipping ? 0 : defaultShippingCharge;
   const tax = subtotal * 0.18; // 18% GST
   const discount = appliedCoupon ? (subtotal * appliedCoupon.discountPercentage) / 100 : 0;
   const total = subtotal + shipping + tax - discount;
@@ -897,7 +912,11 @@ export default function CheckoutPage() {
                 )}
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Shipping</span>
-                  <span className="text-gray-900">{formatPrice(shipping)}</span>
+                  {shipping === 0 ? (
+                    <span className="text-green-600 font-medium">Free</span>
+                  ) : (
+                    <span className="text-gray-900">{formatPrice(shipping)}</span>
+                  )}
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Tax (GST 18%)</span>

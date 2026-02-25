@@ -3,8 +3,106 @@
 @tailwind utilities;
 
 :root {
+  /* Theme colors */
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Typography system – matches the config you shared */
+  --heading-font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  --heading-font-style: normal;
+  --heading-font-weight: 600;
+  --heading-base-size: 2rem;
+  --heading-font-scale: 1.0;
+  --heading-text-transform: none;
+
+  --subheading-base-size: 14px;
+  --rating-star-size: 0.945rem;
+
+  --menu-font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  --menu-font-style: normal;
+  --menu-font-weight: 500;
+  --menu-letter-spacing: 0px;
+
+  --body-font-scale: 1.0;
+  --body-base-size: 0.875rem;
+  --body-font-family: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  --body-font-style: normal;
+  --body-font-weight: 400;
+
+  --button-font: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  --button-font-style: normal;
+  --button-font-weight: 500;
+  --button-font-size: 0.72rem;
+
+  --line-height-heading: 1.4;
+  --line-height-body: 1.6;
+  --line-height-button: 1.4;
+
+  /* Spacing, radius, layout */
+  --shopify-accelerated-checkout-button-border-radius: 6px;
+  --button-border-radius: 6px;
+  --mobile-padding-ratio: 0.5;
+  --page-width: 1600px;
+  --rounded-corners: 10px;
+  --padding-content-page-width: 16px;
+  --padding-content-full-width: 16px;
+  --padding-content-full-width-padded: 16px;
+  --full-width-padded: 16px;
+  --total-padding-page-width: 64px;
+  --total-padding-full-width: 64px;
+  --total-padding-full-width-padded: 128px;
+
+  /* Animation timings (kept from your snippet) */
+  --text-animation-duration: 700ms;
+  --drawer-transition-duration: 500ms;
+  --card-animation-duration: 500ms;
+  --reveal-transition-duration: 500ms;
+  --header-menu-transition-duration: 300ms;
+  --header-menu-transition-delay: 150ms;
+  --menu-promotion-duration: 1000ms;
+  --menu-item-delay-transition: 450ms;
+  --transition-slideshow-content: 500ms;
+  --button-animation-duration: 400ms;
+  --popup-animation-duration: 500ms;
+  --choose-option-animation-duration: 300ms;
+  --dropdown-animation-duration: 150ms;
+  --text-link-and-title-link-animation-duration: 400ms;
+  --fade-element-translate-y: 20px;
+  --flow-card-duration: 500ms;
+  --announcement-height: 0px;
+  --top-header: 0px;
+  --segmented-banner-animation-duration-mobile: 1000ms;
+  --segmented-banner-animation-duration-desktop: 1600ms;
+  --product-info-media-width: 100%;
+  --border-radius-popup: 10px;
+  --border-radius-drawer: 10px;
+  --border-radius-countdown-timer: 6px;
+  --progress-bar-active-width: 20%;
+  --border-radius-checkbox: 4px;
+  --padding-bottom-product-template-block: 16px;
+  --spacing-between-heading-and-content: 16px;
+  --pad-top-m: 0px;
+  --pad-right-m: 0px;
+  --pad-left-m: 0px;
+  --pad-bottom-m: 0px;
+  --pad-top: 0px;
+  --pad-right: 0px;
+  --pad-left: 0px;
+  --pad-bottom: 0px;
+  --block-width: 1.0;
+}
+
+@keyframes announcement-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-announcement-scroll {
+  animation: announcement-scroll 24s linear infinite;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -21,9 +119,39 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-bai-jamjuree), "Bai Jamjuree", system-ui, sans-serif;
+  font-family: var(--body-font-family);
+  font-size: var(--body-base-size);
+  line-height: var(--line-height-body);
   overflow-x: hidden;
   min-width: 0;
+}
+
+/* Headings and navigation use Inter */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--heading-font-family);
+  font-weight: var(--heading-font-weight);
+  line-height: var(--line-height-heading);
+}
+
+header nav,
+.main-menu,
+.mega-menu {
+  font-family: var(--menu-font-family);
+  font-weight: var(--menu-font-weight);
+}
+
+/* Buttons use DM Sans */
+button,
+.btn,
+.button {
+  font-family: var(--button-font);
+  font-weight: var(--button-font-weight);
+  line-height: var(--line-height-button);
 }
 
 /* Product card title - consistent across all product listings */

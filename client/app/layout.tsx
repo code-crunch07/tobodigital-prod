@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bai_Jamjuree } from "next/font/google";
+import { Inter, DM_Sans } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -7,10 +7,19 @@ import Favicon from "@/components/Favicon";
 import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 
-const baiJamjuree = Bai_Jamjuree({
-  weight: ["200", "300", "400", "500", "600", "700"],
-  subsets: ["latin", "latin-ext", "thai", "vietnamese"],
-  variable: "--font-bai-jamjuree",
+// Inter for headings + menus
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+// DM Sans for body text + buttons
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-dm-sans",
   display: "swap",
 });
 
@@ -30,8 +39,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={baiJamjuree.variable}>
-      <body className={`${baiJamjuree.className} font-sans`}>
+    <html lang="en" className={`${inter.variable} ${dmSans.variable}`}>
+      <body className="font-sans">
         <Favicon />
         <CartProvider>
           <WishlistProvider>

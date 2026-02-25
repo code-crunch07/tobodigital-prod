@@ -9,7 +9,7 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 // Register/Signup
 export const signup = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, phone, password, role } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -36,6 +36,7 @@ export const signup = async (req: Request, res: Response) => {
     const user = new User({
       name,
       email: email.toLowerCase(),
+      ...(phone != null && phone !== '' && { phone: String(phone).trim() }),
       password: hashedPassword,
       role: role || 'customer',
     });

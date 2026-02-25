@@ -17,7 +17,7 @@ export default function LoginSignupDialog({ isOpen, onClose, onLoginSuccess, log
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [signupForm, setSignupForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+  const [signupForm, setSignupForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -86,6 +86,7 @@ export default function LoginSignupDialog({ isOpen, onClose, onLoginSuccess, log
       const response = await signupApi({
         name: signupForm.name,
         email: signupForm.email,
+        ...(signupForm.phone.trim() && { phone: signupForm.phone.trim() }),
         password: signupForm.password,
         role: 'customer', // Default role for client signups
       });
@@ -99,7 +100,7 @@ export default function LoginSignupDialog({ isOpen, onClose, onLoginSuccess, log
         window.dispatchEvent(new Event('authStateChanged'));
         
         // Clear form
-        setSignupForm({ name: '', email: '', password: '', confirmPassword: '' });
+        setSignupForm({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
         
         // Close dialog and refresh
         onClose();
@@ -125,16 +126,18 @@ export default function LoginSignupDialog({ isOpen, onClose, onLoginSuccess, log
 
   const dialog = (
     <>
-      {/* Backdrop only below header – header stays clear */}
+      {/* Backdrop – click anywhere outside to close */}
       <div
-        className="fixed top-14 left-0 right-0 bottom-0 z-[100] bg-black/50"
+        className="fixed inset-0 z-[100] bg-black/50"
         onClick={onClose}
         aria-hidden="true"
       />
-      {/* Center modal in area below header */}
-      <div className="fixed top-14 left-0 right-0 bottom-0 z-[101] flex items-center justify-center p-4 overflow-y-auto">
+      {/* Center modal – clicking this area (outside the card) also closes */}
+      <div
+        className="fixed inset-0 z-[101] flex items-center justify-center p-4 overflow-y-auto pointer-events-none"
+      >
         <div
-          className="bg-white rounded-xl shadow-2xl w-full max-w-md relative max-h-[calc(100vh-5rem)] overflow-y-auto border border-gray-200"
+          className="bg-white rounded-xl shadow-2xl w-full max-w-md relative max-h-[calc(100vh-5rem)] overflow-y-auto border border-gray-200 pointer-events-auto"
           onClick={(e) => e.stopPropagation()}
           role="dialog"
           aria-modal="true"
@@ -304,6 +307,19 @@ export default function LoginSignupDialog({ isOpen, onClose, onLoginSuccess, log
                   onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff006e] focus:border-transparent"
                   placeholder="Enter your email"
+                />
+              </div>
+              <div>
+                <label htmlFor="signup-phone" className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  id="signup-phone"
+                  type="tel"
+                  value={signupForm.phone}
+                  onChange={(e) => setSignupForm({ ...signupForm, phone: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff006e] focus:border-transparent"
+                  placeholder="Enter your phone number"
                 />
               </div>
               <div>

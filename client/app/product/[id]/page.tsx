@@ -344,6 +344,7 @@ export default function ProductDetailPage() {
         itemName: product.itemName,
         mainImage: product.mainImage,
         yourPrice: product.yourPrice,
+        freeShipping: product.freeShipping ?? false,
       });
       setAddedItems(new Set([...addedItems, product._id]));
       setTimeout(() => {
@@ -434,7 +435,9 @@ export default function ProductDetailPage() {
                 <Star key={i} className={`h-3.5 w-3.5 ${i < 4 ? 'fill-[#f5a623] text-[#f5a623]' : 'fill-gray-200 text-gray-200'}`} />
               ))}
             </div>
-            <span className="text-xs text-gray-500">2 reviews</span>
+            {((product as any).reviewCount ?? 0) > 0 && (
+              <span className="text-xs text-gray-500">{(product as any).reviewCount} {(product as any).reviewCount === 1 ? 'review' : 'reviews'}</span>
+            )}
           </div>
           <div className="mt-3 flex items-end gap-2">
             <span className="product-price">{formatPrice(currentPrice)}</span>
@@ -473,6 +476,7 @@ export default function ProductDetailPage() {
           itemName: product.itemName,
           mainImage: product.mainImage,
           yourPrice: product.yourPrice,
+          freeShipping: product.freeShipping ?? false,
         });
       }
       setAddedToCart(true);
@@ -747,6 +751,8 @@ export default function ProductDetailPage() {
       similarProducts={similarProducts}
       loadingSimilar={loadingSimilar}
       renderProductCard={(item) => <ProductCard key={item._id} product={item} />}
+      reviewCount={(product as any).reviewCount ?? 0}
+      averageRating={(product as any).averageRating ?? (product as any).rating ?? null}
     />
   );
 }

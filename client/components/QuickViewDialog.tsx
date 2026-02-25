@@ -51,6 +51,7 @@ export default function QuickViewDialog({
       itemName: product.itemName,
       mainImage: product.mainImage,
       yourPrice: product.yourPrice,
+      freeShipping: product.freeShipping ?? false,
     });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);

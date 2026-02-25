@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ShoppingCart, Minus, Plus, Trash2, Pencil } from 'lucide-react';
 import Link from 'next/link';
 
@@ -21,6 +23,9 @@ interface CartPanelProps {
 }
 
 export default function CartPanel({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem }: CartPanelProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -33,12 +38,12 @@ export default function CartPanel({ isOpen, onClose, items, onUpdateQuantity, on
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  return (
+  const content = (
     <>
-      {/* Backdrop only below header - header stays clear, no grey on nav */}
+      {/* Backdrop - click outside to close */}
       {isOpen && (
         <div
-          className="fixed top-14 left-0 right-0 bottom-0 z-[100] bg-black/20 transition-opacity duration-200"
+          className="fixed inset-0 z-[100] bg-black/20 transition-opacity duration-200"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -180,4 +185,9 @@ export default function CartPanel({ isOpen, onClose, items, onUpdateQuantity, on
       </div>
     </>
   );
+
+  if (!mounted || typeof document === 'undefined') {
+    return null;
+  }
+  return createPortal(content, document.body);
 }

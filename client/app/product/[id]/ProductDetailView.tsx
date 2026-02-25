@@ -68,6 +68,10 @@ export interface ProductDetailViewProps {
   similarProducts: Product[];
   loadingSimilar: boolean;
   renderProductCard: (product: Product) => React.ReactNode;
+  /** From API when available; no demo data */
+  reviewCount?: number;
+  /** From API when available; 0–5 */
+  averageRating?: number | null;
 }
 
 export function ProductDetailView(props: ProductDetailViewProps) {
@@ -117,6 +121,8 @@ export function ProductDetailView(props: ProductDetailViewProps) {
     similarProducts,
     loadingSimilar,
     renderProductCard,
+    reviewCount = 0,
+    averageRating = null,
   } = props;
 
   const touchStartX = useRef(0);
@@ -475,17 +481,29 @@ export function ProductDetailView(props: ProductDetailViewProps) {
           </div>
 
           <div className="flex flex-col gap-4 sm:gap-6 min-w-0">
-            <h1 className="text-base sm:text-lg lg:text-xl font-bold text-[#1a202c] leading-tight break-words">
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#1a202c] leading-tight break-words tracking-tight">
               {product.itemName}
             </h1>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-              <div className="flex items-center gap-2 sm:gap-4">
-                <div className="text-[#fbbf24] text-base sm:text-lg tracking-wider" aria-hidden>★★★★★</div>
-                <div className="text-[#4a5568] text-xs sm:text-[0.9rem]">4.8 (256 reviews)</div>
-              </div>
-              <div className="text-[#4a5568] text-xs sm:text-[0.9rem]">
-                <Link href="#reviews" className="text-[#4299e1] hover:underline">Write a review</Link>
-              </div>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#4a5568]">
+              {reviewCount > 0 && averageRating != null && Number.isFinite(averageRating) ? (
+                <>
+                  <div className="flex items-center gap-1.5">
+                    <div className="flex text-[#fbbf24]" aria-hidden>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`h-4 w-4 sm:h-5 sm:w-5 ${star <= Math.round(averageRating) ? 'fill-current' : 'fill-none'}`}
+                        />
+                      ))}
+                    </div>
+                    <span className="font-medium text-[#2d3748]">{Number(averageRating).toFixed(1)}</span>
+                    <span>({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})</span>
+                  </div>
+                  <Link href="#reviews" className="text-[#4299e1] hover:underline font-medium">Write a review</Link>
+                </>
+              ) : (
+                <Link href="#reviews" className="text-[#4299e1] hover:underline font-medium">Be the first to review</Link>
+              )}
             </div>
 
             <div className="p-4 sm:p-6 bg-[#f7fafc] rounded-lg border-l-4 border-[#ff6b35]">
@@ -702,7 +720,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             {[
               { id: 'description' as const, label: 'Product Description' },
               { id: 'specifications' as const, label: 'Specifications' },
-              { id: 'reviews' as const, label: 'Reviews (256)' },
+              { id: 'reviews' as const, label: `Reviews (${reviewCount})` },
               { id: 'shipping' as const, label: 'Shipping & Returns' },
             ].map(({ id, label }) => (
               <button
@@ -767,70 +785,38 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             )}
 
             {activeTab === 'reviews' && (
-              <div className="space-y-6 sm:space-y-8 w-full">
-                <div className="flex flex-col sm:flex-row items-start justify-between gap-4 pb-6 sm:pb-8 border-b-2 border-gray-200 bg-gradient-to-r from-yellow-50 to-orange-50 p-4 sm:p-6 rounded-xl">
-                  <div>
-                    <div className="flex items-center gap-2 sm:gap-4 mb-3">
-                      <span className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-[#ff6b35] to-[#4299e1] bg-clip-text text-transparent">
-                        4.8
-                      </span>
-                      <div className="flex items-center gap-1">
+              <div id="reviews" className="space-y-6 sm:space-y-8 w-full scroll-mt-6">
+                {reviewCount > 0 && averageRating != null && Number.isFinite(averageRating) ? (
+                  <div className="flex flex-col sm:flex-row items-start justify-between gap-4 pb-6 sm:pb-8 border-b-2 border-gray-200 bg-[#fafafa] p-4 sm:p-6 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl sm:text-4xl font-bold text-[#1a202c]">{Number(averageRating).toFixed(1)}</span>
+                      <div className="flex text-[#fbbf24]">
                         {[1, 2, 3, 4, 5].map((star) => (
-                          <Star key={star} className="h-4 w-4 sm:h-6 sm:w-6 fill-yellow-400 text-yellow-400" />
+                          <Star key={star} className={`h-5 w-5 sm:h-6 sm:w-6 ${star <= Math.round(averageRating) ? 'fill-current' : 'fill-none'}`} />
                         ))}
                       </div>
+                      <p className="text-sm font-medium text-gray-600">Based on {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}</p>
                     </div>
-                    <p className="text-xs sm:text-sm font-semibold text-gray-700">Based on 120 customer reviews</p>
+                    <button type="button" className="px-5 py-2.5 bg-[#ff6b35] text-white text-sm font-semibold rounded-lg hover:bg-[#e85a28] transition-colors">Write a review</button>
                   </div>
-                  <button
-                    type="button"
-                    className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-[#ff6b35] to-[#4299e1] text-white text-xs sm:text-sm font-bold hover:from-[#e85a28] hover:to-[#3182ce] transition-all rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                  >
-                    Write a Review
-                  </button>
-                </div>
-                <div className="space-y-3 mb-8 bg-white p-6 rounded-xl border border-gray-200">
-                  {[5, 4, 3, 2, 1].map((rating) => (
-                    <div key={rating} className="flex items-center gap-4">
-                      <span className="text-sm font-semibold text-gray-700 w-20">{rating} star</span>
-                      <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner">
-                        <div
-                          className="h-full bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full transition-all"
-                          style={{ width: `${[53, 34, 10, 2, 1][5 - rating]}%` }}
-                        />
-                      </div>
-                      <span className="text-sm font-bold text-gray-900 w-12 text-right">
-                        {[53, 34, 10, 2, 1][5 - rating]}%
-                      </span>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4 bg-[#fafafa] rounded-xl border border-gray-100 text-center">
+                    <div className="flex text-[#e2e8f0] mb-4">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star key={star} className="h-8 w-8 sm:h-10 sm:w-10" />
+                      ))}
                     </div>
-                  ))}
-                </div>
-                <div className="space-y-6">
-                  <div className="flex items-start gap-4 pb-6 border-b border-gray-200 bg-white p-6 rounded-xl hover:shadow-lg transition-all">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b35] to-[#4299e1] flex items-center justify-center flex-shrink-0 text-white font-bold shadow-md">
-                      JD
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="font-bold text-gray-900">John D.</span>
-                        <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full border border-green-200">
-                          Verified Purchase
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="flex items-center gap-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          ))}
-                        </div>
-                        <span className="text-xs text-gray-500 font-medium">4 days ago</span>
-                      </div>
-                      <p className="text-gray-700 leading-relaxed">
-                        Great product! Excellent quality and fast delivery. Highly recommend.
-                      </p>
-                    </div>
+                    <h3 className="text-lg font-bold text-[#1a202c] mb-2">No reviews yet</h3>
+                    <p className="text-[#4a5568] text-sm sm:text-base max-w-md mb-6">Be the first to share your experience with this product.</p>
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
+                      className="px-6 py-3 bg-[#ff6b35] text-white text-sm font-semibold rounded-lg hover:bg-[#e85a28] transition-colors"
+                    >
+                      Write a review
+                    </button>
                   </div>
-                </div>
+                )}
               </div>
             )}
 
@@ -858,7 +844,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   });
                 }
                 if (product.itemWeight != null)
-                  specRows.push({ label: 'Weight', value: `${product.itemWeight} kg` });
+                  specRows.push({ label: 'Weight', value: `${product.itemWeight} ${(product as any).weightUnit || 'grams'}` });
                 const pd = product.itemPackageDimensions || product.packageDimensions;
                 const hasPackageDimensions = pd && (
                   pd.length != null || pd.width != null || pd.height != null
@@ -870,7 +856,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   });
                 }
                 if (product.packageWeight != null)
-                  specRows.push({ label: 'Package Weight', value: `${product.packageWeight} kg` });
+                  specRows.push({ label: 'Package Weight', value: `${product.packageWeight} ${(product as any).packageWeightUnit || 'grams'}` });
                 if (product.countryOfOrigin)
                   specRows.push({ label: 'Country of Origin', value: product.countryOfOrigin });
                 if (product.hsnCode) specRows.push({ label: 'HSN Code', value: product.hsnCode });

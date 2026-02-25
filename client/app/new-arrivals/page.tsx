@@ -79,6 +79,7 @@ const ProductCard = ({
       itemName: product.itemName,
       mainImage: product.mainImage,
       yourPrice: product.yourPrice,
+      freeShipping: product.freeShipping ?? false,
     });
     setAddedItems(new Set([...addedItems, product._id]));
     setTimeout(() => {

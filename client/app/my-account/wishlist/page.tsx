@@ -67,6 +67,7 @@ export default function WishlistPage() {
       itemName: product.itemName,
       yourPrice: product.yourPrice,
       mainImage: product.mainImage ?? product.images?.[0] ?? '',
+      freeShipping: product.freeShipping ?? false,
     });
   };
 

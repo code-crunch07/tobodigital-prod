@@ -50,6 +50,7 @@ export default function Header() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [navigations, setNavigations] = useState<NavigationLink[]>([]);
   const [siteLogo, setSiteLogo] = useState<string>('/tobo-logo.png');
+  const [announcements, setAnnouncements] = useState<string[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openMegaMenus, setOpenMegaMenus] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -147,6 +148,9 @@ export default function Header() {
       const res = await getPublicSiteSettings();
       const logo = res?.data?.logo;
       if (logo) setSiteLogo(logo);
+      if (Array.isArray(res?.data?.announcements)) {
+        setAnnouncements(res.data.announcements);
+      }
     } catch {
       // ignore - fallback logo stays
     }
@@ -220,6 +224,20 @@ export default function Header() {
         headerVisible ? 'translate-y-0' : '-translate-y-full'
       }`}
     >
+      {announcements.length > 0 && (
+        <div className="w-full bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 text-white text-[11px] sm:text-xs">
+          <div className="w-full px-2 sm:px-4 h-8 flex items-center overflow-hidden">
+            <div className="flex items-center gap-8 whitespace-nowrap animate-announcement-scroll">
+              {announcements.concat(announcements).map((msg, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <span className="text-[0.9rem]">⚡</span>
+                  <span className="font-medium">{msg}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       <div className="w-full min-w-0 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 min-w-0 gap-2">
           {/* Logo - high quality rendering */}
@@ -257,7 +275,7 @@ export default function Header() {
                   onMouseLeave={() => nav.hasMegaMenu && toggleMegaMenu(nav._id)}
                 >
                   {nav.hasMegaMenu ? (
-                    <button className="flex items-center space-x-1 text-gray-700 hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap">
+                    <button className="flex items-center space-x-1 text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap">
                       <span>{nav.label}</span>
                       <ChevronDown className="h-4 w-4" />
                     </button>
@@ -266,7 +284,7 @@ export default function Header() {
                       href={nav.href}
                       target={nav.isExternal ? '_blank' : '_self'}
                       rel={nav.isExternal ? 'noopener noreferrer' : undefined}
-                      className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap"
+                      className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap"
                     >
                       {nav.label}
                     </Link>
@@ -340,31 +358,31 @@ export default function Header() {
               <>
                 <Link
                   href="/"
-                  className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap"
+                  className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap"
                 >
                   Home
                 </Link>
                 <Link
                   href="/new-arrivals"
-                  className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap"
+                  className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap"
                 >
                   New Arrivals
                 </Link>
                 <Link
                   href="/shop"
-                  className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap"
+                  className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap"
                 >
                   Shop
                 </Link>
                 <Link
                   href="/about"
-                  className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap"
+                  className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap"
                 >
                   About Us
                 </Link>
                 <Link
                   href="/blog"
-                  className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap"
+                  className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap"
                 >
                   Blog
                 </Link>
@@ -387,7 +405,7 @@ export default function Header() {
             <div className="relative search-container">
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
-                className="p-2 text-gray-700 hover:text-[#ff006e] transition-colors"
+                className="p-2 text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors"
                 aria-label="Search"
               >
                 <Search className="h-5 w-5" />
@@ -436,7 +454,7 @@ export default function Header() {
             {/* Wishlist Icon */}
             <Link
               href="/my-account/wishlist"
-              className="p-2 text-gray-700 hover:text-[#ff006e] transition-colors relative"
+              className="p-2 text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors relative"
               aria-label="Wishlist"
             >
               <Heart className="h-5 w-5" />
@@ -452,7 +470,7 @@ export default function Header() {
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="p-2 text-gray-700 hover:text-[#ff006e] transition-colors"
+                  className="p-2 text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors"
                   aria-label="My Account"
                 >
                   <User className="h-5 w-5" />
@@ -481,7 +499,7 @@ export default function Header() {
                         <Link
                           href="/my-account"
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          className="flex items-center px-4 py-2 text-sm text-[rgb(16,15,15)] hover:bg-gray-100 transition-colors"
                         >
                           <UserCircle className="h-4 w-4 mr-3 text-gray-500" />
                           My Account
@@ -489,7 +507,7 @@ export default function Header() {
                         <Link
                           href="/my-account/orders"
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          className="flex items-center px-4 py-2 text-sm text-[rgb(16,15,15)] hover:bg-gray-100 transition-colors"
                         >
                           <Package className="h-4 w-4 mr-3 text-gray-500" />
                           Orders
@@ -497,7 +515,7 @@ export default function Header() {
                         <Link
                           href="/my-account/wishlist"
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          className="flex items-center justify-between px-4 py-2 text-sm text-[rgb(16,15,15)] hover:bg-gray-100 transition-colors"
                         >
                           <div className="flex items-center">
                             <Heart className="h-4 w-4 mr-3 text-gray-500" />
@@ -525,7 +543,7 @@ export default function Header() {
             ) : (
               <button
                 onClick={() => setLoginDialogOpen(true)}
-                className="p-2 text-gray-700 hover:text-[#ff006e] transition-colors"
+                className="p-2 text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors"
                 aria-label="Account"
               >
                 <User className="h-5 w-5" />
@@ -548,7 +566,7 @@ export default function Header() {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-2 text-gray-700"
+              className="md:hidden p-2 text-[rgb(16,15,15)]"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -607,7 +625,7 @@ export default function Header() {
       )}
 
       {/* Mobile menu overlay + drawer rendered in portal so they are never hidden by header/overflow */}
-      {typeof document !== 'undefined' && createPortal(
+      {mounted && createPortal(
         <>
           {mobileMenuOpen && (
             <div
@@ -620,10 +638,11 @@ export default function Header() {
             className={`fixed left-0 top-0 h-full w-full max-w-sm bg-white shadow-2xl z-[110] md:hidden transform transition-transform duration-300 ease-out flex flex-col ${
               mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
+            role="dialog"
             aria-label="Mobile menu"
           >
             <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
-              <span className="text-lg font-bold text-gray-900">Menu</span>
+              <h2 className="text-lg font-bold text-gray-900">Menu</h2>
               <button
                 onClick={() => setMobileMenuOpen(false)}
                 className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
@@ -693,12 +712,12 @@ export default function Header() {
                 ))
               ) : (
                 <>
-                  <Link href="/" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-                  <Link href="/new-arrivals" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>New Arrivals</Link>
-                  <Link href="/shop" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Shop</Link>
-                  <Link href="/about" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
-                  <Link href="/blog" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
-                  <Link href="/contact" className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Contact Us</Link>
+            <Link href="/" className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+                  <Link href="/new-arrivals" className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>New Arrivals</Link>
+                  <Link href="/shop" className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Shop</Link>
+                  <Link href="/about" className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
+                  <Link href="/blog" className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
+                  <Link href="/contact" className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Contact Us</Link>
                 </>
               )}
             </nav>

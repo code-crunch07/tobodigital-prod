@@ -66,6 +66,7 @@ export interface IProduct extends Document {
   stockQuantity: number;
   isFeatured?: boolean;
   showOnHomepage?: boolean;
+  freeShipping?: boolean;
 
   // SEO
   seoTitle?: string;
@@ -145,6 +146,7 @@ const ProductSchema: Schema = new Schema(
     stockQuantity: { type: Number, default: 0 },
     isFeatured: { type: Boolean, default: false },
     showOnHomepage: { type: Boolean, default: false },
+    freeShipping: { type: Boolean, default: false },
     seoTitle: { type: String },
     seoDescription: { type: String },
     seoKeywords: { type: String },

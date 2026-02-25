@@ -103,6 +103,7 @@ export default function ProductDetailPage() {
           itemName: product.itemName,
           mainImage: product.mainImage,
           yourPrice: product.yourPrice,
+          freeShipping: product.freeShipping ?? false,
         });
       }
     }
@@ -467,10 +468,10 @@ export default function ProductDetailPage() {
                   <div className="text-gray-900">{product.itemDimensions.length} × {product.itemDimensions.width} × {product.itemDimensions.height} {product.itemDimensions.unit || 'cm'}</div>
                 </div>
               )}
-              {product.itemWeight && (
+              {product.itemWeight != null && (
                 <div className="grid grid-cols-[1fr_1.5fr] gap-4 p-4 border-b border-gray-200 hover:bg-[rgba(255,107,53,0.05)]">
                   <div className="font-semibold text-gray-700">Weight</div>
-                  <div className="text-gray-900">{product.itemWeight} grams</div>
+                  <div className="text-gray-900">{product.itemWeight} {(product as any).weightUnit || 'grams'}</div>
                 </div>
               )}
               {product.hsnCode && (

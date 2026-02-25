@@ -13,6 +13,8 @@ const DEFAULT_SITE = {
   timezone: 'Asia/Kolkata',
   logo: '',
   favicon: '',
+  defaultShippingCharge: 50,
+  announcements: [] as string[],
 };
 
 // GET /api/public/site-settings
@@ -29,6 +31,8 @@ export const getPublicSiteSettings = async (req: Request, res: Response) => {
         siteUrl: merged.siteUrl,
         logo: merged.logo || '',
         favicon: merged.favicon || '',
+        defaultShippingCharge: typeof merged.defaultShippingCharge === 'number' ? merged.defaultShippingCharge : 50,
+        announcements: Array.isArray(merged.announcements) ? merged.announcements : [],
       },
     });
   } catch (error: any) {
@@ -65,10 +69,25 @@ export const getSiteSettings = async (req: Request, res: Response) => {
 // PATCH /api/settings/site
 export const updateSiteSettings = async (req: Request, res: Response) => {
   try {
-    const allowed = ['siteName', 'siteUrl', 'email', 'phone', 'address', 'currency', 'timezone', 'logo', 'favicon'];
+    const allowed = ['siteName', 'siteUrl', 'email', 'phone', 'address', 'currency', 'timezone', 'logo', 'favicon', 'defaultShippingCharge', 'announcements'];
     const updates: Record<string, unknown> = {};
     for (const k of allowed) {
-      if (req.body[k] !== undefined) updates[k] = req.body[k];
+      if (req.body[k] === undefined) continue;
+      if (k === 'defaultShippingCharge') {
+        const n = Number(req.body[k]);
+        updates[k] = Number.isFinite(n) && n >= 0 ? n : 50;
+      } else if (k === 'announcements') {
+        const raw = req.body[k];
+        if (Array.isArray(raw)) {
+          updates[k] = raw
+            .map((v) => (typeof v === 'string' ? v.trim() : ''))
+            .filter((v) => v.length > 0);
+        } else {
+          updates[k] = [];
+        }
+      } else {
+        updates[k] = req.body[k];
+      }
     }
     let doc = await Setting.findOne({ key: SITE_KEY }).lean();
     const current = (doc?.value as Record<string, unknown>) || {};

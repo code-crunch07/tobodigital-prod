@@ -19,6 +19,8 @@ const defaultSettings = {
   timezone: 'Asia/Kolkata',
   logo: '',
   favicon: '',
+  defaultShippingCharge: 50,
+  announcements: [] as string[],
 };
 
 export default function SiteSettingsPage() {
@@ -276,10 +278,22 @@ export default function SiteSettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Regional Settings</CardTitle>
-          <CardDescription>Currency and timezone configuration</CardDescription>
+          <CardDescription>Currency, timezone, and shipping configuration</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Default Shipping Charge (₹) *</Label>
+              <Input
+                type="number"
+                min={0}
+                step={1}
+                value={settings.defaultShippingCharge ?? 50}
+                onChange={(e) => setSettings({ ...settings, defaultShippingCharge: Math.max(0, Number(e.target.value) || 0) })}
+                placeholder="50"
+              />
+              <p className="text-xs text-muted-foreground">Applied at checkout when cart does not qualify for free shipping</p>
+            </div>
             <div className="space-y-2">
               <Label>Currency *</Label>
               <select
@@ -322,6 +336,58 @@ export default function SiteSettingsPage() {
               </select>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Announcement Bar</CardTitle>
+          <CardDescription>Add short messages to show in the top announcement strip on the storefront.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {settings.announcements.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              No announcements yet. Click &quot;Add announcement&quot; to create your first message.
+            </p>
+          )}
+          <div className="space-y-3">
+            {settings.announcements.map((msg, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <Input
+                  value={msg}
+                  placeholder="e.g. 🔥 Flat ₹199 delivery charges"
+                  onChange={(e) => {
+                    const next = [...settings.announcements];
+                    next[index] = e.target.value;
+                    setSettings({ ...settings, announcements: next });
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    const next = settings.announcements.filter((_, i) => i !== index);
+                    setSettings({ ...settings, announcements: next });
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() =>
+              setSettings({
+                ...settings,
+                announcements: [...settings.announcements, ''],
+              })
+            }
+          >
+            Add announcement
+          </Button>
         </CardContent>
       </Card>
 

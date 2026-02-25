@@ -113,6 +113,7 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
       itemName: product.itemName,
       mainImage: product.mainImage,
       yourPrice: product.yourPrice,
+      freeShipping: product.freeShipping ?? false,
     });
     setAddedItems(new Set([...addedItems, product._id]));
     setTimeout(() => {
