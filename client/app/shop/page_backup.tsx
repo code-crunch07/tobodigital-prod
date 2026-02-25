@@ -24,6 +24,7 @@ interface Product {
     _id: string;
     name: string;
   };
+  freeShipping?: boolean;
 }
 
 interface Category {

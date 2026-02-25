@@ -24,6 +24,7 @@ interface Product {
   productCategory?: {
     name: string;
   };
+  freeShipping?: boolean;
 }
 
 type DataSource = 'popular' | 'newest';
