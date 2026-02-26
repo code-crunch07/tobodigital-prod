@@ -437,23 +437,45 @@ export default function CategoryPage() {
     );
   }
 
+  // Prefer category.bannerImage from category data; fallback to any promotion banner image
+  const heroImage = category.bannerImage || categoryBanner?.image || null;
+
   return (
     <>
     <div className="min-h-screen bg-white">
-      {/* Top banner – dark with category title + breadcrumb (reference layout) */}
-      <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(45deg, #059669 0%, transparent 50%), linear-gradient(-45deg, #2563eb 0%, transparent 50%)' }} />
+      {/* Top banner – uses category banner image when available */}
+      <div className="relative overflow-hidden bg-gray-900">
+        <div className="absolute inset-0">
+          {heroImage ? (
+            <>
+              <img
+                src={heroImage}
+                alt={category.name}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/40" />
+            </>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+              <div
+                className="absolute inset-0 opacity-40"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(45deg, #059669 0%, transparent 50%), linear-gradient(-45deg, #2563eb 0%, transparent 50%)',
+                }}
+              />
+            </div>
+          )}
         </div>
-        <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">{category.name}</h1>
+        <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center text-white">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">{category.name}</h1>
           <nav className="flex items-center justify-center gap-2 text-sm text-white/90">
             <Link href="/" className="hover:text-white transition-colors flex items-center gap-1">
               <Home className="h-4 w-4" />
               Home
             </Link>
             <span>/</span>
-            <span className="text-white font-medium">{category.name}</span>
+            <span className="font-medium">{category.name}</span>
           </nav>
         </div>
       </div>
