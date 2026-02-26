@@ -618,7 +618,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                             onClick={() =>
                               onSelectOption && onSelectOption(name, val)
                             }
-                            className={`px-3 py-1.5 rounded-full border text-xs sm:text-sm ${
+                            className={`px-3 py-1.5 border text-xs sm:text-sm ${
                               isSelected
                                 ? 'border-black bg-black text-white'
                                 : 'border-gray-300 text-gray-800 hover:border-black'
