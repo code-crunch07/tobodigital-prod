@@ -300,7 +300,7 @@ export default function Header() {
                       if (isSimpleDropdown) {
                         const column = nav.megaMenuColumns![0];
                         return (
-                          <div className="absolute left-1/2 -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg w-56 sm:w-64 max-w-[calc(100vw-2rem)] overflow-hidden">
+                          <div className="absolute left-1/2 top-full -translate-x-1/2 mt-3 bg-white border border-gray-200 rounded-xl shadow-lg w-56 sm:w-64 max-w-[calc(100vw-2rem)] overflow-hidden z-40">
                             <div className="py-2">
                               {column.links.map((link, linkIndex) => {
                                 const linkHref = link.isCategory ? getCategoryLink(link.href) : link.href;
@@ -323,19 +323,21 @@ export default function Header() {
 
                       return (
                         <div
-                          className={`absolute left-1/2 -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl p-4 sm:p-6 ${
+                          className={`absolute left-1/2 top-full -translate-x-1/2 mt-3 bg-white border border-gray-200 rounded-2xl shadow-xl p-4 sm:p-6 ${
                             nav.megaMenuWidth === 'full'
                               ? 'w-[calc(100vw-2rem)]'
                               : nav.megaMenuWidth === 'wide'
                               ? 'w-[min(80rem,calc(100vw-2rem))]'
                               : 'w-[min(72rem,calc(100vw-2rem))]'
-                          } max-w-[calc(100vw-2rem)]`}
+                          } max-w-[calc(100vw-2rem)] max-h-[70vh] overflow-y-auto z-40`}
                         >
-                          <div className={`grid gap-4 sm:gap-6 grid-cols-2 sm:grid-cols-3 ${nav.megaMenuImage ? 'md:grid-cols-5' : 'md:grid-cols-4'}`}>
+                          <div className={`grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-3 ${nav.megaMenuImage ? 'md:grid-cols-5' : 'md:grid-cols-4'}`}>
                             {nav.megaMenuColumns?.map((column, colIndex) => (
                               <div key={colIndex} className="space-y-3">
                                 {column.title && (
-                                  <h3 className="font-bold text-gray-900 mb-2 sm:mb-3">{column.title}</h3>
+                                  <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-2 sm:mb-3">
+                                    {column.title}
+                                  </h3>
                                 )}
                                 <div className="space-y-1.5 sm:space-y-2">
                                   {column.links.map((link, linkIndex) => {
