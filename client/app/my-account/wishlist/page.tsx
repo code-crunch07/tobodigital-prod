@@ -84,11 +84,19 @@ export default function WishlistPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Wishlist</h1>
-          <p className="text-gray-600 mt-2">
-            {wishlistItems.length} {wishlistItems.length === 1 ? 'item' : 'items'} in your wishlist
-          </p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">My Wishlist</h1>
+            <p className="text-gray-600 mt-2 text-sm sm:text-base">
+              Keep products you love in one place and add them to cart whenever you’re ready.
+            </p>
+          </div>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white shadow-sm border border-gray-200 text-xs sm:text-sm text-gray-700">
+            <Heart className="h-4 w-4 text-[#ff006e]" />
+            <span>
+              {wishlistItems.length} {wishlistItems.length === 1 ? 'item saved' : 'items saved'}
+            </span>
+          </div>
         </div>
 
         {/* Wishlist Items */}
@@ -114,7 +122,7 @@ export default function WishlistPage() {
             {products.map((product) => (
               <div
                 key={product._id}
-                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden group"
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden group flex flex-col"
               >
                 {/* Product Image */}
                 <Link href={getProductUrl(product)}>
@@ -146,37 +154,35 @@ export default function WishlistPage() {
                 </Link>
 
                 {/* Product Info */}
-                <div className="p-4">
+                <div className="p-4 flex-1 flex flex-col">
                   <Link href={getProductUrl(product)}>
-                    <h3 className="product-title mb-2 line-clamp-2 hover:text-[#ff006e] transition-colors">
+                    <h3 className="product-title mb-1.5 line-clamp-2 hover:text-[#ff006e] transition-colors">
                       {product.itemName}
                     </h3>
                   </Link>
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <span className="product-price">
-                        {formatPrice(product.yourPrice)}
+                  <div className="flex items-baseline justify-between mb-3 gap-2">
+                    <span className="product-price">
+                      {formatPrice(product.yourPrice)}
+                    </span>
+                    {product.originalPrice && product.originalPrice > product.yourPrice && (
+                      <span className="text-xs sm:text-sm text-gray-500 line-through">
+                        {formatPrice(product.originalPrice)}
                       </span>
-                      {product.originalPrice && product.originalPrice > product.yourPrice && (
-                        <span className="text-sm text-gray-500 line-through ml-2">
-                          {formatPrice(product.originalPrice)}
-                        </span>
-                      )}
-                    </div>
+                    )}
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
+                  {/* Action area */}
+                  <div className="mt-auto space-y-2">
                     <Link
                       href={getProductUrl(product)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                      className="inline-flex items-center gap-1 text-xs sm:text-sm text-gray-600 hover:text-[#ff006e] transition-colors"
                     >
                       <Eye className="h-4 w-4" />
-                      View
+                      <span>View details</span>
                     </Link>
                     <button
                       onClick={() => handleAddToCart(product)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#ff006e] text-white rounded-lg hover:bg-[#d4005a] transition-colors text-sm font-medium"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#ff006e] text-white rounded-lg hover:bg-[#d4005a] transition-colors text-sm font-semibold"
                     >
                       <ShoppingCart className="h-4 w-4" />
                       Add to Cart
