@@ -163,26 +163,21 @@ const ProductCard = ({
         </div>
       </div>
       <div className="px-5 pb-14 pt-4 flex-1 flex flex-col min-h-0 transition-transform duration-300 group-hover:-translate-y-3">
-        <Link href={getProductUrl(product)}>
-          <h3 className="product-title leading-snug line-clamp-2 min-h-[20px] hover:text-[#ff006e] transition-colors">{product.itemName}</h3>
-        </Link>
-        <div className="mt-3 flex items-center gap-2">
-          <div className="flex items-center text-[#f5a623] text-sm leading-none">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className={`h-3.5 w-3.5 ${i < 4 ? 'fill-[#f5a623] text-[#f5a623]' : 'fill-gray-200 text-gray-200'}`} />
-            ))}
+        {product.productCategory?.name && (
+          <div className="text-xs font-medium text-gray-500 mb-1">
+            {product.productCategory.name}
           </div>
-          <span className="text-xs text-gray-500">2 reviews</span>
-        </div>
+        )}
+        <Link href={getProductUrl(product)}>
+          <h3 className="product-title leading-snug line-clamp-2 min-h-[20px] hover:text-[#ff006e] transition-colors">
+            {product.itemName}
+          </h3>
+        </Link>
         <div className="mt-3 flex items-end gap-2">
           <span className="product-price">{formatPrice(currentPrice)}</span>
           {maxRetailPrice && maxRetailPrice > currentPrice && (
             <span className="text-sm text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
           )}
-        </div>
-        <div className="mt-3 flex items-center gap-2 text-sm">
-          <span className={inStock ? 'text-green-600' : 'text-red-600'}>✓</span>
-          <span className={inStock ? 'text-green-600' : 'text-red-600'}>{inStock ? 'In stock' : 'Out of stock'}</span>
         </div>
       </div>
       <div className={`absolute left-0 right-0 bottom-0 px-5 pb-5 pt-3 bg-white border-t border-gray-100 transition-transform duration-300 ${isAdded ? 'translate-y-0' : 'translate-y-full group-hover:translate-y-0'}`}>
