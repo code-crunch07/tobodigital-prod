@@ -104,7 +104,7 @@ export default function CartPage() {
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       {cartItems.map((item) => (
-                        <tr key={item._id} className="hover:bg-gray-50">
+                        <tr key={item.lineId} className="hover:bg-gray-50">
                           <td className="px-6 py-6">
                             <div className="flex gap-4">
                               <Link
@@ -124,6 +124,13 @@ export default function CartPage() {
                                 >
                                   {item.itemName}
                                 </Link>
+                                {item.variantAttributes && Object.keys(item.variantAttributes).length > 0 && (
+                                  <p className="text-xs text-gray-600 mb-1">
+                                    {Object.entries(item.variantAttributes)
+                                      .map(([name, value]) => `${name}: ${value}`)
+                                      .join(' · ')}
+                                  </p>
+                                )}
                                 <p className="text-sm text-gray-600 mb-2">
                                   {formatPrice(item.yourPrice)}
                                 </p>
@@ -134,7 +141,7 @@ export default function CartPage() {
                             <div className="flex items-center justify-center">
                               <div className="flex items-center border border-gray-300 rounded">
                                 <button
-                                  onClick={() => updateQuantity(item._id, Math.max(1, item.quantity - 1))}
+                                  onClick={() => updateQuantity(item.lineId, Math.max(1, item.quantity - 1))}
                                   className="p-2 hover:bg-gray-100 transition-colors"
                                 >
                                   <Minus className="h-4 w-4" />
@@ -143,7 +150,7 @@ export default function CartPage() {
                                   {String(item.quantity).padStart(2, '0')}
                                 </span>
                                 <button
-                                  onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                                  onClick={() => updateQuantity(item.lineId, item.quantity + 1)}
                                   className="p-2 hover:bg-gray-100 transition-colors"
                                 >
                                   <Plus className="h-4 w-4" />
@@ -158,7 +165,7 @@ export default function CartPage() {
                           </td>
                           <td className="px-6 py-6">
                             <button
-                              onClick={() => removeFromCart(item._id)}
+                              onClick={() => removeFromCart(item.lineId)}
                               className="p-2 text-gray-400 hover:text-red-500 transition-colors"
                               title="Remove item"
                             >

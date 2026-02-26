@@ -20,7 +20,7 @@ import {
   ShieldCheck,
   Lock,
 } from 'lucide-react';
-import type { Product } from './types';
+import type { Product, ProductVariant } from './types';
 
 /** Amazon-style zoom: fixed lens size, zoom panel uses background-image (no img scale) */
 const LENS_SIZE = 300;
@@ -76,6 +76,14 @@ export interface ProductDetailViewProps {
   reviewCount?: number;
   /** From API when available; 0–5 */
   averageRating?: number | null;
+  /** Variants (optional) */
+  activeVariant?: ProductVariant | null;
+  variantAttributesMap?: Record<string, string[]>;
+  selectedOptions?: Record<string, string>;
+  onSelectOption?: (name: string, value: string) => void;
+  effectivePrice?: number;
+  effectiveMrp?: number;
+  effectiveStock?: number | null;
 }
 
 export function ProductDetailView(props: ProductDetailViewProps) {
@@ -127,6 +135,13 @@ export function ProductDetailView(props: ProductDetailViewProps) {
     renderProductCard,
     reviewCount = 0,
     averageRating = null,
+    activeVariant,
+    variantAttributesMap,
+    selectedOptions,
+    onSelectOption,
+    effectivePrice,
+    effectiveMrp,
+    effectiveStock,
   } = props;
 
   const touchStartX = useRef(0);
@@ -584,17 +599,57 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               )}
             </div>
 
+            {/* Variant selectors */}
+            {variantAttributesMap && Object.keys(variantAttributesMap).length > 0 && (
+              <div className="space-y-3 pt-1">
+                {Object.entries(variantAttributesMap).map(([name, values]) => (
+                  <div key={name} className="space-y-1">
+                    <div className="text-xs font-medium text-gray-600">
+                      {name}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {values.map((val) => {
+                        const isSelected =
+                          selectedOptions && selectedOptions[name] === val;
+                        return (
+                          <button
+                            key={val}
+                            type="button"
+                            onClick={() =>
+                              onSelectOption && onSelectOption(name, val)
+                            }
+                            className={`px-3 py-1.5 rounded-full border text-xs sm:text-sm ${
+                              isSelected
+                                ? 'border-black bg-black text-white'
+                                : 'border-gray-300 text-gray-800 hover:border-black'
+                            }`}
+                          >
+                            {val}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Price + stock */}
             <div className="space-y-3">
               <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
                 <span className="text-2xl sm:text-3xl lg:text-[2.25rem] font-semibold text-[#111111]">
-                  {formatPrice(product.yourPrice)}
+                  {formatPrice(effectivePrice ?? product.yourPrice)}
                 </span>
-                {(product.maximumRetailPrice || product.maxRetailPrice) &&
-                  (product.maximumRetailPrice || product.maxRetailPrice)! > product.yourPrice && (
+                {(() => {
+                  const baseMrp = product.maximumRetailPrice || product.maxRetailPrice;
+                  const mrpToUse =
+                    typeof effectiveMrp === 'number' ? effectiveMrp : baseMrp;
+                  const priceToUse = effectivePrice ?? product.yourPrice;
+                  if (!mrpToUse || mrpToUse <= priceToUse) return null;
+                  return (
                   <>
                     <span className="text-base sm:text-lg text-[#9ca3af] line-through">
-                      {formatPrice((product.maximumRetailPrice || product.maxRetailPrice)!)}
+                      {formatPrice(mrpToUse)}
                     </span>
                     {discount > 0 && (
                       <span className="text-xs sm:text-sm font-semibold text-[#16a34a]">
@@ -602,30 +657,31 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                       </span>
                     )}
                   </>
-                )}
+                  );
+                })()}
               </div>
-              {product.stockQuantity !== undefined && (
+              {(effectiveStock ?? product.stockQuantity) !== undefined && (
                 <div className="flex items-center gap-2 text-sm">
                   <span
                     className={`inline-flex h-5 w-5 items-center justify-center rounded-full border ${
-                      product.stockQuantity > 0
+                      (effectiveStock ?? product.stockQuantity)! > 0
                         ? 'border-[#16a34a] bg-[#dcfce7]'
                         : 'border-[#f97316] bg-[#ffedd5]'
                     }`}
                   >
                     <span
                       className={`h-2.5 w-2.5 rounded-full ${
-                        product.stockQuantity > 0 ? 'bg-[#16a34a]' : 'bg-[#f97316]'
+                        (effectiveStock ?? product.stockQuantity)! > 0 ? 'bg-[#16a34a]' : 'bg-[#f97316]'
                       }`}
                     />
                   </span>
                   <span
                     className={`font-medium ${
-                      product.stockQuantity > 0 ? 'text-[#166534]' : 'text-[#9a3412]'
+                      (effectiveStock ?? product.stockQuantity)! > 0 ? 'text-[#166534]' : 'text-[#9a3412]'
                     }`}
                   >
-                    {product.stockQuantity > 0
-                      ? `Available in stock (${product.stockQuantity})`
+                    {(effectiveStock ?? product.stockQuantity)! > 0
+                      ? `Available in stock (${effectiveStock ?? product.stockQuantity})`
                       : 'Out of stock'}
                   </span>
                 </div>

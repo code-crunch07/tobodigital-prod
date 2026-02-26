@@ -4,22 +4,14 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, ShoppingCart, Minus, Plus, Trash2, Pencil } from 'lucide-react';
 import Link from 'next/link';
-
-interface CartItem {
-  _id: string;
-  itemName: string;
-  mainImage: string;
-  yourPrice: number;
-  quantity: number;
-  color?: string;
-}
+import type { CartItem } from '@/contexts/CartContext';
 
 interface CartPanelProps {
   isOpen: boolean;
   onClose: () => void;
   items: CartItem[];
-  onUpdateQuantity: (id: string, quantity: number) => void;
-  onRemoveItem: (id: string) => void;
+  onUpdateQuantity: (lineId: string, quantity: number) => void;
+  onRemoveItem: (lineId: string) => void;
 }
 
 export default function CartPanel({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem }: CartPanelProps) {
@@ -91,7 +83,7 @@ export default function CartPanel({ isOpen, onClose, items, onUpdateQuantity, on
           ) : (
             <div className="space-y-4">
               {items.map((item) => (
-                <div key={item._id} className="relative flex gap-3 p-3 border-b border-gray-200">
+                <div key={item.lineId} className="relative flex gap-3 p-3 border-b border-gray-200">
                   {/* Product Image */}
                   <img
                     src={item.mainImage || '/placeholder-product.jpg'}
@@ -101,12 +93,14 @@ export default function CartPanel({ isOpen, onClose, items, onUpdateQuantity, on
                   
                   {/* Product Details */}
                   <div className="flex-1">
-                    <h3 className="font-medium text-sm text-gray-900 mb-1 line-clamp-2">
+                    <h3 className="font-medium text-sm text-gray-900 mb-0.5 line-clamp-2">
                       {item.itemName}
                     </h3>
-                    {item.color && (
-                      <p className="text-xs text-gray-600 mb-1">
-                        Color: <span className="text-blue-500">{item.color}</span>
+                    {item.variantAttributes && Object.keys(item.variantAttributes).length > 0 && (
+                      <p className="text-[11px] text-gray-600 mb-1">
+                        {Object.entries(item.variantAttributes)
+                          .map(([name, value]) => `${name}: ${value}`)
+                          .join(' · ')}
                       </p>
                     )}
                     <p className="text-sm font-semibold text-blue-600 mb-3">
@@ -117,7 +111,7 @@ export default function CartPanel({ isOpen, onClose, items, onUpdateQuantity, on
                     <div className="flex items-center gap-2">
                       <div className="flex items-center border border-gray-300 rounded">
                         <button
-                          onClick={() => onUpdateQuantity(item._id, Math.max(1, item.quantity - 1))}
+                          onClick={() => onUpdateQuantity(item.lineId, Math.max(1, item.quantity - 1))}
                           className="p-1.5 hover:bg-gray-100 transition-colors"
                         >
                           <Minus className="h-3.5 w-3.5" />
@@ -126,7 +120,7 @@ export default function CartPanel({ isOpen, onClose, items, onUpdateQuantity, on
                           {String(item.quantity).padStart(2, '0')}
                         </span>
                         <button
-                          onClick={() => onUpdateQuantity(item._id, item.quantity + 1)}
+                          onClick={() => onUpdateQuantity(item.lineId, item.quantity + 1)}
                           className="p-1.5 hover:bg-gray-100 transition-colors"
                         >
                           <Plus className="h-3.5 w-3.5" />
@@ -138,7 +132,7 @@ export default function CartPanel({ isOpen, onClose, items, onUpdateQuantity, on
                   {/* Action Icons - Top Right */}
                   <div className="flex flex-col gap-2">
                     <button
-                      onClick={() => onRemoveItem(item._id)}
+                      onClick={() => onRemoveItem(item.lineId)}
                       className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
                       title="Delete"
                     >

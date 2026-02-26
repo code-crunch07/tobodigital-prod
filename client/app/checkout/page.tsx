@@ -367,6 +367,8 @@ export default function CheckoutPage() {
       const orderData = {
         items: cartItems.map((item) => ({
           product: item._id,
+          variantId: item.variantId,
+          variantAttributes: item.variantAttributes,
           quantity: item.quantity,
           price: item.yourPrice,
         })),
@@ -802,7 +804,7 @@ export default function CheckoutPage() {
               {/* Order Items */}
               <div className="space-y-4 mb-6 pb-6 border-b border-gray-200">
                 {cartItems.map((item) => (
-                  <div key={item._id} className="flex gap-3 items-start">
+                  <div key={item.lineId} className="flex gap-3 items-start">
                     <Link
                       href={getProductUrl(item)}
                       className="flex-shrink-0 w-16 h-16 rounded overflow-hidden hover:opacity-90 transition-opacity block relative"
@@ -825,6 +827,13 @@ export default function CheckoutPage() {
                       >
                         {item.itemName}
                       </Link>
+                      {item.variantAttributes && Object.keys(item.variantAttributes).length > 0 && (
+                        <p className="text-[11px] text-gray-600 mt-0.5">
+                          {Object.entries(item.variantAttributes)
+                            .map(([name, value]) => `${name}: ${value}`)
+                            .join(' · ')}
+                        </p>
+                      )}
                       <p className="text-xs text-gray-600 mt-1">
                         {formatPrice(item.yourPrice)} × {item.quantity}
                       </p>

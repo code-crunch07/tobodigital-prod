@@ -8,7 +8,7 @@ import { ShoppingCart, Heart, Check, X, ZoomIn, ZoomOut, ChevronLeft, ChevronRig
 import { getProductById, getProducts, checkPincodeServiceability } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
-import type { Product } from './types';
+import type { Product, ProductVariant } from './types';
 import { ProductDetailView } from './ProductDetailView';
 
 /** Strip HTML tags and collapse whitespace for plain-text excerpt */
@@ -56,12 +56,29 @@ export default function ProductDetailPage() {
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (productId) {
       loadProduct();
     }
   }, [productId]);
+
+  // Initialize variant selection when product changes
+  useEffect(() => {
+    if (product?.variants && product.variants.length > 0) {
+      const baseVariant =
+        (product.variants as ProductVariant[]).find((v) => v.isDefault) ||
+        (product.variants as ProductVariant[])[0];
+      const attrs =
+        baseVariant.attributes && typeof baseVariant.attributes === 'object'
+          ? { ...baseVariant.attributes }
+          : {};
+      setSelectedOptions(attrs);
+    } else {
+      setSelectedOptions({});
+    }
+  }, [product?._id]);
 
   // Set page title and meta tags for SEO and social sharing
   useEffect(() => {
@@ -432,25 +449,81 @@ export default function ProductDetailPage() {
     );
   };
 
-  const mrp = product?.maximumRetailPrice || product?.maxRetailPrice || 0;
-  const discount = mrp && mrp > (product?.yourPrice || 0)
-    ? Math.round(((mrp - (product?.yourPrice || 0)) / mrp) * 100)
-    : 0;
+  // Variant helpers – derive attribute options and active variant
+  const variantAttributesMap: Record<string, string[]> = {};
+  if (product?.variants && (product.variants as ProductVariant[]).length > 0) {
+    (product.variants as ProductVariant[]).forEach((v) => {
+      if (!v.attributes || typeof v.attributes !== 'object') return;
+      Object.entries(v.attributes as Record<string, string>).forEach(
+        ([name, value]) => {
+          if (!value) return;
+          if (!variantAttributesMap[name]) variantAttributesMap[name] = [];
+          if (!variantAttributesMap[name].includes(value)) {
+            variantAttributesMap[name].push(value);
+          }
+        },
+      );
+    });
+  }
+
+  let activeVariant: ProductVariant | null = null;
+  if (product?.variants && (product.variants as ProductVariant[]).length > 0) {
+    const variants = product.variants as ProductVariant[];
+    const baseVariant =
+      variants.find((v) => v.isDefault) || variants[0];
+
+    if (!selectedOptions || Object.keys(selectedOptions).length === 0) {
+      activeVariant = baseVariant;
+    } else {
+      const exact = variants.find((v) => {
+        if (!v.attributes) return false;
+        return Object.entries(selectedOptions).every(
+          ([name, value]) => (v.attributes as any)[name] === value,
+        );
+      });
+      activeVariant = exact || baseVariant;
+    }
+  }
+
+  const baseMrp = product?.maximumRetailPrice || product?.maxRetailPrice || 0;
+  const basePrice = product?.yourPrice || 0;
+  const effectivePrice = activeVariant ? activeVariant.price : basePrice;
+  const effectiveMrp =
+    activeVariant && typeof activeVariant.maxRetailPrice === 'number'
+      ? activeVariant.maxRetailPrice
+      : baseMrp;
+  const effectiveStock =
+    activeVariant && typeof activeVariant.stockQuantity === 'number'
+      ? activeVariant.stockQuantity
+      : product?.stockQuantity;
+
+  const discount =
+    effectiveMrp && effectiveMrp > effectivePrice
+      ? Math.round(((effectiveMrp - effectivePrice) / effectiveMrp) * 100)
+      : 0;
 
   const handleAddToCart = () => {
-    if (product) {
-      for (let i = 0; i < quantity; i++) {
-        addToCart({
-          _id: product._id,
-          itemName: product.itemName,
-          mainImage: product.mainImage,
-          yourPrice: product.yourPrice,
-          freeShipping: product.freeShipping ?? false,
-        });
-      }
-      setAddedToCart(true);
-      setTimeout(() => setAddedToCart(false), 2000);
+    if (!product) return;
+
+    const pricePerUnit = effectivePrice;
+    const variantId = activeVariant?._id;
+    const variantAttributes = activeVariant?.attributes as
+      | Record<string, string>
+      | undefined;
+
+    for (let i = 0; i < quantity; i++) {
+      addToCart({
+        _id: product._id,
+        itemName: product.itemName,
+        mainImage: product.mainImage,
+        yourPrice: pricePerUnit,
+        freeShipping: product.freeShipping ?? false,
+        variantId,
+        variantAttributes,
+      });
     }
+    setAddedToCart(true);
+    setTimeout(() => setAddedToCart(false), 2000);
   };
 
   const handleBuyNow = () => {
@@ -677,6 +750,15 @@ export default function ProductDetailPage() {
       plainDescription={plainDescription}
       discount={discount}
       formatPrice={formatPrice}
+      activeVariant={activeVariant}
+      variantAttributesMap={variantAttributesMap}
+      selectedOptions={selectedOptions}
+      onSelectOption={(name, value) =>
+        setSelectedOptions((prev) => ({ ...prev, [name]: value }))
+      }
+      effectivePrice={effectivePrice}
+      effectiveMrp={effectiveMrp}
+      effectiveStock={effectiveStock}
       selectedImage={selectedImage}
       setSelectedImage={setSelectedImage}
       setImageRef={setImageRef}

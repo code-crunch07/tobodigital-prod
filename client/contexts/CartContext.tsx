@@ -3,19 +3,25 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface CartItem {
+  /** Unique line id inside cart */
+  lineId: string;
+  /** Product ID */
   _id: string;
   itemName: string;
   mainImage: string;
   yourPrice: number;
   quantity: number;
   freeShipping?: boolean;
+  /** Variant info (optional) */
+  variantId?: string;
+  variantAttributes?: Record<string, string>;
 }
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (item: Omit<CartItem, 'quantity'>) => void;
-  updateQuantity: (id: string, quantity: number) => void;
-  removeFromCart: (id: string) => void;
+  addToCart: (item: Omit<CartItem, 'quantity' | 'lineId'>) => void;
+  updateQuantity: (lineId: string, quantity: number) => void;
+  removeFromCart: (lineId: string) => void;
   clearCart: () => void;
   getCartItemCount: () => number;
 }
@@ -30,7 +36,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       try {
-        setCartItems(JSON.parse(savedCart));
+        const parsed: any[] = JSON.parse(savedCart);
+        const normalized: CartItem[] = parsed.map((item) => {
+          const variantId = item.variantId;
+          const baseLineId =
+            item.lineId ||
+            `${item._id}${variantId ? `:${variantId}` : ':base'}`;
+          return {
+            lineId: baseLineId,
+            ...item,
+          } as CartItem;
+        });
+        setCartItems(normalized);
       } catch (error) {
         console.error('Error loading cart:', error);
       }
@@ -44,33 +61,41 @@ export function CartProvider({ children }: { children: ReactNode }) {
     window.dispatchEvent(new CustomEvent('cartUpdated'));
   }, [cartItems]);
 
-  const addToCart = (item: Omit<CartItem, 'quantity'>) => {
+  const addToCart = (item: Omit<CartItem, 'quantity' | 'lineId'>) => {
     setCartItems((prevItems) => {
-      const existingItem = prevItems.find((i) => i._id === item._id);
+      const existingItem = prevItems.find(
+        (i) => i._id === item._id && i.variantId === item.variantId,
+      );
+      const baseLineId =
+        `${item._id}${item.variantId ? `:${item.variantId}` : ':base'}`;
       if (existingItem) {
-        // If item exists, increase quantity
         return prevItems.map((i) =>
-          i._id === item._id ? { ...i, quantity: i.quantity + 1 } : i
+          i.lineId === existingItem.lineId
+            ? { ...i, quantity: i.quantity + 1 }
+            : i,
         );
       } else {
-        // If item doesn't exist, add it with quantity 1
-        return [...prevItems, { ...item, quantity: 1 }];
+        return [...prevItems, { ...item, lineId: baseLineId, quantity: 1 }];
       }
     });
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const updateQuantity = (lineId: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(id);
+      removeFromCart(lineId);
       return;
     }
     setCartItems((prevItems) =>
-      prevItems.map((item) => (item._id === id ? { ...item, quantity } : item))
+      prevItems.map((item) =>
+        item.lineId === lineId ? { ...item, quantity } : item,
+      ),
     );
   };
 
-  const removeFromCart = (id: string) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item._id !== id));
+  const removeFromCart = (lineId: string) => {
+    setCartItems((prevItems) =>
+      prevItems.filter((item) => item.lineId !== lineId),
+    );
   };
 
   const clearCart = () => {
