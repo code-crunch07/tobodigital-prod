@@ -159,6 +159,15 @@ export default function ProductForm({ product, categories, subCategories = [], o
     isFeatured: false,
     showOnHomepage: false,
     freeShipping: false,
+    variants: [] as {
+      id?: string;
+      sku: string;
+      attributes: Record<string, string>;
+      price: number;
+      maxRetailPrice?: number;
+      stockQuantity: number;
+      isDefault?: boolean;
+    }[],
   });
 
   const [loading, setLoading] = useState(false);
@@ -264,6 +273,19 @@ export default function ProductForm({ product, categories, subCategories = [], o
         isFeatured: product.isFeatured ?? false,
         showOnHomepage: product.showOnHomepage ?? false,
         freeShipping: product.freeShipping ?? false,
+        variants: Array.isArray(product.variants)
+          ? product.variants.map((v: any) => ({
+              id: String(v._id || ''),
+              sku: v.sku || '',
+              attributes: v.attributes && typeof v.attributes === 'object' ? { ...v.attributes } : {},
+              price: typeof v.price === 'number' ? v.price : product.yourPrice || 0,
+              maxRetailPrice: typeof v.maxRetailPrice === 'number'
+                ? v.maxRetailPrice
+                : (product.maxRetailPrice ?? product.maximumRetailPrice ?? 0),
+              stockQuantity: typeof v.stockQuantity === 'number' ? v.stockQuantity : product.stockQuantity || 0,
+              isDefault: !!v.isDefault,
+            }))
+          : [],
       });
     }
   }, [product]);
@@ -278,6 +300,18 @@ export default function ProductForm({ product, categories, subCategories = [], o
         genericKeyword: Array.isArray(formData.genericKeyword) ? formData.genericKeyword : [],
         specialFeatures: Array.isArray(formData.specialFeatures) ? formData.specialFeatures.join(', ') : formData.specialFeatures,
       };
+
+      // Normalize variants for API (optional feature)
+      if (Array.isArray(formData.variants) && formData.variants.length > 0) {
+        submitData.variants = formData.variants.map((v) => ({
+          sku: v.sku,
+          attributes: v.attributes || {},
+          price: Number.isFinite(v.price) ? v.price : formData.yourPrice,
+          maxRetailPrice: v.maxRetailPrice ?? formData.maximumRetailPrice,
+          stockQuantity: Number.isFinite(v.stockQuantity) ? v.stockQuantity : 0,
+          isDefault: !!v.isDefault,
+        }));
+      }
 
       if (submitData.maximumRetailPrice !== undefined) {
         submitData.maxRetailPrice = submitData.maximumRetailPrice;
@@ -833,87 +867,358 @@ export default function ProductForm({ product, categories, subCategories = [], o
             />
           </CardHeader>
         {expandedSections.pricing && (
-            <CardContent className="bg-blue-50/50 p-6 rounded-lg">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h4 className="font-semibold text-sm text-gray-700">Price</h4>
-                  <div className="space-y-2">
-                    <Label>Your Price *</Label>
-                    <Input
-            type="number" 
-            step="0.01"
-                      value={formData.yourPrice || ''}
-                      onChange={(e) => setFormData({ ...formData, yourPrice: parseFloat(e.target.value) || 0 })}
-            required
-          />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>MRP</Label>
-                    <Input
-            type="number" 
-            step="0.01"
-                      value={formData.maximumRetailPrice || ''}
-                      onChange={(e) => setFormData({ ...formData, maximumRetailPrice: parseFloat(e.target.value) || 0 })}
-          />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Sale Price</Label>
-                    <Input
-            type="number" 
-            step="0.01"
-                      value={formData.salePrice || ''}
-                      onChange={(e) => setFormData({ ...formData, salePrice: parseFloat(e.target.value) || 0 })}
-          />
-                  </div>
+          <CardContent className="bg-blue-50/50 p-6 rounded-lg space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h4 className="font-semibold text-sm text-gray-700">Price</h4>
+                <div className="space-y-2">
+                  <Label>Your Price *</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.yourPrice || ''}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        yourPrice: parseFloat(e.target.value) || 0,
+                      })
+                    }
+                    required
+                  />
                 </div>
-                <div className="space-y-4">
-                  <h4 className="font-semibold text-sm text-gray-700">Stock</h4>
-                  <div className="space-y-2">
-                    <Label>Stock Quantity *</Label>
-                    <Input
-            type="number"
-                      value={formData.stockQuantity || ''}
-                      onChange={(e) => setFormData({ ...formData, stockQuantity: parseInt(e.target.value) || 0 })}
-            required
-          />
-                  </div>
-          <div className="space-y-2">
-            <Label>Item Condition *</Label>
-            <Select
-              value={formData.itemCondition || 'New'}
-              onValueChange={(value) => setFormData({ ...formData, itemCondition: value })}
-              required
-            >
-              <SelectTrigger>
-                        <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="New">New</SelectItem>
-                <SelectItem value="Refurbished">Refurbished</SelectItem>
-                <SelectItem value="Used">Used</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-                  <div className="space-y-2">
-                    <Label>Sale Start Date</Label>
-                    <Input
-                      type="date"
-                      value={formData.saleStartDate}
-                      onChange={(e) => setFormData({ ...formData, saleStartDate: e.target.value })}
-            />
-          </div>
-                  <div className="space-y-2">
-                    <Label>Sale End Date</Label>
-              <Input
-                      type="date"
-                      value={formData.saleEndDate}
-                      onChange={(e) => setFormData({ ...formData, saleEndDate: e.target.value })}
-                    />
-            </div>
+                <div className="space-y-2">
+                  <Label>MRP</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.maximumRetailPrice || ''}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        maximumRetailPrice: parseFloat(e.target.value) || 0,
+                      })
+                    }
+                  />
                 </div>
+                <div className="space-y-2">
+                  <Label>Sale Price</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.salePrice || ''}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        salePrice: parseFloat(e.target.value) || 0,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="space-y-4">
+                <h4 className="font-semibold text-sm text-gray-700">Stock</h4>
+                <div className="space-y-2">
+                  <Label>Stock Quantity *</Label>
+                  <Input
+                    type="number"
+                    value={formData.stockQuantity || ''}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        stockQuantity: parseInt(e.target.value) || 0,
+                      })
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Item Condition *</Label>
+                  <Select
+                    value={formData.itemCondition || 'New'}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, itemCondition: value })
+                    }
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="New">New</SelectItem>
+                      <SelectItem value="Refurbished">Refurbished</SelectItem>
+                      <SelectItem value="Used">Used</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Sale Start Date</Label>
+                  <Input
+                    type="date"
+                    value={formData.saleStartDate}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        saleStartDate: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Sale End Date</Label>
+                  <Input
+                    type="date"
+                    value={formData.saleEndDate}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        saleEndDate: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
             </div>
-            </CardContent>
-          )}
+
+            {/* Variants */}
+            <div className="mt-2 border-t border-blue-100 pt-4 space-y-3">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h4 className="font-semibold text-sm text-gray-700">
+                    Variants (optional)
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1 max-w-xl">
+                    Use variants when this product has options like Color or
+                    Size and each option needs its own price and stock. If you
+                    do not add variants, the base price and stock above will be
+                    used.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      variants: [
+                        ...formData.variants,
+                        {
+                          id: Date.now().toString(),
+                          sku: formData.productId
+                            ? `${formData.productId}-${formData.variants.length + 1}`
+                            : '',
+                          attributes: {},
+                          price: formData.yourPrice || 0,
+                          maxRetailPrice:
+                            formData.maximumRetailPrice || undefined,
+                          stockQuantity: formData.stockQuantity || 0,
+                          isDefault: formData.variants.length === 0,
+                        },
+                      ],
+                    })
+                  }
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Variant
+                </Button>
+              </div>
+
+              {formData.variants.length > 0 && (
+                <div className="space-y-4">
+                  {formData.variants.map((variant, index) => (
+                    <div
+                      key={variant.id || index}
+                      className="rounded-lg border border-blue-100 bg-white p-3 sm:p-4 space-y-3"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold text-gray-500">
+                            Variant {index + 1}
+                          </span>
+                          <span className="text-[11px] text-gray-400">
+                            (SKU, attributes, price & stock)
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <label className="flex items-center gap-1 text-xs text-gray-600 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="defaultVariant"
+                              checked={!!variant.isDefault}
+                              onChange={() =>
+                                setFormData({
+                                  ...formData,
+                                  variants: formData.variants.map((v, i) => ({
+                                    ...v,
+                                    isDefault: i === index,
+                                  })),
+                                })
+                              }
+                            />
+                            Default
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setFormData({
+                                ...formData,
+                                variants: formData.variants.filter(
+                                  (_, i) => i !== index,
+                                ),
+                              })
+                            }
+                            className="text-xs text-red-600 hover:text-red-700 flex items-center gap-1"
+                          >
+                            <X className="h-3 w-3" />
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs text-gray-600">SKU</Label>
+                          <Input
+                            value={variant.sku}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                variants: formData.variants.map((v, i) =>
+                                  i === index
+                                    ? { ...v, sku: e.target.value }
+                                    : v,
+                                ),
+                              })
+                            }
+                            placeholder="Variant SKU"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs text-gray-600">
+                            Price
+                          </Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={variant.price ?? ''}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                variants: formData.variants.map((v, i) =>
+                                  i === index
+                                    ? {
+                                        ...v,
+                                        price:
+                                          parseFloat(e.target.value) || 0,
+                                      }
+                                    : v,
+                                ),
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs text-gray-600">MRP</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={variant.maxRetailPrice ?? ''}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                variants: formData.variants.map((v, i) =>
+                                  i === index
+                                    ? {
+                                        ...v,
+                                        maxRetailPrice:
+                                          parseFloat(e.target.value) || 0,
+                                      }
+                                    : v,
+                                ),
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs text-gray-600">
+                            Stock
+                          </Label>
+                          <Input
+                            type="number"
+                            value={variant.stockQuantity ?? ''}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                variants: formData.variants.map((v, i) =>
+                                  i === index
+                                    ? {
+                                        ...v,
+                                        stockQuantity:
+                                          parseInt(e.target.value) || 0,
+                                      }
+                                    : v,
+                                ),
+                              })
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      {productAttributes.length > 0 && (
+                        <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                          {productAttributes.map((attr) => (
+                            <div key={attr.id} className="space-y-1.5">
+                              <Label className="text-xs text-gray-600">
+                                {attr.name}
+                              </Label>
+                              <Select
+                                key={`variant-${index}-${attr.name}`}
+                                value={
+                                  (variant.attributes &&
+                                    variant.attributes[attr.name]) ||
+                                  ''
+                                }
+                                onValueChange={(v) =>
+                                  setFormData({
+                                    ...formData,
+                                    variants: formData.variants.map((vv, i) =>
+                                      i === index
+                                        ? {
+                                            ...vv,
+                                            attributes: {
+                                              ...(vv.attributes || {}),
+                                              [attr.name]: v,
+                                            },
+                                          }
+                                        : vv,
+                                    ),
+                                  })
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue
+                                    placeholder={`Select ${attr.name.toLowerCase()}`}
+                                  />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {attr.values.map((val) => (
+                                    <SelectItem key={val} value={val}>
+                                      {val}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        )}
         </Card>
 
         {/* 4️⃣ Product Attributes */}

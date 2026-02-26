@@ -1,3 +1,13 @@
+export interface ProductVariant {
+  _id?: string;
+  sku: string;
+  attributes: Record<string, string>;
+  price: number;
+  maxRetailPrice?: number;
+  stockQuantity: number;
+  isDefault?: boolean;
+}
+
 export interface Product {
   _id: string;
   itemName: string;
@@ -74,4 +84,5 @@ export interface Product {
   /** Values for product attributes (e.g. Size, Material) from dashboard Product Attributes */
   attributeValues?: Record<string, string>;
   freeShipping?: boolean;
+  variants?: ProductVariant[];
 }

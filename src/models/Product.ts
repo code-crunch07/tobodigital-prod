@@ -1,5 +1,15 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+export interface IProductVariant {
+  _id?: any;
+  sku: string;
+  attributes: Record<string, string>;
+  price: number;
+  maxRetailPrice?: number;
+  stockQuantity: number;
+  isDefault?: boolean;
+}
+
 export interface IProduct extends Document {
   // Basic Information
   mainImage: string;
@@ -68,6 +78,9 @@ export interface IProduct extends Document {
   showOnHomepage?: boolean;
   freeShipping?: boolean;
 
+  // Variants
+  variants?: IProductVariant[];
+
   // SEO
   seoTitle?: string;
   seoDescription?: string;
@@ -93,6 +106,18 @@ const ItemDimensionsSchema = new Schema(
     unit: { type: String, required: true, default: 'cm' },
   },
   { _id: false }
+);
+
+const VariantSchema = new Schema(
+  {
+    sku: { type: String, required: true },
+    attributes: { type: Schema.Types.Mixed, default: {} },
+    price: { type: Number, required: true, min: 0 },
+    maxRetailPrice: { type: Number, min: 0 },
+    stockQuantity: { type: Number, default: 0 },
+    isDefault: { type: Boolean, default: false },
+  },
+  { _id: true }
 );
 
 const ProductSchema: Schema = new Schema(
@@ -154,6 +179,7 @@ const ProductSchema: Schema = new Schema(
     videoLink: { type: String },
     amazonLink: { type: String },
     attributeValues: { type: Schema.Types.Mixed, default: {} },
+    variants: { type: [VariantSchema], default: [] },
   },
   {
     timestamps: true,
