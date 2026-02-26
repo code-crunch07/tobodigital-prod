@@ -39,8 +39,9 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="flex flex-col items-center justify-center h-full gap-3">
+        <div className="animate-spin rounded-full h-12 w-12 border-2 border-muted border-t-primary"></div>
+        <p className="text-sm text-muted-foreground">Loading dashboard…</p>
       </div>
     );
   }
@@ -64,66 +65,65 @@ export default function Dashboard() {
     }).format(amount);
   };
 
+  const statCards = [
+    {
+      title: 'Total Sales',
+      value: formatCurrency(stats?.totalSales || 0),
+      sub: 'All time revenue',
+      Icon: IndianRupee,
+      accent: 'border-l-primary bg-primary/5 dark:bg-primary/10',
+      iconBg: 'bg-primary/15 dark:bg-primary/25 text-primary',
+    },
+    {
+      title: 'Total Orders',
+      value: stats?.totalOrders ?? 0,
+      sub: `${stats?.pendingOrders ?? 0} pending orders`,
+      Icon: ShoppingCart,
+      accent: 'border-l-[rgb(22,176,238)] bg-[rgb(22,176,238)]/5 dark:bg-[rgb(22,176,238)]/15',
+      iconBg: 'bg-[rgb(22,176,238)]/15 dark:bg-[rgb(22,176,238)]/25 text-[rgb(22,176,238)]',
+    },
+    {
+      title: 'Products',
+      value: stats?.totalProducts ?? 0,
+      sub: 'Active products',
+      Icon: Package,
+      accent: 'border-l-emerald-500 bg-emerald-500/5 dark:bg-emerald-500/10',
+      iconBg: 'bg-emerald-500/15 dark:bg-emerald-500/25 text-emerald-600 dark:text-emerald-400',
+    },
+    {
+      title: 'Customers',
+      value: stats?.totalCustomers ?? 0,
+      sub: 'Total registered users',
+      Icon: Users,
+      accent: 'border-l-violet-500 bg-violet-500/5 dark:bg-violet-500/10',
+      iconBg: 'bg-violet-500/15 dark:bg-violet-500/25 text-violet-600 dark:text-violet-400',
+    },
+  ];
+
   return (
     <div className="space-y-4 sm:space-y-6 p-2 sm:p-0">
-      <div>
+      {/* Header with subtle gradient */}
+      <div className="rounded-xl bg-gradient-to-br from-primary/10 via-transparent to-[rgb(22,176,238)]/10 dark:from-primary/20 dark:to-[rgb(22,176,238)]/20 p-4 sm:p-5 border border-border">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Overview of your e-commerce platform</p>
+        <p className="text-sm text-muted-foreground mt-1">Overview of your e-commerce platform</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="dashboard-card-interactive">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
-            <IndianRupee className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">{formatCurrency(stats?.totalSales || 0)}</div>
-            <p className="text-xs text-muted-foreground">
-              All time revenue
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="dashboard-card-interactive">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">{stats?.totalOrders || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats?.pendingOrders || 0} pending orders
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="dashboard-card-interactive">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Products</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">{stats?.totalProducts || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Active products
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="dashboard-card-interactive">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Customers</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">{stats?.totalCustomers || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Total registered users
-            </p>
-          </CardContent>
-        </Card>
+        {statCards.map(({ title, value, sub, Icon, accent, iconBg }) => (
+          <Card key={title} className={`dashboard-card-interactive group border-l-4 ${accent}`}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{title}</CardTitle>
+              <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconBg} transition-transform group-hover:scale-110`}>
+                <Icon className="h-4 w-4 flex-shrink-0" />
+              </span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl sm:text-2xl font-bold">{value}</div>
+              <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Charts Row */}
@@ -216,7 +216,7 @@ export default function Dashboard() {
               {stats.recentOrders.map((order: any) => (
                 <div
                   key={order._id}
-                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-4 last:border-0"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-border pb-4 last:border-0 hover:bg-muted/50 rounded-lg px-2 -mx-2 py-1 transition-colors"
                 >
                   <div className="space-y-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">

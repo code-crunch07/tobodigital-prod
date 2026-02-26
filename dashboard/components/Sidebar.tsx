@@ -267,10 +267,9 @@ export default function Sidebar() {
           'w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
           isCollapsed ? 'justify-center px-2' : '',
           isActiveSection
-            ? 'text-white'
-            : 'text-muted-foreground hover:text-foreground'
+            ? 'bg-primary text-primary-foreground'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
         )}
-        style={isActiveSection ? { backgroundColor: 'rgb(237, 130, 79)' } : {}}
       >
         <div className={cn('flex items-center gap-3', isCollapsed && 'gap-0')}>
           <Icon className="w-5 h-5 flex-shrink-0" />
@@ -298,7 +297,7 @@ export default function Sidebar() {
       <div className="mt-2">
         {buttonContent}
         {expanded && !isCollapsed && (
-          <div className="ml-4 mt-1 space-y-1 border-l-2 pl-2" style={{ borderColor: 'rgb(237, 130, 79)' }}>
+          <div className="ml-4 mt-1 space-y-1 border-l-2 border-primary pl-2">
             {children}
           </div>
         )}
@@ -317,10 +316,9 @@ export default function Sidebar() {
           isCollapsed ? 'justify-center px-2' : '',
           isSubItem ? 'py-1.5' : 'py-2',
           isActive(href)
-            ? 'text-white'
-            : 'text-muted-foreground hover:text-foreground hover:bg-gray-100'
+            ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
         )}
-        style={isActive(href) ? { backgroundColor: 'rgb(22, 176, 238)' } : {}}
       >
         {Icon && <Icon className="w-4 h-4 flex-shrink-0" />}
         {!isCollapsed && <span>{label}</span>}
@@ -346,7 +344,7 @@ export default function Sidebar() {
           variant="outline"
           size="icon"
           onClick={() => setIsOpen(!isOpen)}
-          className="h-10 w-10 rounded-lg shadow-md bg-white border-gray-200 hover:bg-gray-50 transition-colors"
+          className="h-10 w-10 rounded-lg shadow-md bg-background border-border hover:bg-muted transition-colors"
           aria-label={isOpen ? 'Close menu' : 'Open menu'}
         >
           {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -365,12 +363,11 @@ export default function Sidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-40 h-screen border-r transition-all duration-300 ease-in-out',
+          'fixed top-0 left-0 z-40 h-screen border-r border-border bg-sidebar transition-all duration-300 ease-in-out',
           'lg:translate-x-0',
           isOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full',
           isCollapsed ? 'w-64 lg:w-20' : 'w-64'
         )}
-        style={{ backgroundColor: '#FFFFFF', borderColor: '#E5E7EB' }}
       >
         <div className="h-full px-4 py-4 overflow-y-auto">
           <div className={cn("flex items-center justify-center mb-8 mt-4 lg:mt-0", isCollapsed ? "" : "")}>
@@ -411,10 +408,9 @@ export default function Sidebar() {
                     'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
                     isCollapsed ? 'justify-center px-2' : '',
                     isActiveItem
-                      ? 'text-white'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-gray-100'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   )}
-                  style={isActiveItem ? { backgroundColor: 'rgb(237, 130, 79)' } : {}}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
                   {!isCollapsed && <span>{item.name}</span>}

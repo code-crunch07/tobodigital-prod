@@ -17,20 +17,13 @@ function DashboardHeader() {
     process.env.NEXT_PUBLIC_STOREFRONT_URL || 'http://localhost:3001/client';
 
   return (
-    <header className="border-b p-3 sm:p-4 flex justify-between items-center bg-white flex-wrap gap-2" style={{ borderColor: '#E5E7EB' }}>
+    <header className="border-b border-border p-3 sm:p-4 flex justify-between items-center bg-background flex-wrap gap-2 transition-colors">
       <div className="flex items-center gap-2 sm:gap-3">
         <Button
           variant="ghost"
           size="icon"
           onClick={toggleSidebar}
-          className="h-9 w-9 hidden lg:inline-flex"
-          style={{ backgroundColor: 'rgb(237, 130, 79)', color: 'white' }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgb(220, 110, 60)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgb(237, 130, 79)';
-          }}
+          className="h-9 w-9 hidden lg:inline-flex bg-primary text-primary-foreground hover:bg-primary/90 hover:opacity-90"
         >
           {isCollapsed ? (
             <ChevronRight className="h-5 w-5" />
@@ -70,7 +63,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <SidebarContentWrapper>
         <DashboardHeader />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 bg-white min-w-0">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 bg-background min-w-0 transition-colors">
           {children}
         </main>
       </SidebarContentWrapper>

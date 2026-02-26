@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -27,8 +28,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={dmSans.variable}>
+    <html lang="en" className={dmSans.variable} suppressHydrationWarning>
       <body className={`${dmSans.className} font-sans`}>
+        <Script src="/theme-init.js" strategy="beforeInteractive" />
         <ErrorBoundary>
           <DashboardLayout>{children}</DashboardLayout>
         </ErrorBoundary>
