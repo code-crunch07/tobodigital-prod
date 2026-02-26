@@ -11,7 +11,7 @@ export default function SidebarContentWrapper({ children }: { children: React.Re
       className={cn(
         'flex-1 flex flex-col overflow-hidden transition-all duration-300 min-w-0',
         'pl-14 lg:pl-0',
-        isCollapsed ? 'lg:ml-20' : 'lg:ml-64'
+        isCollapsed ? 'lg:ml-[4.5rem]' : 'lg:ml-64'
       )}
     >
       {children}

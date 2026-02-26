@@ -254,33 +254,35 @@ export default function Sidebar() {
     children: React.ReactNode
   ) => {
     const handleToggle = () => {
-      // When collapsed, don't allow expanding sections
       if (isCollapsed) return;
-      // If clicking on the same section, collapse it. Otherwise, expand the clicked section
       setExpandedSection(expanded ? null : sectionKey);
     };
-    
+
     const buttonContent = (
       <button
+        type="button"
         onClick={handleToggle}
         className={cn(
-          'w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
-          isCollapsed ? 'justify-center px-2' : '',
+          'w-full flex items-center justify-between gap-2 rounded-lg text-sm font-medium transition-all duration-200',
+          isCollapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2.5',
           isActiveSection
-            ? 'bg-primary text-primary-foreground'
-            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+            ? 'bg-primary text-primary-foreground shadow-sm'
+            : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-muted/80'
         )}
       >
-        <div className={cn('flex items-center gap-3', isCollapsed && 'gap-0')}>
-          <Icon className="w-5 h-5 flex-shrink-0" />
-          {!isCollapsed && <span>{title}</span>}
+        <div className={cn('flex items-center gap-3 min-w-0', isCollapsed && 'justify-center')}>
+          <span className={cn(
+            'flex flex-shrink-0 items-center justify-center rounded-md',
+            isActiveSection ? 'w-8 h-8' : 'w-8 h-8 rounded-md bg-sidebar-primary/10 text-sidebar-primary dark:bg-sidebar-primary/20'
+          )}>
+            <Icon className="h-4 w-4" />
+          </span>
+          {!isCollapsed && <span className="truncate">{title}</span>}
         </div>
         {!isCollapsed && (
-          expanded ? (
-            <ChevronDown className="w-4 h-4" />
-          ) : (
-            <ChevronRight className="w-4 h-4" />
-          )
+          <span className="flex-shrink-0 text-sidebar-foreground/60">
+            {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          </span>
         )}
       </button>
     );
@@ -288,16 +290,16 @@ export default function Sidebar() {
     if (isCollapsed) {
       return (
         <Tooltip content={title} side="right">
-          <div className="mt-2">{buttonContent}</div>
+          <div className="mt-1">{buttonContent}</div>
         </Tooltip>
       );
     }
-    
+
     return (
-      <div className="mt-2">
+      <div className="mt-1">
         {buttonContent}
         {expanded && !isCollapsed && (
-          <div className="ml-4 mt-1 space-y-1 border-l-2 border-primary pl-2">
+          <div className="ml-3 mt-1 space-y-0.5 border-l-2 border-primary/30 pl-3 py-1">
             {children}
           </div>
         )}
@@ -307,21 +309,22 @@ export default function Sidebar() {
 
   const renderMenuLink = (href: string, label: string, icon?: any, isSubItem = false) => {
     const Icon = icon;
+    const active = isActive(href);
     const linkContent = (
       <Link
         href={href}
         onClick={() => setIsOpen(false)}
         className={cn(
-          'flex items-center gap-2 px-3 py-2 rounded-md text-xs transition-colors',
-          isCollapsed ? 'justify-center px-2' : '',
-          isSubItem ? 'py-1.5' : 'py-2',
-          isActive(href)
-            ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+          'flex items-center gap-2 rounded-md text-xs font-medium transition-all duration-200',
+          isCollapsed ? 'justify-center px-0 py-2' : 'px-2.5 py-2',
+          isSubItem && !isCollapsed && 'text-[13px]',
+          active
+            ? 'bg-sidebar-accent/90 text-sidebar-accent-foreground'
+            : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-muted/70'
         )}
       >
-        {Icon && <Icon className="w-4 h-4 flex-shrink-0" />}
-        {!isCollapsed && <span>{label}</span>}
+        {Icon && <Icon className="h-3.5 w-3.5 flex-shrink-0 opacity-80" />}
+        {!isCollapsed && <span className="truncate">{label}</span>}
       </Link>
     );
 
@@ -363,39 +366,53 @@ export default function Sidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-40 h-screen border-r border-border bg-sidebar transition-all duration-300 ease-in-out',
+          'fixed top-0 left-0 z-40 h-screen flex flex-col border-r border-border bg-sidebar transition-all duration-300 ease-in-out',
           'lg:translate-x-0',
           isOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full',
-          isCollapsed ? 'w-64 lg:w-20' : 'w-64'
+          isCollapsed ? 'w-64 lg:w-[4.5rem]' : 'w-64'
         )}
       >
-        <div className="h-full px-4 py-4 overflow-y-auto">
-          <div className={cn("flex items-center justify-center mb-8 mt-4 lg:mt-0", isCollapsed ? "" : "")}>
-            {!isCollapsed ? (
-              <Link href="/" className="flex items-center">
-                <NextImage
-                  src="/tobo-logo.png"
-                  alt="Tobo Digital"
-                  width={100}
-                  height={40}
-                  className="object-contain h-8 w-auto"
-                  priority
-                />
-              </Link>
-            ) : (
-              <Link href="/" className="flex items-center justify-center w-full">
-                <NextImage
-                  src="/tobo-logo.png"
-                  alt="Tobo Digital"
-                  width={32}
-                  height={32}
-                  className="object-contain h-8 w-8"
-                  priority
-                />
-              </Link>
-            )}
-          </div>
-          <nav className="space-y-1">
+        {/* Logo / brand area */}
+        <div
+          className={cn(
+            'flex-shrink-0 border-b border-border bg-sidebar/50',
+            isCollapsed ? 'px-0 py-4 lg:py-4' : 'px-4 py-4'
+          )}
+        >
+          {!isCollapsed ? (
+            <Link
+              href="/"
+              className="flex items-center gap-2 rounded-lg py-1 pr-2 transition-opacity hover:opacity-90"
+            >
+              <NextImage
+                src="/tobo-logo.png"
+                alt="Tobo Digital"
+                width={100}
+                height={40}
+                className="object-contain h-8 w-auto"
+                priority
+              />
+            </Link>
+          ) : (
+            <Link
+              href="/"
+              className="flex items-center justify-center w-full rounded-lg py-1 transition-opacity hover:opacity-90"
+            >
+              <NextImage
+                src="/tobo-logo.png"
+                alt="Tobo Digital"
+                width={32}
+                height={32}
+                className="object-contain h-8 w-8"
+                priority
+              />
+            </Link>
+          )}
+        </div>
+
+        {/* Scrollable nav */}
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-3 py-3 sidebar-scroll">
+          <nav className="space-y-0.5">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActiveItem = pathname === item.href;
@@ -405,15 +422,17 @@ export default function Sidebar() {
                   href={item.href}
                   onClick={() => setIsOpen(false)}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
-                    isCollapsed ? 'justify-center px-2' : '',
+                    'flex items-center gap-3 rounded-lg text-sm font-medium transition-all duration-200',
+                    isCollapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2.5',
                     isActiveItem
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-muted/80'
                   )}
                 >
-                  <Icon className="w-5 h-5 flex-shrink-0" />
-                  {!isCollapsed && <span>{item.name}</span>}
+                  <span className={cn('flex flex-shrink-0 items-center justify-center', isCollapsed ? 'w-8' : '')}>
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  {!isCollapsed && <span className="truncate">{item.name}</span>}
                 </Link>
               );
 
@@ -427,6 +446,8 @@ export default function Sidebar() {
 
               return linkContent;
             })}
+
+            <div className="my-3 border-t border-border" aria-hidden />
 
             {/* Products Section */}
             {renderCollapsibleSection(
@@ -728,14 +749,6 @@ export default function Sidebar() {
           </nav>
         </div>
       </aside>
-
-      {/* Overlay for mobile */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
     </>
   );
 }
