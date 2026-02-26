@@ -543,34 +543,23 @@ export function ProductDetailView(props: ProductDetailViewProps) {
           </div>
 
           <div className="flex flex-col gap-4 sm:gap-6 min-w-0">
+            {/* Category above title */}
+            {product.productCategory && (
+              <div className="text-xs sm:text-sm text-[#6b7280]">
+                <span className="mr-1">Category</span>
+                <Link
+                  href={`/product-category/${product.productCategory.slug || product.productCategory._id}`}
+                  className="font-medium text-[#1d4ed8] hover:underline"
+                >
+                  {product.productCategory.name}
+                </Link>
+              </div>
+            )}
+
             {/* Title */}
             <h1 className="text-xl sm:text-2xl lg:text-[1.75rem] font-bold text-[#111111] leading-tight break-words tracking-tight">
               {product.itemName}
             </h1>
-
-            {/* Meta line: Brand / Category */}
-            {(product.brandName || product.productCategory) && (
-              <div className="flex flex-wrap items-center gap-2 text-sm text-[#4b5563]">
-                {product.brandName && (
-                  <>
-                    <span className="text-[#6b7280]">Brand</span>
-                    <span className="font-medium text-[#111827]">{product.brandName}</span>
-                    {product.productCategory && <span className="text-[#d1d5db] mx-1">|</span>}
-                  </>
-                )}
-                {product.productCategory && (
-                  <>
-                    <span className="text-[#6b7280]">Category</span>
-                    <Link
-                      href={`/product-category/${product.productCategory.slug || product.productCategory._id}`}
-                      className="font-medium text-[#1d4ed8] hover:underline"
-                    >
-                      {product.productCategory.name}
-                    </Link>
-                  </>
-                )}
-              </div>
-            )}
 
             {/* Rating / reviews */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#4b5563]">
@@ -652,14 +641,11 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             {/* Pincode + primary CTAs card */}
             <div className="mt-4 space-y-4 p-4 sm:p-5">
               <form onSubmit={handlePincodeCheck} className="space-y-3">
-                <div className="flex items-center justify-between gap-2 text-xs sm:text-sm font-semibold text-[#2d3748]">
+                <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#2d3748]">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-[#ff6b35]" />
                     <span>Enter pincode for delivery estimate</span>
                   </div>
-                  <span className="hidden sm:inline text-[0.75rem] font-medium text-[#718096]">
-                    Check COD, delivery time & availability
-                  </span>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <div className="flex-1 relative">

@@ -7,8 +7,8 @@
   --background: #ffffff;
   --foreground: #171717;
 
-  /* Typography system – matches the config you shared */
-  --heading-font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  /* Typography system – now using Figtree everywhere */
+  --heading-font-family: var(--font-figtree), "Figtree", system-ui, sans-serif;
   --heading-font-style: normal;
   --heading-font-weight: 600;
   --heading-base-size: 2rem;
@@ -18,18 +18,18 @@
   --subheading-base-size: 14px;
   --rating-star-size: 0.945rem;
 
-  --menu-font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  --menu-font-family: var(--font-figtree), "Figtree", system-ui, sans-serif;
   --menu-font-style: normal;
   --menu-font-weight: 500;
   --menu-letter-spacing: 0px;
 
   --body-font-scale: 1.0;
   --body-base-size: 0.875rem;
-  --body-font-family: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  --body-font-family: var(--font-figtree), "Figtree", system-ui, sans-serif;
   --body-font-style: normal;
   --body-font-weight: 400;
 
-  --button-font: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  --button-font: var(--font-figtree), "Figtree", system-ui, sans-serif;
   --button-font-style: normal;
   --button-font-weight: 500;
   --button-font-size: 0.72rem;
