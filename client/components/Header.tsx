@@ -290,24 +290,18 @@ export default function Header() {
                     </Link>
                   )}
 
-                  {/* Mega Menu Dropdown - centered under trigger, constrained to viewport */}
+                  {/* Dropdown / Mega Menu */}
                   {nav.hasMegaMenu && openMegaMenus.has(nav._id) && (
-                    <div
-                      className={`absolute left-1/2 -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl p-6 sm:p-8 ${
-                        nav.megaMenuWidth === 'full'
-                          ? 'w-[calc(100vw-2rem)]'
-                          : nav.megaMenuWidth === 'wide'
-                          ? 'w-[min(80rem,calc(100vw-2rem))]'
-                          : 'w-[min(72rem,calc(100vw-2rem))]'
-                      }`}
-                    >
-                      <div className={`grid gap-4 sm:gap-6 grid-cols-2 sm:grid-cols-3 ${nav.megaMenuImage ? 'md:grid-cols-5' : 'md:grid-cols-4'}`}>
-                        {nav.megaMenuColumns?.map((column, colIndex) => (
-                          <div key={colIndex} className="space-y-3">
-                            {column.title && (
-                              <h3 className="font-bold text-gray-900 mb-4">{column.title}</h3>
-                            )}
-                            <div className="space-y-2">
+                    (() => {
+                      const isSimpleDropdown =
+                        (nav.megaMenuColumns?.length || 0) === 1 &&
+                        !nav.megaMenuImage;
+
+                      if (isSimpleDropdown) {
+                        const column = nav.megaMenuColumns![0];
+                        return (
+                          <div className="absolute left-1/2 -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg w-56 sm:w-64 max-w-[calc(100vw-2rem)] overflow-hidden">
+                            <div className="py-2">
                               {column.links.map((link, linkIndex) => {
                                 const linkHref = link.isCategory ? getCategoryLink(link.href) : link.href;
                                 return (
@@ -316,40 +310,78 @@ export default function Header() {
                                     href={linkHref}
                                     target={link.isExternal ? '_blank' : '_self'}
                                     rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                                    className="block p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                                    className="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 hover:text-[#ff006e] transition-colors whitespace-nowrap"
                                   >
-                                    {link.image && (
-                                      <img
-                                        src={link.image}
-                                        alt={link.label}
-                                        className="w-full h-24 object-cover rounded mb-2"
-                                      />
-                                    )}
-                                    <div className="font-medium text-gray-900 group-hover:text-[#ff006e] transition-colors">
-                                      {link.label}
-                                    </div>
-                                    {link.description && (
-                                      <div className="text-sm text-gray-500 mt-1">
-                                        {link.description}
-                                      </div>
-                                    )}
+                                    {link.label}
                                   </Link>
                                 );
                               })}
                             </div>
                           </div>
-                        ))}
-                        {nav.megaMenuImage && (
-                          <div className="col-span-1">
-                            <img
-                              src={nav.megaMenuImage}
-                              alt="Promotional"
-                              className="w-full h-full object-cover rounded-lg"
-                            />
+                        );
+                      }
+
+                      return (
+                        <div
+                          className={`absolute left-1/2 -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl p-4 sm:p-6 ${
+                            nav.megaMenuWidth === 'full'
+                              ? 'w-[calc(100vw-2rem)]'
+                              : nav.megaMenuWidth === 'wide'
+                              ? 'w-[min(80rem,calc(100vw-2rem))]'
+                              : 'w-[min(72rem,calc(100vw-2rem))]'
+                          } max-w-[calc(100vw-2rem)]`}
+                        >
+                          <div className={`grid gap-4 sm:gap-6 grid-cols-2 sm:grid-cols-3 ${nav.megaMenuImage ? 'md:grid-cols-5' : 'md:grid-cols-4'}`}>
+                            {nav.megaMenuColumns?.map((column, colIndex) => (
+                              <div key={colIndex} className="space-y-3">
+                                {column.title && (
+                                  <h3 className="font-bold text-gray-900 mb-2 sm:mb-3">{column.title}</h3>
+                                )}
+                                <div className="space-y-1.5 sm:space-y-2">
+                                  {column.links.map((link, linkIndex) => {
+                                    const linkHref = link.isCategory ? getCategoryLink(link.href) : link.href;
+                                    return (
+                                      <Link
+                                        key={linkIndex}
+                                        href={linkHref}
+                                        target={link.isExternal ? '_blank' : '_self'}
+                                        rel={link.isExternal ? 'noopener noreferrer' : undefined}
+                                        className="block p-2.5 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                                      >
+                                        {link.image && (
+                                          <img
+                                            src={link.image}
+                                            alt={link.label}
+                                            className="w-full h-24 object-cover rounded mb-2"
+                                          />
+                                        )}
+                                        <div className="font-medium text-gray-900 group-hover:text-[#ff006e] transition-colors">
+                                          {link.label}
+                                        </div>
+                                        {link.description && (
+                                          <div className="text-xs sm:text-sm text-gray-500 mt-1">
+                                            {link.description}
+                                          </div>
+                                        )}
+                                      </Link>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ))}
+                            {nav.megaMenuImage && (
+                              <div className="col-span-1">
+                                <img
+                                  src={nav.megaMenuImage}
+                                  alt="Promotional"
+                                  className="w-full h-full object-cover rounded-lg"
+                                />
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    </div>
+                        </div>
+                      );
+                    })()
                   )}
                 </div>
               ))
