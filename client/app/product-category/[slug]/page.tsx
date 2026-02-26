@@ -467,8 +467,8 @@ export default function CategoryPage() {
             </div>
           )}
         </div>
-        <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center text-white">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">{category.name}</h1>
+        <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20 text-center text-white">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3">{category.name}</h1>
           <nav className="flex items-center justify-center gap-2 text-sm text-white/90">
             <Link href="/" className="hover:text-white transition-colors flex items-center gap-1">
               <Home className="h-4 w-4" />
