@@ -132,21 +132,21 @@ const ProductCard = ({
 
   return (
     <div className="group relative bg-white border border-gray-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md h-full flex flex-col">
-      {/* Product Image - swap on hover when gallery has second image */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
-        <Link href={getProductUrl(product)} className="block w-full h-full">
+      {/* Product Image - full image visible, no cropping */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 flex items-center justify-center">
+        <Link href={getProductUrl(product)} className="block w-full h-full flex items-center justify-center">
           {product.mainImage ? (
             <>
               <img
                 src={product.mainImage}
                 alt={product.itemName}
-                className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
+                className="w-full h-full object-contain object-center transition-all duration-500 group-hover:scale-105"
               />
               {hasHoverImage && (
                 <img
                   src={hoverImage}
                   alt={product.itemName}
-                  className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-110"
+                  className="absolute inset-0 w-full h-full object-contain object-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105"
                 />
               )}
             </>
@@ -157,25 +157,21 @@ const ProductCard = ({
           )}
         </Link>
 
-        {/* Sale badge - tag style with brand color (use ternary so we never render 0) */}
+        {/* Sale badge - inset so not cut off */}
         {discount > 0 ? (
-          <div className="absolute top-0 left-0 z-20">
-            <span
-              className="flex items-center gap-1.5 bg-[#ff006e] text-white text-xs font-semibold pl-2 pr-3 py-1.5 shadow-md"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
-            >
+          <div className="absolute top-2 left-2 z-20">
+            <span className="flex items-center gap-1.5 bg-[#ff006e] text-white text-xs font-semibold pl-2 pr-3 py-1.5 shadow-md rounded-r-md rounded-bl-md">
               <Tag className="h-3.5 w-3.5 flex-shrink-0" strokeWidth={2.5} />
               <span>{discount}% off</span>
             </span>
           </div>
         ) : null}
 
-        {/* Hot Badge - Top Left (below discount if both exist) */}
+        {/* Hot Badge - below discount when both exist */}
         {product.isFeatured && (
-          <div className="absolute left-0 z-20" style={{ top: discount > 0 ? '2.25rem' : 0 }}>
+          <div className="absolute left-2 z-20" style={{ top: discount > 0 ? '2.5rem' : '0.5rem' }}>
             <span
-              className="inline-flex items-center bg-[#ff006e] text-white text-xs font-semibold px-2.5 py-1 shadow-md"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
+              className="inline-flex items-center bg-[#ff006e] text-white text-xs font-semibold px-2.5 py-1 shadow-md rounded-r-md rounded-bl-md"
             >
               Hot
             </span>
