@@ -263,11 +263,11 @@ export default function Sidebar() {
         type="button"
         onClick={handleToggle}
         className={cn(
-          'relative w-full flex items-center justify-between gap-2 rounded-xl text-sm font-medium transition-all duration-200',
+          'relative w-full flex items-center justify-between gap-2 rounded-xl text-sm font-medium transition-all duration-200 ease-out',
           isCollapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2.5',
           isActiveSection
             ? 'bg-primary text-primary-foreground shadow-sm'
-            : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-muted/80 hover:scale-[1.02] active:scale-[0.98]'
+            : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-muted/80 hover:scale-[1.02] hover:shadow-sm active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar'
         )}
       >
         {isActiveSection && (
@@ -318,12 +318,12 @@ export default function Sidebar() {
         href={href}
         onClick={() => setIsOpen(false)}
         className={cn(
-          'flex items-center gap-2 rounded-lg text-xs font-medium transition-all duration-200',
+          'flex items-center gap-2 rounded-lg text-xs font-medium transition-all duration-200 ease-out',
           isCollapsed ? 'justify-center px-0 py-2' : 'px-2.5 py-2',
           isSubItem && !isCollapsed && 'text-[13px]',
           active
             ? 'bg-sidebar-accent/90 text-sidebar-accent-foreground'
-            : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-muted/70 hover:translate-x-0.5'
+            : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-muted/70 hover:translate-x-0.5 focus-visible:ring-2 focus-visible:ring-sidebar-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar'
         )}
       >
         {Icon && <Icon className="h-3.5 w-3.5 flex-shrink-0 opacity-80" />}
@@ -369,7 +369,7 @@ export default function Sidebar() {
       {/* Sidebar - modern */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-40 h-screen flex flex-col border-r border-border bg-sidebar shadow-sm transition-all duration-300 ease-in-out',
+          'fixed top-0 left-0 z-40 h-screen flex flex-col border-r border-border bg-sidebar shadow-sm transition-[width,transform,box-shadow] duration-300 ease-in-out',
           'lg:translate-x-0',
           isOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full',
           isCollapsed ? 'w-64 lg:w-[4.5rem]' : 'w-64'
@@ -385,7 +385,7 @@ export default function Sidebar() {
           {!isCollapsed ? (
             <Link
               href="/"
-              className="flex items-center gap-2 rounded-lg py-1 pr-2 transition-opacity hover:opacity-90"
+              className="flex items-center gap-2 rounded-xl py-1.5 pr-2 transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
             >
               <NextImage
                 src="/tobo-logo.png"
@@ -399,7 +399,7 @@ export default function Sidebar() {
           ) : (
             <Link
               href="/"
-              className="flex items-center justify-center w-full rounded-lg py-1 transition-opacity hover:opacity-90"
+              className="flex items-center justify-center w-full rounded-xl py-1.5 transition-all duration-200 hover:opacity-90 hover:scale-110 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
             >
               <NextImage
                 src="/tobo-logo.png"
@@ -425,11 +425,11 @@ export default function Sidebar() {
                   href={item.href}
                   onClick={() => setIsOpen(false)}
                   className={cn(
-                    'relative flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-200',
+                    'relative flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-200 ease-out',
                     isCollapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2.5',
                     isActiveItem
                       ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-muted/80 hover:scale-[1.02] active:scale-[0.98]'
+                      : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-muted/80 hover:scale-[1.02] hover:shadow-sm active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar'
                   )}
                 >
                   {isActiveItem && (
