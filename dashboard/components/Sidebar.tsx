@@ -105,6 +105,14 @@ export default function Sidebar() {
     }
   }, []);
 
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, []);
+
   // Expanded states for all sections - only one can be open at a time
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const isAdmin = userRole === 'admin';
@@ -338,18 +346,29 @@ export default function Sidebar() {
           variant="outline"
           size="icon"
           onClick={() => setIsOpen(!isOpen)}
+          className="h-10 w-10 rounded-lg shadow-md bg-white border-gray-200 hover:bg-gray-50 transition-colors"
+          aria-label={isOpen ? 'Close menu' : 'Open menu'}
         >
-          {isOpen ? <X /> : <Menu />}
+          {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
       </div>
+
+      {/* Mobile backdrop - tap to close */}
+      {isOpen && (
+        <div
+          className="lg:hidden fixed inset-0 z-30 bg-black/40 backdrop-blur-sm transition-opacity"
+          onClick={() => setIsOpen(false)}
+          aria-hidden
+        />
+      )}
 
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-40 h-screen border-r transition-all duration-300',
+          'fixed top-0 left-0 z-40 h-screen border-r transition-all duration-300 ease-in-out',
           'lg:translate-x-0',
-          isOpen ? 'translate-x-0' : '-translate-x-full',
-          isCollapsed ? 'w-20' : 'w-64'
+          isOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full',
+          isCollapsed ? 'w-64 lg:w-20' : 'w-64'
         )}
         style={{ backgroundColor: '#FFFFFF', borderColor: '#E5E7EB' }}
       >

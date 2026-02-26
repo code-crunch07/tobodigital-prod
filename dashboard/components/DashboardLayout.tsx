@@ -17,13 +17,13 @@ function DashboardHeader() {
     process.env.NEXT_PUBLIC_STOREFRONT_URL || 'http://localhost:3001/client';
 
   return (
-    <header className="border-b p-4 flex justify-between items-center bg-white" style={{ borderColor: '#E5E7EB' }}>
-      <div className="flex items-center gap-3">
+    <header className="border-b p-3 sm:p-4 flex justify-between items-center bg-white flex-wrap gap-2" style={{ borderColor: '#E5E7EB' }}>
+      <div className="flex items-center gap-2 sm:gap-3">
         <Button
           variant="ghost"
           size="icon"
           onClick={toggleSidebar}
-          className="h-9 w-9"
+          className="h-9 w-9 hidden lg:inline-flex"
           style={{ backgroundColor: 'rgb(237, 130, 79)', color: 'white' }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = 'rgb(220, 110, 60)';
@@ -38,9 +38,9 @@ function DashboardHeader() {
             <ChevronLeft className="h-5 w-5" />
           )}
         </Button>
-        <h2 className="text-xl md:text-2xl font-semibold">Welcome Back!</h2>
+        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold truncate">Welcome Back!</h2>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <Tooltip content="Open storefront" side="bottom">
           <a
             href={storefrontUrl}
@@ -70,7 +70,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <SidebarContentWrapper>
         <DashboardHeader />
-        <main className="flex-1 overflow-y-auto p-6 bg-white">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 bg-white min-w-0">
           {children}
         </main>
       </SidebarContentWrapper>

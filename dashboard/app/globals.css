@@ -124,6 +124,18 @@
   }
 }
 
+/* Dashboard interactive card - hover lift and shadow */
+.dashboard-card-interactive {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.dashboard-card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+.dashboard-card-interactive:active {
+  transform: translateY(0);
+}
+
 /* Rich Text Editor Styles */
 .ProseMirror {
   outline: none;
