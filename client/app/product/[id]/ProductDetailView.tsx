@@ -650,7 +650,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             )}
 
             {/* Pincode + primary CTAs card */}
-            <div className="mt-4 space-y-4 rounded-2xl border border-[#ffe1d0] bg-[#fff7f2] p-4 sm:p-5 shadow-sm">
+            <div className="mt-4 space-y-4 p-4 sm:p-5">
               <form onSubmit={handlePincodeCheck} className="space-y-3">
                 <div className="flex items-center justify-between gap-2 text-xs sm:text-sm font-semibold text-[#2d3748]">
                   <div className="flex items-center gap-2">
@@ -671,7 +671,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                       value={pincode}
                       onChange={(e) => onPincodeChange(e.target.value)}
                       placeholder="Enter pincode for delivery estimate"
-                      className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-white text-sm border border-[#fed7c3] focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-[#ff6b35]"
+                      className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-white text-sm border border-[#e2e8f0] focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-[#ff6b35]"
                       maxLength={6}
                     />
                   </div>
@@ -745,63 +745,31 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 )}
               </div>
 
-              {/* Secondary row: quantity + wishlist + share */}
+              {/* Secondary row: quantity */}
               <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1">
                 <div>
                   <div className="font-semibold text-[0.75rem] sm:text-xs text-[#4b5563] mb-1.5">Quantity</div>
-                  <div className="flex border border-[#fbd1b8] rounded-md overflow-hidden bg-white">
+                  <div className="flex border border-[#e2e8f0] rounded-md overflow-hidden bg-white">
                     <button
                       type="button"
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       disabled={quantity <= 1}
-                      className="px-3 py-2 text-[#4a5568] text-base hover:bg-[#fff7f2] disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-2 text-[#4a5568] text-base hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       −
                     </button>
-                    <span className="w-[52px] text-center py-2 border-x border-[#fbd1b8] text-sm font-semibold bg-white">
+                    <span className="w-[52px] text-center py-2 border-x border-[#e2e8f0] text-sm font-semibold bg-white">
                       {quantity}
                     </span>
                     <button
                       type="button"
                       onClick={() => setQuantity(quantity + 1)}
-                      className="px-3 py-2 text-[#4a5568] text-base hover:bg-[#fff7f2]"
+                      className="px-3 py-2 text-[#4a5568] text-base hover:bg-gray-50"
                     >
                       +
                     </button>
                   </div>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleWishlist(String(product._id));
-                  }}
-                  className="p-2.5 sm:p-3 rounded-full border border-[#fbd1b8] bg-white text-[#4a5568] hover:bg-[#fff7f2] transition-colors shrink-0"
-                  title="Wishlist"
-                  aria-label={isInWishlist(String(product._id)) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                >
-                  <Heart
-                    className={`h-4 w-4 sm:h-5 sm:w-5 ${isInWishlist(String(product._id)) ? 'fill-red-500 text-red-500' : ''}`}
-                  />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleShare}
-                  className="p-2.5 sm:p-3 rounded-full border border-[#fbd1b8] bg-white text-[#4a5568] hover:bg-[#fff7f2] transition-colors shrink-0"
-                  title="Share"
-                >
-                  <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                    />
-                  </svg>
-                </button>
               </div>
             </div>
 

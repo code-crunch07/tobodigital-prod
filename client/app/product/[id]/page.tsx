@@ -212,33 +212,9 @@ export default function ProductDetailPage() {
     const title = product.itemName;
     const text = `Check out this product on Tobo Digital: ${product.itemName}`;
 
-    // Get absolute image URL for sharing (product.mainImage should already be resolved)
-    const getAbsoluteImageUrl = (img: string | undefined): string => {
-      if (!img) return '';
-      if (img.startsWith('http://') || img.startsWith('https://')) return img;
-      const apiOrigin = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || 'http://localhost:5000';
-      return `${apiOrigin}${img.startsWith('/') ? '' : '/'}${img}`;
-    };
-    const imageUrl = getAbsoluteImageUrl(product.mainImage);
-
     try {
       if (typeof navigator !== 'undefined' && (navigator as any).share) {
-        const shareData: any = { title, text, url };
-        // Some platforms support files/images in Web Share API
-        if (imageUrl && (navigator as any).canShare) {
-          try {
-            // Try to fetch and share as file (limited browser support)
-            const response = await fetch(imageUrl);
-            const blob = await response.blob();
-            const file = new File([blob], 'product-image.jpg', { type: blob.type });
-            if ((navigator as any).canShare({ files: [file] })) {
-              shareData.files = [file];
-            }
-          } catch (e) {
-            // Fallback to URL-only share
-          }
-        }
-        await (navigator as any).share(shareData);
+        await (navigator as any).share({ title, text, url });
       } else if (typeof navigator !== 'undefined' && navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(url);
         alert('Product link copied to clipboard');
