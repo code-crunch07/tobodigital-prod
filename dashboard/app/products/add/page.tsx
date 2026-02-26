@@ -39,38 +39,42 @@ export default function AddProductPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="flex flex-col items-center justify-center h-full gap-3">
+        <div className="animate-spin rounded-full h-12 w-12 border-2 border-muted border-t-primary" />
+        <p className="text-sm text-muted-foreground">Loading…</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.push('/products')}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Add New Product</h1>
-          <p className="text-muted-foreground">Create a new product in your catalog</p>
+      {/* Page Header - modern */}
+      <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push('/products')}
+            className="gap-2 rounded-lg"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+          <div className="h-6 w-px bg-border hidden sm:block" />
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Add New Product</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Create a new product in your catalog</p>
           </div>
         </div>
       </div>
 
       {/* Main Form */}
-        <ProductForm
+      <ProductForm
           product={null}
           categories={categories}
           subCategories={subCategories}
           onSuccess={handleSuccess}
-        />
+      />
     </div>
   );
 }

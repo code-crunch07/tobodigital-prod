@@ -101,17 +101,17 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-6 p-2 sm:p-0">
-      {/* Header with subtle gradient */}
-      <div className="rounded-xl bg-gradient-to-br from-primary/10 via-transparent to-[rgb(22,176,238)]/10 dark:from-primary/20 dark:to-[rgb(22,176,238)]/20 p-4 sm:p-5 border border-border">
+    <div className="space-y-5 sm:space-y-6 p-2 sm:p-0">
+      {/* Modern header with glass effect */}
+      <div className="rounded-2xl border border-border bg-gradient-to-br from-primary/8 via-background to-[rgb(22,176,238)]/8 dark:from-primary/15 dark:to-[rgb(22,176,238)]/15 p-5 sm:p-6 shadow-sm backdrop-blur-sm">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-sm text-muted-foreground mt-1">Overview of your e-commerce platform</p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Stats Grid - modern cards */}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map(({ title, value, sub, Icon, accent, iconBg }) => (
-          <Card key={title} className={`dashboard-card-interactive group border-l-4 ${accent}`}>
+          <Card key={title} className={`dashboard-card-interactive group border-l-4 rounded-2xl overflow-hidden ${accent} focus-within:ring-2 focus-within:ring-primary/20`}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{title}</CardTitle>
               <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconBg} transition-transform group-hover:scale-110`}>
@@ -126,10 +126,10 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Charts Row */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 lg:grid-cols-2">
+      {/* Charts Row - modern styling */}
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
         {/* Sales Chart */}
-        <Card className="dashboard-card-interactive min-w-0 overflow-hidden">
+        <Card className="dashboard-card-interactive min-w-0 overflow-hidden rounded-2xl">
           <CardHeader>
             <CardTitle>Sales Trend</CardTitle>
             <CardDescription>Monthly sales overview</CardDescription>
@@ -142,13 +142,13 @@ export default function Dashboard() {
                   sales: item.total,
                   orders: item.count
                 }))}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="month" className="text-muted-foreground" />
+                  <YAxis className="text-muted-foreground" />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid var(--border)' }} />
                   <Legend />
-                  <Line type="monotone" dataKey="sales" stroke="#8884d8" strokeWidth={2} name="Sales (₹)" />
-                  <Line type="monotone" dataKey="orders" stroke="#82ca9d" strokeWidth={2} name="Orders" />
+                  <Line type="monotone" dataKey="sales" stroke="rgb(237, 130, 79)" strokeWidth={2} name="Sales (₹)" dot={{ fill: 'rgb(237, 130, 79)' }} />
+                  <Line type="monotone" dataKey="orders" stroke="rgb(22, 176, 238)" strokeWidth={2} name="Orders" dot={{ fill: 'rgb(22, 176, 238)' }} />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
@@ -160,7 +160,7 @@ export default function Dashboard() {
         </Card>
 
         {/* Order Status Pie Chart */}
-        <Card className="dashboard-card-interactive min-w-0 overflow-hidden">
+        <Card className="dashboard-card-interactive min-w-0 overflow-hidden rounded-2xl">
           <CardHeader>
             <CardTitle>Order Status</CardTitle>
             <CardDescription>Distribution of order statuses</CardDescription>
@@ -188,10 +188,10 @@ export default function Dashboard() {
                       { name: 'Pending', value: stats.pendingOrders },
                       { name: 'Others', value: stats.totalOrders - stats.completedOrders - stats.pendingOrders }
                     ].map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={['#10b981', '#f59e0b', '#6366f1'][index]} />
+                      <Cell key={`cell-${index}`} fill={['#10b981', 'rgb(237, 130, 79)', 'rgb(22, 176, 238)'][index]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid var(--border)' }} />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -205,18 +205,18 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Orders */}
-      <Card className="dashboard-card-interactive min-w-0 overflow-hidden">
+      <Card className="dashboard-card-interactive min-w-0 overflow-hidden rounded-2xl">
         <CardHeader>
           <CardTitle>Recent Orders</CardTitle>
           <CardDescription>Latest customer orders</CardDescription>
         </CardHeader>
         <CardContent>
           {stats?.recentOrders && stats.recentOrders.length > 0 ? (
-            <div className="space-y-4 overflow-x-auto">
+            <div className="space-y-1 overflow-x-auto">
               {stats.recentOrders.map((order: any) => (
                 <div
                   key={order._id}
-                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-border pb-4 last:border-0 hover:bg-muted/50 rounded-lg px-2 -mx-2 py-1 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-border pb-4 last:border-0 hover:bg-muted/60 rounded-xl px-3 py-2 transition-all duration-200 cursor-default"
                 >
                   <div className="space-y-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">

@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { createProduct, updateProduct, uploadImage, uploadImages, getProductAttributes, type ProductAttribute } from '@/lib/api';
+import { cn } from '@/lib/utils';
 import RichTextEditor from '@/components/RichTextEditor';
 import {
   Plus,
@@ -403,44 +404,44 @@ export default function ProductForm({ product, categories, subCategories = [], o
     return Math.round((filled / requiredFields.length) * 100);
   }, [formData]);
 
-  const SectionHeader = ({ 
-    icon: Icon, 
-    title, 
-    required, 
-    isExpanded, 
-    onToggle 
-  }: { 
-    icon: any; 
-    title: string; 
-    required?: boolean; 
-    isExpanded: boolean; 
+  const SectionHeader = ({
+    icon: Icon,
+    title,
+    required,
+    isExpanded,
+    onToggle
+  }: {
+    icon: any;
+    title: string;
+    required?: boolean;
+    isExpanded: boolean;
     onToggle: () => void;
   }) => (
-        <button
-          type="button"
+    <button
+      type="button"
       onClick={onToggle}
-      className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
-        >
+      className="w-full flex items-center justify-between p-4 rounded-t-xl hover:bg-muted/60 transition-colors text-left"
+    >
       <div className="flex items-center gap-3">
-        <Icon className="h-5 w-5 text-gray-600" />
-        <h3 className="text-lg font-semibold">{title}</h3>
+        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <Icon className="h-5 w-5" />
+        </span>
+        <h3 className="text-base font-semibold text-foreground">{title}</h3>
         {required && <Badge variant="secondary" className="text-xs">Required</Badge>}
       </div>
-      {isExpanded ? (
-            <ChevronUp className="h-5 w-5 text-gray-600" />
-          ) : (
-            <ChevronDown className="h-5 w-5 text-gray-600" />
-          )}
-        </button>
+      <span className="text-muted-foreground transition-transform duration-200">
+        {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+      </span>
+    </button>
   );
 
   return (
     <div className="flex flex-col xl:flex-row gap-6">
-      {/* Main Form - 70% */}
+      {/* Main Form */}
       <form onSubmit={handleSubmit} className="flex-1 space-y-6">
-        {/* 1️⃣ Product Information - Always Open */}
-        <Card>
-          <CardHeader>
+        {/* Product Information */}
+        <Card className="rounded-2xl overflow-hidden border-border shadow-sm">
+          <CardHeader className="p-0">
             <SectionHeader
               icon={Package}
               title="Product Information"
@@ -697,8 +698,8 @@ export default function ProductForm({ product, categories, subCategories = [], o
         </Card>
 
         {/* 2️⃣ Media Section */}
-        <Card>
-          <CardHeader>
+        <Card className="rounded-2xl overflow-hidden border-border shadow-sm">
+          <CardHeader className="p-0">
             <SectionHeader
               icon={ImageIcon}
               title="Media"
@@ -856,8 +857,8 @@ export default function ProductForm({ product, categories, subCategories = [], o
         </Card>
 
         {/* 3️⃣ Pricing & Inventory */}
-        <Card>
-          <CardHeader>
+        <Card className="rounded-2xl overflow-hidden border-border shadow-sm">
+          <CardHeader className="p-0">
             <SectionHeader
               icon={IndianRupee}
               title="Pricing & Inventory"
@@ -867,10 +868,10 @@ export default function ProductForm({ product, categories, subCategories = [], o
             />
           </CardHeader>
         {expandedSections.pricing && (
-          <CardContent className="bg-blue-50/50 p-6 rounded-lg space-y-6">
+          <CardContent className="bg-primary/5 dark:bg-primary/10 p-6 rounded-b-2xl space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
-                <h4 className="font-semibold text-sm text-gray-700">Price</h4>
+                <h4 className="font-semibold text-sm text-foreground">Price</h4>
                 <div className="space-y-2">
                   <Label>Your Price *</Label>
                   <Input
@@ -1634,27 +1635,27 @@ export default function ProductForm({ product, categories, subCategories = [], o
         </Card>
 
         {/* Save Buttons */}
-      <div className="flex justify-end gap-4 pb-6">
-        <Button type="button" variant="outline" onClick={onSuccess}>
+      <div className="flex flex-wrap justify-end gap-3 pb-6 pt-2">
+        <Button type="button" variant="outline" onClick={onSuccess} className="min-w-[100px]">
           Cancel
         </Button>
-        <Button type="submit" disabled={loading} className="min-w-[120px]">
+        <Button type="submit" disabled={loading} className="min-w-[140px] bg-primary hover:bg-primary/90">
           {loading ? 'Saving...' : product ? 'Update Product' : 'Save Product'}
         </Button>
       </div>
     </form>
 
-      {/* Summary Panel - full width on small screens, sticky sidebar on large */}
+      {/* Summary Panel */}
       <div className="w-full xl:w-[30%] mt-6 xl:mt-0">
         <div className="xl:sticky xl:top-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Product Summary</CardTitle>
+          <Card className="rounded-2xl overflow-hidden border-border shadow-sm">
+            <CardHeader className="border-b border-border">
+              <CardTitle className="text-lg">Product Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Product Name */}
               <div>
-                <Label className="text-sm text-gray-600">Product Name</Label>
+                <Label className="text-sm text-muted-foreground">Product Name</Label>
                 <p className="font-semibold mt-1">
                   {formData.itemName || <span className="text-gray-400">Not set</span>}
                 </p>
@@ -1662,17 +1663,17 @@ export default function ProductForm({ product, categories, subCategories = [], o
 
               {/* Main Image Preview */}
               <div>
-                <Label className="text-sm text-gray-600">Main Image</Label>
+                <Label className="text-sm text-muted-foreground">Main Image</Label>
                 <div className="mt-2">
                   {formData.mainImage ? (
                     <img
                       src={formData.mainImage}
                       alt="Preview"
-                      className="w-full h-48 object-cover border rounded-lg"
+                      className="w-full h-48 object-cover border border-border rounded-xl"
                     />
                   ) : (
-                    <div className="w-full h-48 border-2 border-dashed rounded-lg flex items-center justify-center bg-gray-50">
-                      <ImageIcon className="h-12 w-12 text-gray-400" />
+                    <div className="w-full h-48 border-2 border-dashed border-border rounded-xl flex items-center justify-center bg-muted/50">
+                      <ImageIcon className="h-12 w-12 text-muted-foreground" />
                     </div>
                   )}
                 </div>
@@ -1680,7 +1681,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
 
               {/* Price */}
               <div>
-                <Label className="text-sm text-gray-600">Price</Label>
+                <Label className="text-sm text-muted-foreground">Price</Label>
                 <p className="font-semibold text-lg mt-1">
                   {formData.yourPrice > 0 ? (
                     <>
@@ -1692,31 +1693,31 @@ export default function ProductForm({ product, categories, subCategories = [], o
                       )}
                     </>
                   ) : (
-                    <span className="text-gray-400">Not set</span>
+                    <span className="text-muted-foreground">Not set</span>
                   )}
                 </p>
               </div>
 
               {/* Stock */}
               <div>
-                <Label className="text-sm text-gray-600">Stock</Label>
+                <Label className="text-sm text-muted-foreground">Stock</Label>
                 <p className="font-semibold mt-1">
                   {formData.stockQuantity >= 0 ? (
-                    <span className={formData.stockQuantity > 0 ? 'text-green-600' : 'text-red-600'}>
+                    <span className={formData.stockQuantity > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'}>
                       {formData.stockQuantity} units
                     </span>
                   ) : (
-                    <span className="text-gray-400">Not set</span>
+                    <span className="text-muted-foreground">Not set</span>
                   )}
                 </p>
               </div>
 
               {/* Status */}
               <div>
-                <Label className="text-sm text-gray-600">Status</Label>
+                <Label className="text-sm text-muted-foreground">Status</Label>
                 <div className="mt-1">
                   {formData.isActive ? (
-                    <Badge variant="default" className="bg-green-600">
+                    <Badge variant="default" className="bg-emerald-600 dark:bg-emerald-500">
                       <CheckCircle2 className="h-3 w-3 mr-1" />
                       Active
                     </Badge>
@@ -1731,25 +1732,23 @@ export default function ProductForm({ product, categories, subCategories = [], o
 
               {/* Completion Percentage */}
               <div>
-                <Label className="text-sm text-gray-600">Completion</Label>
+                <Label className="text-sm text-muted-foreground">Completion</Label>
                 <div className="mt-2">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium">{completionPercentage}%</span>
-                    <Percent className="h-4 w-4 text-gray-400" />
+                    <Percent className="h-4 w-4 text-muted-foreground" />
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
                     <div
-                      className={`h-2 rounded-full transition-all ${
-                        completionPercentage === 100
-                          ? 'bg-green-600'
-                          : completionPercentage >= 70
-                          ? 'bg-blue-600'
-                          : completionPercentage >= 40
-                          ? 'bg-yellow-600'
-                          : 'bg-red-600'
-                      }`}
-                      style={{ width: `${completionPercentage}%` }}
-      />
+                      className={cn(
+                        'h-2.5 rounded-full transition-all duration-300',
+                        completionPercentage === 100 && 'bg-emerald-500',
+                        completionPercentage >= 70 && completionPercentage < 100 && 'bg-primary',
+                        completionPercentage >= 40 && completionPercentage < 70 && 'bg-amber-500',
+                        completionPercentage < 40 && 'bg-destructive/80'
+                      )}
+                      style={{ width: `${Math.max(0, completionPercentage)}%` }}
+                    />
                   </div>
                 </div>
               </div>
