@@ -34,17 +34,31 @@ export default function EditOrderPage() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [orderRes, customersRes, productsRes] = await Promise.all([
-        getOrderById(orderId),
-        getCustomers(),
-        getProducts({ limit: 1000 }),
-      ]);
+      // Load order first so we can show a clearer error if it fails
+      const orderRes = await getOrderById(orderId);
       setOrder(orderRes.data);
-      setCustomers(customersRes.data?.customers || []);
-      setProducts(productsRes.data?.products || []);
-    } catch (error) {
-      console.error('Error loading data:', error);
-      alert('Failed to load order');
+
+      // Best-effort loading of customers and products; don't block the page if they fail
+      try {
+        const customersRes = await getCustomers();
+        setCustomers(customersRes.data?.customers || []);
+      } catch (e) {
+        console.error('Failed to load customers for order edit:', e);
+      }
+
+      try {
+        const productsRes = await getProducts({ limit: 1000 });
+        setProducts(productsRes.data?.products || []);
+      } catch (e) {
+        console.error('Failed to load products for order edit:', e);
+      }
+    } catch (error: any) {
+      console.error('Error loading order:', error);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to load order';
+      alert(message);
       router.push('/orders');
     } finally {
       setLoading(false);
