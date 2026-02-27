@@ -19,6 +19,8 @@ import {
   RotateCcw,
   ShieldCheck,
   Lock,
+  Plus,
+  Minus,
 } from 'lucide-react';
 import type { Product, ProductVariant } from './types';
 
@@ -858,8 +860,36 @@ export function ProductDetailView(props: ProductDetailViewProps) {
         </div>
 
         <div className="mt-12">
+          {/* Mobile: accordion-style headers */}
+          <div className="sm:hidden divide-y divide-[#e2e8f0] border-y border-[#e2e8f0] mb-4">
+            {[
+              { id: 'description' as const, label: 'Product Description' },
+              { id: 'specifications' as const, label: 'Specifications' },
+              { id: 'shipping' as const, label: 'Shipping & Returns' },
+              { id: 'reviews' as const, label: `Reviews (${reviewCount})` },
+            ].map(({ id, label }) => {
+              const isActive = activeTab === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setActiveTab(id)}
+                  className="w-full flex items-center justify-between py-3 px-1 text-sm font-semibold text-left"
+                >
+                  <span className={isActive ? 'text-[#111827]' : 'text-[#6b7280]'}>{label}</span>
+                  {isActive ? (
+                    <Minus className="h-4 w-4 text-[#111827]" />
+                  ) : (
+                    <Plus className="h-4 w-4 text-[#6b7280]" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Desktop: horizontal tabs */}
           <nav
-            className="flex gap-2 border-b-2 border-[#e2e8f0] mb-6 sm:mb-8 overflow-x-auto overflow-y-hidden -mx-3 px-3 sm:mx-0 sm:px-0"
+            className="hidden sm:flex gap-2 border-b-2 border-[#e2e8f0] mb-6 sm:mb-8 overflow-x-auto overflow-y-hidden -mx-3 px-3 sm:mx-0 sm:px-0"
             aria-label="Product details tabs"
           >
             {[
