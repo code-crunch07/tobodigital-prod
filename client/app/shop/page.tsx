@@ -133,20 +133,20 @@ const ProductCard = ({
   return (
     <div className="group relative bg-white border border-gray-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md h-full flex flex-col">
       {/* Product Image - full image visible, no cropping */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 flex items-center justify-center">
+      <div className="relative aspect-[4/3] overflow-hidden bg-white">
         <Link href={getProductUrl(product)} className="block w-full h-full flex items-center justify-center">
           {product.mainImage ? (
             <>
               <img
                 src={product.mainImage}
                 alt={product.itemName}
-                className="w-full h-full object-contain object-center transition-all duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover object-center transition-all duration-500 group-hover:scale-105"
               />
               {hasHoverImage && (
                 <img
                   src={hoverImage}
                   alt={product.itemName}
-                  className="absolute inset-0 w-full h-full object-contain object-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105"
+                  className="absolute inset-0 w-full h-full object-cover object-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105"
                 />
               )}
             </>
