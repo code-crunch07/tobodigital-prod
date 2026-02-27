@@ -429,7 +429,7 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Page Header */}
       <div 
-        className="relative h-[300px] flex items-center justify-center"
+        className="relative h-[220px] sm:h-[300px] flex items-center justify-center"
         style={{
           background: `linear-gradient(135deg, rgba(237, 130, 79, 0.95) 0%, rgba(22, 176, 238, 0.95) 100%), url("https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1920&q=80")`,
           backgroundSize: 'cover',
@@ -439,8 +439,8 @@ export default function CheckoutPage() {
       >
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Checkout</h1>
-          <nav className="flex items-center justify-center gap-2 text-white/90 mb-4">
+          <h1 className="text-3xl md:text-5xl font-bold mb-3">Checkout</h1>
+          <nav className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base text-white/90 mb-3">
             <Link href="/" className="hover:text-white transition-colors flex items-center gap-1">
               <Home className="h-4 w-4" />
               Home
@@ -454,8 +454,8 @@ export default function CheckoutPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid lg:grid-cols-3 gap-8">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Left Column - Forms */}
           <div className="lg:col-span-2 space-y-6">
             {/* Sign In / Guest Section */}
@@ -798,7 +798,7 @@ export default function CheckoutPage() {
 
           {/* Right Column - Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:sticky lg:top-4">
               <h2 className="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
 
               {/* Order Items */}

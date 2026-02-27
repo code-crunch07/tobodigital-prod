@@ -167,36 +167,40 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             {stats && stats.totalOrders > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={[
-                      { name: 'Completed', value: stats.completedOrders },
-                      { name: 'Pending', value: stats.pendingOrders },
-                      { name: 'Others', value: stats.totalOrders - stats.completedOrders - stats.pendingOrders }
-                    ]}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={(entry) => `${entry.name}: ${entry.value}`}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {[
-                      { name: 'Completed', value: stats.completedOrders },
-                      { name: 'Pending', value: stats.pendingOrders },
-                      { name: 'Others', value: stats.totalOrders - stats.completedOrders - stats.pendingOrders }
-                    ].map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={['#10b981', 'rgb(237, 130, 79)', 'rgb(22, 176, 238)'][index]} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid var(--border)' }} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="h-[260px] sm:h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: 'Completed', value: stats.completedOrders },
+                        { name: 'Pending', value: stats.pendingOrders },
+                        { name: 'Others', value: stats.totalOrders - stats.completedOrders - stats.pendingOrders }
+                      ]}
+                      cx="50%"
+                      cy="45%"
+                      innerRadius="45%"
+                      outerRadius="75%"
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {[
+                        { name: 'Completed', value: stats.completedOrders },
+                        { name: 'Pending', value: stats.pendingOrders },
+                        { name: 'Others', value: stats.totalOrders - stats.completedOrders - stats.pendingOrders }
+                      ].map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={['#10b981', 'rgb(237, 130, 79)', 'rgb(22, 176, 238)'][index]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid var(--border)' }} />
+                    <Legend verticalAlign="bottom" height={32} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             ) : (
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+              <div className="h-[260px] sm:h-[300px] flex items-center justify-center text-muted-foreground">
                 No order data available
               </div>
             )}

@@ -40,10 +40,10 @@ export default function CartPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       {/* Page Header with Background */}
       <div 
-        className="relative h-[400px] flex items-center justify-center"
+        className="relative h-[220px] sm:h-[300px] lg:h-[400px] flex items-center justify-center"
         style={{
           background: `linear-gradient(135deg, rgba(237, 130, 79, 0.95) 0%, rgba(22, 176, 238, 0.95) 100%), url("https://images.unsplash.com/photo-1607082349566-187342175e2f?w=1920&q=80")`,
           backgroundSize: 'cover',
@@ -53,8 +53,8 @@ export default function CartPage() {
       >
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">Your Cart</h1>
-          <nav className="flex items-center justify-center gap-2 text-white/90">
+          <h1 className="text-3xl md:text-5xl font-bold mb-3">Your Cart</h1>
+          <nav className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base text-white/90">
             <Link href="/" className="hover:text-white transition-colors flex items-center gap-1">
               <Home className="h-4 w-4" />
               Home
@@ -66,7 +66,7 @@ export default function CartPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 w-full min-w-0">
         {cartItems.length === 0 ? (
           <div className="text-center py-20">
             <div className="max-w-md mx-auto">
@@ -87,18 +87,90 @@ export default function CartPage() {
             </div>
           </div>
         ) : (
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8 min-w-0">
             {/* Left Column - Cart Items */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Cart Table */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="lg:col-span-2 space-y-6 min-w-0">
+              {/* Mobile: card per item */}
+              <div className="lg:hidden space-y-4">
+                {cartItems.map((item) => (
+                  <div
+                    key={item.lineId}
+                    className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
+                  >
+                    <div className="flex gap-3">
+                      <Link
+                        href={getProductUrl(item)}
+                        className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden hover:opacity-90 transition-opacity block"
+                      >
+                        <img
+                          src={item.mainImage || '/placeholder-product.jpg'}
+                          alt={item.itemName}
+                          className="w-full h-full object-cover object-center"
+                        />
+                      </Link>
+                      <div className="flex-1 min-w-0">
+                        <Link
+                          href={getProductUrl(item)}
+                          className="font-medium text-sm text-gray-900 hover:text-[#ff6b35] transition-colors line-clamp-2 block"
+                        >
+                          {item.itemName}
+                        </Link>
+                        {item.variantAttributes && Object.keys(item.variantAttributes).length > 0 && (
+                          <p className="text-xs text-gray-600 mt-0.5">
+                            {Object.entries(item.variantAttributes)
+                              .map(([name, value]) => `${name}: ${value}`)
+                              .join(' · ')}
+                          </p>
+                        )}
+                        <p className="text-sm font-semibold text-gray-900 mt-1">
+                          {formatPrice(item.yourPrice)}
+                        </p>
+                        <div className="flex items-center justify-between mt-3">
+                          <div className="flex items-center border border-gray-300 rounded">
+                            <button
+                              onClick={() => updateQuantity(item.lineId, Math.max(1, item.quantity - 1))}
+                              className="p-2 hover:bg-gray-100 transition-colors"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </button>
+                            <span className="px-3 py-1 text-sm font-medium w-10 text-center border-x border-gray-300">
+                              {String(item.quantity).padStart(2, '0')}
+                            </span>
+                            <button
+                              onClick={() => updateQuantity(item.lineId, item.quantity + 1)}
+                              className="p-2 hover:bg-gray-100 transition-colors"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </button>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="font-semibold text-gray-900 text-sm">
+                              {formatPrice(item.yourPrice * item.quantity)}
+                            </span>
+                            <button
+                              onClick={() => removeFromCart(item.lineId)}
+                              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                              title="Remove item"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop: Cart Table */}
+              <div className="hidden lg:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">PRODUCT</th>
                         <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">QUANTITY</th>
-                        <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">SUBTOTAL:</th>
+                        <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">SUBTOTAL</th>
                         <th className="px-6 py-4"></th>
                       </tr>
                     </thead>
@@ -180,7 +252,7 @@ export default function CartPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Link
                   href="/shop"
                   className="flex-1 text-white px-6 py-3 rounded-lg font-semibold text-center transition-colors"
@@ -202,7 +274,7 @@ export default function CartPage() {
               </div>
 
               {/* Gift Wrap Option */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 min-w-0">
                 <div className="flex items-center gap-3 mb-4">
                   <Gift className="h-5 w-5" style={{ color: 'rgb(237, 130, 79)' }} />
                   <h3 className="font-semibold text-gray-900">Do you want a gift wrap? Only ₹2.00</h3>
@@ -229,7 +301,7 @@ export default function CartPage() {
               </div>
 
               {/* Order Notes */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 min-w-0">
                 <h3 className="font-semibold text-gray-900 mb-4">Add Order Note</h3>
                 <textarea
                   value={orderNote}
@@ -245,8 +317,8 @@ export default function CartPage() {
             </div>
 
             {/* Right Column - Order Summary */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-4">
+            <div className="lg:col-span-1 min-w-0">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-4 w-full max-w-full box-border">
                 <h2 className="text-xl font-bold text-gray-900 mb-6">CART TOTALS</h2>
 
                 {/* Subtotal */}

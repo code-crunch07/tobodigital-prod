@@ -148,6 +148,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
 
   const touchStartX = useRef(0);
   const thumbStripRef = useRef<HTMLDivElement | null>(null);
+  const [mobileOpenSection, setMobileOpenSection] = useState<'description' | 'reviews' | 'specifications' | 'shipping' | null>(null);
   const [thumbScroll, setThumbScroll] = useState({ canScrollLeft: false, canScrollRight: false });
 
   const updateThumbScroll = useCallback(() => {
@@ -206,23 +207,30 @@ export function ProductDetailView(props: ProductDetailViewProps) {
       style={{ backgroundColor: 'rgb(239 239 239 / 33%)' }}
     >
       <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 mb-6 w-full min-w-0">
-        <nav className="flex items-center gap-2 text-[0.9rem] text-[#718096] mb-6" aria-label="Breadcrumb">
-          <Link href="/" className="text-[#4299e1] hover:underline">Home</Link>
-          <span>/</span>
-          <Link href="/shop" className="text-[#4299e1] hover:underline">Products</Link>
+        <nav
+          className="flex items-center gap-1 sm:gap-2 text-xs sm:text-[0.9rem] text-[#718096] mb-4 sm:mb-6 overflow-x-auto whitespace-nowrap"
+          aria-label="Breadcrumb"
+        >
+          <Link href="/" className="text-[#4299e1] hover:underline flex-shrink-0">
+            Home
+          </Link>
+          <span className="flex-shrink-0">/</span>
+          <Link href="/shop" className="text-[#4299e1] hover:underline flex-shrink-0">
+            Products
+          </Link>
           {product?.productCategory && (
             <>
               <span>/</span>
               <Link
                 href={`/product-category/${product.productCategory.slug || product.productCategory._id}`}
-                className="text-[#4299e1] hover:underline"
+                className="text-[#4299e1] hover:underline flex-shrink-0"
               >
                 {product.productCategory.name}
               </Link>
             </>
           )}
-          <span>/</span>
-          <span className="truncate max-w-[200px]">{product.itemName}</span>
+          <span className="flex-shrink-0">/</span>
+          <span className="truncate max-w-[180px] sm:max-w-[260px]">{product.itemName}</span>
         </nav>
 
         {/* Layout: left = full-width main image + thumbnails; right = product info. Zoom panel overlaps right on hover. */}
@@ -231,7 +239,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             {/* Mobile: image carousel with dots + wishlist/share below image */}
             <div className="lg:hidden flex flex-col gap-3">
               <div
-                className="relative aspect-square w-full rounded-lg overflow-hidden bg-gray-50 border border-gray-100 touch-pan-y"
+                className="relative aspect-square w-full overflow-hidden bg-white touch-pan-y"
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 onClick={handleImageClick}
@@ -242,6 +250,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   className="w-full h-full object-cover select-none"
                   draggable={false}
                 />
+                {/* Fullscreen + wishlist/share overlay (bottom-right) */}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -253,6 +262,41 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 >
                   <ZoomIn className="h-5 w-5" />
                 </button>
+                <div className="absolute bottom-4 right-4 z-20 flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toggleWishlist(String(product._id));
+                    }}
+                    className="w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-600 hover:text-[#ff6b35] transition-colors"
+                    aria-label={isInWishlist(String(product._id)) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                  >
+                    <Heart
+                      className={`h-5 w-5 ${isInWishlist(String(product._id)) ? 'fill-red-500 text-red-500' : ''}`}
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleShare();
+                    }}
+                    className="w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-600 hover:text-[#ff6b35] transition-colors"
+                    aria-label="Share"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </div>
               {images.length > 1 && (
                 <div className="flex justify-center items-center gap-2 py-1">
@@ -271,37 +315,6 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   ))}
                 </div>
               )}
-              <div className="flex justify-end items-center gap-2">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleWishlist(String(product._id));
-                  }}
-                  className="p-3 rounded-full border border-gray-200 bg-white shadow-sm text-gray-600 hover:bg-gray-50 transition-colors"
-                  aria-label={isInWishlist(String(product._id)) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                >
-                  <Heart
-                    className={`h-5 w-5 ${isInWishlist(String(product._id)) ? 'fill-red-500 text-red-500' : ''}`}
-                  />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleShare}
-                  className="p-3 rounded-full border border-gray-200 bg-white shadow-sm text-gray-600 hover:bg-gray-50 transition-colors"
-                  aria-label="Share"
-                >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                    />
-                  </svg>
-                </button>
-              </div>
             </div>
 
             {/* Desktop: main image + zoom + thumbnails */}
@@ -449,30 +462,39 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </div>
 
           {lightboxOpen && (
-            <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4">
-              <div className="relative w-full max-w-[95vw] h-[90vh] sm:h-[75vh] flex flex-col sm:flex-row bg-white shadow-2xl overflow-hidden">
-                <div className="flex-1 flex items-center justify-center relative bg-gray-50 min-h-[50vh] sm:min-h-0">
+            <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center p-0 sm:p-4">
+              {/* Back / close button (mobile-style) */}
+              <button
+                type="button"
+                onClick={handleCloseLightbox}
+                className="absolute top-4 left-4 z-50 px-4 py-2 rounded-full bg-white/95 text-gray-800 text-sm font-medium shadow-md hover:bg-white"
+                aria-label="Close image viewer"
+              >
+                Back
+              </button>
+              <div className="relative w-full h-full sm:max-w-[95vw] sm:h-[75vh] flex flex-col sm:flex-row bg-white shadow-2xl overflow-hidden rounded-none sm:rounded-lg">
+                <div className="flex-1 flex flex-col items-center justify-center relative bg-white min-h-0 overflow-hidden">
                   {images.length > 1 && (
                     <>
                       <button
                         onClick={handleLightboxPrev}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 text-gray-700 hover:text-white p-3 bg-white bg-opacity-90 hover:bg-gray-900 transition-all shadow-lg"
+                        className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 text-gray-700 p-2 sm:p-3 bg-white/90 hover:bg-gray-100 rounded-full shadow-lg border border-gray-200"
                         aria-label="Previous Image"
                       >
-                        <ChevronLeft className="h-6 w-6" />
+                        <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
                       </button>
                       <button
                         onClick={handleLightboxNext}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 text-gray-700 hover:text-white p-3 bg-white bg-opacity-90 hover:bg-gray-900 transition-all shadow-lg"
+                        className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 text-gray-700 p-2 sm:p-3 bg-white/90 hover:bg-gray-100 rounded-full shadow-lg border border-gray-200"
                         aria-label="Next Image"
                       >
-                        <ChevronRight className="h-6 w-6" />
+                        <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
                       </button>
                     </>
                   )}
                   <div
                     ref={setLightboxImageRef}
-                    className={`relative w-full h-full flex items-center justify-center overflow-hidden p-8 ${
+                    className={`flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden p-3 sm:p-8 ${
                       lightboxZoom > 1 ? 'cursor-move' : 'cursor-zoom-in'
                     }`}
                     onMouseMove={lightboxZoom > 1 ? handleLightboxMouseMove : undefined}
@@ -482,7 +504,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                     <img
                       src={images[lightboxImageIndex] || product.mainImage}
                       alt={`${product.itemName} ${lightboxImageIndex + 1}`}
-                      className="max-w-full max-h-full object-contain transition-transform duration-200"
+                      className="w-full h-full max-w-full max-h-full object-contain transition-transform duration-200"
                       style={{
                         transform: lightboxZoom > 1
                           ? `scale(${lightboxZoom}) translate(${(lightboxPosition.x - 50) * (lightboxZoom - 1)}%, ${(lightboxPosition.y - 50) * (lightboxZoom - 1)}%)`
@@ -491,8 +513,33 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                       draggable={false}
                     />
                   </div>
+                  {/* Mobile thumbnails below main image */}
+                  {images.length > 1 && (
+                    <div className="sm:hidden w-full px-4 pb-4">
+                      <div className="flex justify-center gap-2">
+                        {images.map((img, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleLightboxImageChange(index)}
+                            className={`w-14 h-14 rounded border transition-all ${
+                              lightboxImageIndex === index
+                                ? 'border-black'
+                                : 'border-gray-200 hover:border-gray-400'
+                            }`}
+                          >
+                            <img
+                              src={img}
+                              alt={`${product.itemName} ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="w-full sm:w-[400px] bg-white border-t sm:border-t-0 sm:border-l border-gray-200 flex flex-col max-h-[40vh] sm:max-h-none">
+                {/* Desktop side panel with zoom + thumbnails */}
+                <div className="hidden sm:flex w-full sm:w-[400px] bg-white border-t sm:border-t-0 sm:border-l border-gray-200 flex-col max-h-[40vh] sm:max-h-none">
                   <div className="flex items-start justify-end p-4 border-b border-gray-200">
                     <button
                       onClick={handleCloseLightbox}
@@ -866,19 +913,21 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             <div className="border-b border-[#e2e8f0] bg-white">
               <button
                 type="button"
-                onClick={() => setActiveTab(activeTab === 'description' ? 'description' : 'description')}
+                onClick={() =>
+                  setMobileOpenSection(mobileOpenSection === 'description' ? null : 'description')
+                }
                 className="w-full flex items-center justify-between py-3 px-4 text-sm font-semibold text-left"
               >
-                <span className={activeTab === 'description' ? 'text-[#111827]' : 'text-[#6b7280]'}>
+                <span className={mobileOpenSection === 'description' ? 'text-[#111827]' : 'text-[#6b7280]'}>
                   Product Description
                 </span>
-                {activeTab === 'description' ? (
+                {mobileOpenSection === 'description' ? (
                   <Minus className="h-4 w-4 text-[#111827]" />
                 ) : (
                   <Plus className="h-4 w-4 text-[#6b7280]" />
                 )}
               </button>
-              {activeTab === 'description' && (
+              {mobileOpenSection === 'description' && (
                 <div className="border-t border-[#e2e8f0] px-4 py-4 space-y-4 text-sm text-gray-800">
                   {product.productDescription && (
                     <div
@@ -928,19 +977,23 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             <div className="border-b border-[#e2e8f0] bg-white">
               <button
                 type="button"
-                onClick={() => setActiveTab('specifications')}
+                onClick={() =>
+                  setMobileOpenSection(
+                    mobileOpenSection === 'specifications' ? null : 'specifications'
+                  )
+                }
                 className="w-full flex items-center justify-between py-3 px-4 text-sm font-semibold text-left"
               >
-                <span className={activeTab === 'specifications' ? 'text-[#111827]' : 'text-[#6b7280]'}>
+                <span className={mobileOpenSection === 'specifications' ? 'text-[#111827]' : 'text-[#6b7280]'}>
                   Specifications
                 </span>
-                {activeTab === 'specifications' ? (
+                {mobileOpenSection === 'specifications' ? (
                   <Minus className="h-4 w-4 text-[#111827]" />
                 ) : (
                   <Plus className="h-4 w-4 text-[#6b7280]" />
                 )}
               </button>
-              {activeTab === 'specifications' &&
+              {mobileOpenSection === 'specifications' &&
                 (() => {
                   const specRows: { label: string; value: string }[] = [];
                   if (product.productType) specRows.push({ label: 'Product Type', value: product.productType });
@@ -1023,19 +1076,21 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             <div className="border-b border-[#e2e8f0] bg-white">
               <button
                 type="button"
-                onClick={() => setActiveTab('shipping')}
+                onClick={() =>
+                  setMobileOpenSection(mobileOpenSection === 'shipping' ? null : 'shipping')
+                }
                 className="w-full flex items-center justify-between py-3 px-4 text-sm font-semibold text-left"
               >
-                <span className={activeTab === 'shipping' ? 'text-[#111827]' : 'text-[#6b7280]'}>
+                <span className={mobileOpenSection === 'shipping' ? 'text-[#111827]' : 'text-[#6b7280]'}>
                   Shipping & Returns
                 </span>
-                {activeTab === 'shipping' ? (
+                {mobileOpenSection === 'shipping' ? (
                   <Minus className="h-4 w-4 text-[#111827]" />
                 ) : (
                   <Plus className="h-4 w-4 text-[#6b7280]" />
                 )}
               </button>
-              {activeTab === 'shipping' && (
+              {mobileOpenSection === 'shipping' && (
                 <div className="border-t border-[#e2e8f0] px-4 py-4 space-y-4 text-sm text-gray-800">
                   <section>
                     <h3 className="text-sm font-bold text-gray-900 mb-2">Shipping Information</h3>
@@ -1070,19 +1125,21 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             <div className="border-b border-[#e2e8f0] bg-white">
               <button
                 type="button"
-                onClick={() => setActiveTab('reviews')}
+                onClick={() =>
+                  setMobileOpenSection(mobileOpenSection === 'reviews' ? null : 'reviews')
+                }
                 className="w-full flex items-center justify-between py-3 px-4 text-sm font-semibold text-left"
               >
-                <span className={activeTab === 'reviews' ? 'text-[#111827]' : 'text-[#6b7280]'}>
+                <span className={mobileOpenSection === 'reviews' ? 'text-[#111827]' : 'text-[#6b7280]'}>
                   Reviews ({reviewCount})
                 </span>
-                {activeTab === 'reviews' ? (
+                {mobileOpenSection === 'reviews' ? (
                   <Minus className="h-4 w-4 text-[#111827]" />
                 ) : (
                   <Plus className="h-4 w-4 text-[#6b7280]" />
                 )}
               </button>
-              {activeTab === 'reviews' && (
+              {mobileOpenSection === 'reviews' && (
                 <div className="border-t border-[#e2e8f0] px-4 py-4 space-y-4 text-sm text-gray-800" id="reviews">
                   {reviewCount > 0 && averageRating != null && Number.isFinite(averageRating) ? (
                     <div className="flex flex-col gap-4 pb-4 border-b border-gray-200 bg-[#fafafa] p-4 rounded-xl">

@@ -86,57 +86,59 @@ export default function TestimonialsPage() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="rounded-2xl overflow-hidden">
         <CardHeader>
           <CardTitle>Customer Testimonials</CardTitle>
           <CardDescription>Review and manage customer testimonials</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Comment</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {testimonials.map((testimonial) => (
-                <TableRow key={testimonial.id}>
-                  <TableCell className="font-medium">{testimonial.name}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">{renderStars(testimonial.rating)}</div>
-                  </TableCell>
-                  <TableCell className="max-w-xs truncate">{testimonial.comment}</TableCell>
-                  <TableCell>{testimonial.date}</TableCell>
-                  <TableCell>{getStatusBadge(testimonial.status)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      {testimonial.status === 'pending' && (
-                        <>
-                          <Button variant="ghost" size="icon" onClick={() => handleApprove(testimonial.id)}>
-                            <Check className="h-4 w-4 text-green-500" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleReject(testimonial.id)}>
-                            <X className="h-4 w-4 text-red-500" />
-                          </Button>
-                        </>
-                      )}
-                      <Button variant="ghost" size="icon">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon">
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </TableCell>
+          <div className="w-full overflow-x-auto">
+            <Table className="min-w-[720px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Rating</TableHead>
+                  <TableHead>Comment</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {testimonials.map((testimonial) => (
+                  <TableRow key={testimonial.id}>
+                    <TableCell className="font-medium">{testimonial.name}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">{renderStars(testimonial.rating)}</div>
+                    </TableCell>
+                    <TableCell className="max-w-xs truncate">{testimonial.comment}</TableCell>
+                    <TableCell>{testimonial.date}</TableCell>
+                    <TableCell>{getStatusBadge(testimonial.status)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        {testimonial.status === 'pending' && (
+                          <>
+                            <Button variant="ghost" size="icon" onClick={() => handleApprove(testimonial.id)}>
+                              <Check className="h-4 w-4 text-green-500" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleReject(testimonial.id)}>
+                              <X className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </>
+                        )}
+                        <Button variant="ghost" size="icon">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon">
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
