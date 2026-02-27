@@ -120,7 +120,7 @@ const getOrderById = async (req: Request, res: Response) => {
 
 const createOrder = async (req: Request, res: Response) => {
   try {
-    const { customer, items, shippingAddress, paymentMethod } = req.body;
+    const { customer, items, shippingAddress, paymentMethod, paymentStatus } = req.body;
 
     if (!customer || !items || !shippingAddress) {
       return res.status(400).json({
@@ -129,20 +129,68 @@ const createOrder = async (req: Request, res: Response) => {
       });
     }
 
-    // Calculate total amount
+    // Resolve customer: can be an ObjectId string (dashboard) or a guest object from checkout
+    let customerId: string | null = null;
+
+    if (typeof customer === 'string') {
+      // Already an id from dashboard/admin
+      customerId = customer;
+    } else if (typeof customer === 'object' && customer !== null) {
+      const email = (customer.email || '').toLowerCase().trim();
+      const name =
+        (customer.firstName && customer.lastName)
+          ? `${customer.firstName} ${customer.lastName}`
+          : (customer.name || '').trim();
+      const phone = (customer.phone || '').toString().trim();
+
+      if (!email || !name) {
+        return res.status(400).json({
+          success: false,
+          message: 'Customer name and email are required',
+        });
+      }
+
+      // Find or create a lightweight customer user for guest checkout
+      let user = await User.findOne({ email });
+      if (!user) {
+        user = new User({
+          name,
+          email,
+          ...(phone && { phone }),
+          // Random password since this is a guest-order user; can be reset via forgot-password
+          password: await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10),
+          role: 'customer',
+        });
+        await user.save();
+      }
+      customerId = String(user._id);
+    }
+
+    if (!customerId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Unable to resolve customer for order',
+      });
+    }
+
+    // Calculate total amount from items
     let totalAmount = 0;
     for (const item of items) {
       totalAmount += item.price * item.quantity;
     }
 
-    const orderData = {
+    const orderData: any = {
       orderNumber: generateOrderNumber(),
-      customer,
+      customer: customerId,
       items,
       totalAmount,
       shippingAddress,
       paymentMethod,
     };
+
+    if (paymentStatus) {
+      orderData.paymentStatus = paymentStatus;
+    }
 
     const order = new Order(orderData);
     await order.save();
