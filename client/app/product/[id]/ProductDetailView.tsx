@@ -860,31 +860,272 @@ export function ProductDetailView(props: ProductDetailViewProps) {
         </div>
 
         <div className="mt-12">
-          {/* Mobile: accordion-style headers */}
-          <div className="sm:hidden divide-y divide-[#e2e8f0] border-y border-[#e2e8f0] mb-4">
-            {[
-              { id: 'description' as const, label: 'Product Description' },
-              { id: 'specifications' as const, label: 'Specifications' },
-              { id: 'shipping' as const, label: 'Shipping & Returns' },
-              { id: 'reviews' as const, label: `Reviews (${reviewCount})` },
-            ].map(({ id, label }) => {
-              const isActive = activeTab === id;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setActiveTab(id)}
-                  className="w-full flex items-center justify-between py-3 px-1 text-sm font-semibold text-left"
-                >
-                  <span className={isActive ? 'text-[#111827]' : 'text-[#6b7280]'}>{label}</span>
-                  {isActive ? (
-                    <Minus className="h-4 w-4 text-[#111827]" />
-                  ) : (
-                    <Plus className="h-4 w-4 text-[#6b7280]" />
+          {/* Mobile: accordion-style sections with inline content */}
+          <div className="sm:hidden space-y-3 mb-4">
+            {/* Description */}
+            <div className="border border-[#e2e8f0] rounded-lg overflow-hidden bg-white">
+              <button
+                type="button"
+                onClick={() => setActiveTab(activeTab === 'description' ? 'description' : 'description')}
+                className="w-full flex items-center justify-between py-3 px-4 text-sm font-semibold text-left"
+              >
+                <span className={activeTab === 'description' ? 'text-[#111827]' : 'text-[#6b7280]'}>
+                  Product Description
+                </span>
+                {activeTab === 'description' ? (
+                  <Minus className="h-4 w-4 text-[#111827]" />
+                ) : (
+                  <Plus className="h-4 w-4 text-[#6b7280]" />
+                )}
+              </button>
+              {activeTab === 'description' && (
+                <div className="border-t border-[#e2e8f0] px-4 py-4 space-y-4 text-sm text-gray-800">
+                  {product.productDescription && (
+                    <div
+                      className="product-description-content"
+                      dangerouslySetInnerHTML={{ __html: product.productDescription }}
+                    />
                   )}
-                </button>
-              );
-            })}
+                  {(() => {
+                    const bulletPoints = Array.isArray(product.bulletPoints)
+                      ? product.bulletPoints
+                      : typeof product.bulletPoints === 'string'
+                        ? product.bulletPoints.split(',').map((s) => s.trim()).filter(Boolean)
+                        : [];
+                    return bulletPoints.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-bold text-gray-900 mb-2">Key Features</h3>
+                        <ul className="list-disc list-inside space-y-1.5 text-gray-700">
+                          {bulletPoints.map((point, index) => (
+                            <li key={index}>{point}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })()}
+                  {(() => {
+                    const specialFeatures = Array.isArray(product.specialFeatures)
+                      ? product.specialFeatures
+                      : typeof product.specialFeatures === 'string'
+                        ? product.specialFeatures.split(',').map((s) => s.trim()).filter(Boolean)
+                        : [];
+                    return specialFeatures.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-bold text-gray-900 mb-2">Applications</h3>
+                        <ul className="list-disc list-inside space-y-1.5 text-gray-700">
+                          {specialFeatures.map((feature, index) => (
+                            <li key={index}>{feature}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+            </div>
+
+            {/* Specifications */}
+            <div className="border border-[#e2e8f0] rounded-lg overflow-hidden bg-white">
+              <button
+                type="button"
+                onClick={() => setActiveTab('specifications')}
+                className="w-full flex items-center justify-between py-3 px-4 text-sm font-semibold text-left"
+              >
+                <span className={activeTab === 'specifications' ? 'text-[#111827]' : 'text-[#6b7280]'}>
+                  Specifications
+                </span>
+                {activeTab === 'specifications' ? (
+                  <Minus className="h-4 w-4 text-[#111827]" />
+                ) : (
+                  <Plus className="h-4 w-4 text-[#6b7280]" />
+                )}
+              </button>
+              {activeTab === 'specifications' &&
+                (() => {
+                  const specRows: { label: string; value: string }[] = [];
+                  if (product.productType) specRows.push({ label: 'Product Type', value: product.productType });
+                  if ((product as any).itemTypeName) specRows.push({ label: 'Item Type', value: (product as any).itemTypeName });
+                  if (product.modelNo) specRows.push({ label: 'Model Number', value: product.modelNo });
+                  if (product.brandName) specRows.push({ label: 'Brand', value: product.brandName });
+                  if (product.productId) specRows.push({ label: 'Product ID', value: product.productId });
+                  if (product.partNumber) specRows.push({ label: 'Part Number', value: product.partNumber });
+                  if (product.color) specRows.push({ label: 'Color', value: product.color });
+                  if (product.itemCondition) specRows.push({ label: 'Condition', value: product.itemCondition });
+                  if (product.manufacturerName)
+                    specRows.push({ label: 'Manufacturer', value: product.manufacturerName });
+                  const d = product.itemDimensions;
+                  const hasDimensions = d && (
+                    d.length != null || d.width != null || d.height != null
+                  );
+                  if (hasDimensions && d) {
+                    specRows.push({
+                      label: 'Dimensions',
+                      value: `${d.length ?? '-'} × ${d.width ?? '-'} × ${d.height ?? '-'} ${d.unit || 'cm'}`,
+                    });
+                  }
+                  if (product.itemWeight != null)
+                    specRows.push({ label: 'Weight', value: `${product.itemWeight} ${(product as any).weightUnit || 'grams'}` });
+                  const pd = product.itemPackageDimensions || product.packageDimensions;
+                  const hasPackageDimensions = pd && (
+                    pd.length != null || pd.width != null || pd.height != null
+                  );
+                  if (hasPackageDimensions && pd) {
+                    specRows.push({
+                      label: 'Package Dimensions',
+                      value: `${pd.length ?? '-'} × ${pd.width ?? '-'} × ${pd.height ?? '-'} ${pd.unit || 'cm'}`,
+                    });
+                  }
+                  if (product.packageWeight != null)
+                    specRows.push({ label: 'Package Weight', value: `${product.packageWeight} ${(product as any).packageWeightUnit || 'grams'}` });
+                  if (product.countryOfOrigin)
+                    specRows.push({ label: 'Country of Origin', value: product.countryOfOrigin });
+                  if (product.hsnCode) specRows.push({ label: 'HSN Code', value: product.hsnCode });
+                  if (product.warrantyDescription)
+                    specRows.push({ label: 'Warranty', value: product.warrantyDescription });
+                  if (product.areBatteriesRequired || product.batteriesRequired)
+                    specRows.push({ label: 'Batteries Required', value: 'Yes' });
+                  if (product.compatibleDevices && Array.isArray(product.compatibleDevices) && product.compatibleDevices.length > 0)
+                    specRows.push({ label: 'Compatible Devices', value: product.compatibleDevices.join(', ') });
+                  if (product.includedComponents && Array.isArray(product.includedComponents) && product.includedComponents.length > 0)
+                    specRows.push({ label: 'Included Components', value: product.includedComponents.join(', ') });
+                  if ((product as any).importerContactInformation || (product as any).importerContactInfo)
+                    specRows.push({ label: 'Importer Contact', value: (product as any).importerContactInformation || (product as any).importerContactInfo });
+                  if ((product as any).packerContactInformation || (product as any).packerContactInfo)
+                    specRows.push({ label: 'Packer Contact', value: (product as any).packerContactInformation || (product as any).packerContactInfo });
+                  if (product.attributeValues && typeof product.attributeValues === 'object') {
+                    Object.entries(product.attributeValues).forEach(([name, value]) => {
+                      if (value != null && String(value).trim()) specRows.push({ label: name, value: String(value).trim() });
+                    });
+                  }
+                  if (specRows.length === 0) {
+                    return (
+                      <div className="border-t border-[#e2e8f0] px-4 py-4 text-center text-[#718096] text-sm">
+                        No specifications available for this product.
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="border-t border-[#e2e8f0] px-4 py-4">
+                      <dl className="divide-y divide-[#e0e0e0]">
+                        {specRows.map((row, index) => (
+                          <div key={index} className="flex items-center py-3 text-sm">
+                            <dt className="text-[#4a4a4a] font-semibold pr-4 flex-shrink-0">{row.label}</dt>
+                            <dd className="text-[#333] font-normal text-right flex-1 ml-auto">{row.value}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </div>
+                  );
+                })()}
+            </div>
+
+            {/* Shipping & Returns */}
+            <div className="border border-[#e2e8f0] rounded-lg overflow-hidden bg-white">
+              <button
+                type="button"
+                onClick={() => setActiveTab('shipping')}
+                className="w-full flex items-center justify-between py-3 px-4 text-sm font-semibold text-left"
+              >
+                <span className={activeTab === 'shipping' ? 'text-[#111827]' : 'text-[#6b7280]'}>
+                  Shipping & Returns
+                </span>
+                {activeTab === 'shipping' ? (
+                  <Minus className="h-4 w-4 text-[#111827]" />
+                ) : (
+                  <Plus className="h-4 w-4 text-[#6b7280]" />
+                )}
+              </button>
+              {activeTab === 'shipping' && (
+                <div className="border-t border-[#e2e8f0] px-4 py-4 space-y-4 text-sm text-gray-800">
+                  <section>
+                    <h3 className="text-sm font-bold text-gray-900 mb-2">Shipping Information</h3>
+                    <p className="text-gray-700 mb-3">
+                      We offer fast and reliable shipping options to ensure your products arrive safely and on time.
+                    </p>
+                    <ul className="list-disc list-inside space-y-1.5 text-gray-700">
+                      <li><strong>Free Standard Shipping:</strong> Orders over ₹999 (5–7 business days)</li>
+                      <li><strong>Standard Shipping:</strong> ₹99 (5–7 business days)</li>
+                      <li><strong>Express Shipping:</strong> ₹199 (2–3 business days)</li>
+                      <li><strong>Next Day Delivery:</strong> ₹299 (order by 2 PM)</li>
+                    </ul>
+                  </section>
+                  <section>
+                    <h3 className="text-sm font-bold text-gray-900 mb-2">Returns & Exchanges</h3>
+                    <p className="text-gray-700 mb-3">
+                      We want you to be completely satisfied with your purchase. If you're not happy with your
+                      order, we offer a 30-day money-back guarantee.
+                    </p>
+                    <ul className="list-disc list-inside space-y-1.5 text-gray-700">
+                      <li>Items must be in original packaging with all accessories</li>
+                      <li>Return shipping is free for defective items</li>
+                      <li>Refunds processed within 5–7 business days of receiving return</li>
+                      <li>Exchanges are processed immediately upon receipt</li>
+                    </ul>
+                  </section>
+                </div>
+              )}
+            </div>
+
+            {/* Reviews */}
+            <div className="border border-[#e2e8f0] rounded-lg overflow-hidden bg-white">
+              <button
+                type="button"
+                onClick={() => setActiveTab('reviews')}
+                className="w-full flex items-center justify-between py-3 px-4 text-sm font-semibold text-left"
+              >
+                <span className={activeTab === 'reviews' ? 'text-[#111827]' : 'text-[#6b7280]'}>
+                  Reviews ({reviewCount})
+                </span>
+                {activeTab === 'reviews' ? (
+                  <Minus className="h-4 w-4 text-[#111827]" />
+                ) : (
+                  <Plus className="h-4 w-4 text-[#6b7280]" />
+                )}
+              </button>
+              {activeTab === 'reviews' && (
+                <div className="border-t border-[#e2e8f0] px-4 py-4 space-y-4 text-sm text-gray-800" id="reviews">
+                  {reviewCount > 0 && averageRating != null && Number.isFinite(averageRating) ? (
+                    <div className="flex flex-col gap-4 pb-4 border-b border-gray-200 bg-[#fafafa] p-4 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <span className="text-3xl font-bold text-[#1a202c]">
+                          {Number(averageRating).toFixed(1)}
+                        </span>
+                        <div className="flex text-[#fbbf24]">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star key={star} className={`h-5 w-5 ${star <= Math.round(averageRating) ? 'fill-current' : 'fill-none'}`} />
+                          ))}
+                        </div>
+                        <p className="text-sm font-medium text-gray-600">
+                          Based on {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
+                        </p>
+                      </div>
+                      <button type="button" className="px-5 py-2.5 bg-[#ff6b35] text-white text-sm font-semibold rounded-lg hover:bg-[#e85a28] transition-colors">
+                        Write a review
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-8 px-4 bg-[#fafafa] rounded-xl border border-gray-100 text-center">
+                      <div className="flex text-[#e2e8f0] mb-3">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star key={star} className="h-8 w-8" />
+                        ))}
+                      </div>
+                      <h3 className="text-lg font-bold text-[#1a202c] mb-1">No reviews yet</h3>
+                      <p className="text-[#4a5568] text-sm max-w-md mb-4">
+                        Be the first to share your experience with this product.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
+                        className="px-6 py-3 bg-[#ff6b35] text-white text-sm font-semibold rounded-lg hover:bg-[#e85a28] transition-colors"
+                      >
+                        Write a review
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Desktop: horizontal tabs */}
@@ -912,7 +1153,8 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             ))}
           </nav>
 
-          <div className="bg-white p-4 sm:p-6 lg:p-8 rounded-lg shadow-sm">
+          {/* Desktop content card */}
+          <div className="hidden sm:block bg-white p-4 sm:p-6 lg:p-8 rounded-lg shadow-sm">
             {activeTab === 'description' && (
               <div className="space-y-6 sm:space-y-8 text-gray-800">
                 <h2 className="text-lg sm:text-xl font-bold text-gray-900">Product Description</h2>
