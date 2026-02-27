@@ -43,6 +43,16 @@ function OrderSuccessContent() {
     }).format(price);
   };
 
+  const getEstimatedDelivery = () => {
+    const d = new Date();
+    d.setDate(d.getDate() + 4);
+    return d.toLocaleDateString('en-IN', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'short',
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -61,13 +71,33 @@ function OrderSuccessContent() {
             </div>
           </div>
           
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Order Placed Successfully!</h1>
-          <p className="text-gray-600 mb-8">
-            Thank you for your order. We've received your order and will begin processing it right away.
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Order placed, thank you!</h1>
+          <p className="text-gray-600 mb-2">
+            {order?.customer?.email
+              ? `A confirmation has been sent to ${order.customer.email}.`
+              : `We’ve received your order and will begin processing it right away.`}
           </p>
+          {order?.shippingAddress && (
+            <p className="text-gray-600 mb-8">
+              Shipping to{' '}
+              <span className="font-semibold">
+                {order.customer?.name || `${order.customer?.firstName || ''} ${order.customer?.lastName || ''}`.trim()}
+              </span>
+              {', '}
+              {[
+                order.shippingAddress.street,
+                order.shippingAddress.city,
+                order.shippingAddress.state,
+                order.shippingAddress.zipCode,
+                order.shippingAddress.country,
+              ]
+                .filter(Boolean)
+                .join(', ')}
+            </p>
+          )}
 
           {order && (
-            <div className="bg-gray-50 rounded-lg p-6 mb-8 text-left">
+            <div className="bg-gray-50 rounded-lg p-6 mb-8 text-left space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Order Number</p>
@@ -75,16 +105,26 @@ function OrderSuccessContent() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Order Total</p>
-                  <p className="font-semibold text-[#ff006e]">{formatPrice(order.totalAmount || 0)}</p>
+                  <p className="font-semibold text-[#ff006e]">
+                    {formatPrice(order.totalAmount || 0)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Payment Status</p>
-                  <p className="font-semibold text-green-600 capitalize">{order.paymentStatus || 'Paid'}</p>
+                  <p className="font-semibold text-green-600 capitalize">
+                    {order.paymentStatus || 'paid'}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Order Status</p>
-                  <p className="font-semibold text-gray-900 capitalize">{order.status || 'Pending'}</p>
+                  <p className="font-semibold text-gray-900 capitalize">
+                    {order.status || 'pending'}
+                  </p>
                 </div>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Estimated Delivery</p>
+                <p className="font-semibold text-gray-900">{getEstimatedDelivery()}</p>
               </div>
             </div>
           )}

@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import Order from '../models/Order';
 import User from '../models/User';
 import { createOrderNotification, createPaymentNotification } from './notifications';
+import { sendEmail } from '../services/email';
 
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
@@ -202,6 +203,44 @@ const createOrder = async (req: Request, res: Response) => {
 
     // Create notification for new order
     await createOrderNotification(String(order._id));
+
+    // Send order confirmation email to customer (best-effort)
+    try {
+      const customerDoc = populatedOrder?.customer as any;
+      const toEmail = customerDoc?.email;
+      if (toEmail) {
+        const siteName = process.env.SITE_NAME || 'Tobo Digital';
+        const orderNumber = populatedOrder?.orderNumber || populatedOrder?._id;
+        const total = populatedOrder?.totalAmount ?? totalAmount;
+        const shipping = populatedOrder?.shippingAddress;
+        const lines: string[] = [];
+        if (shipping) {
+          lines.push(
+            [shipping.street, shipping.city, shipping.state, shipping.zipCode, shipping.country]
+              .filter(Boolean)
+              .join(', ')
+          );
+        }
+
+        await sendEmail({
+          to: toEmail,
+          subject: `Your ${siteName} order ${orderNumber}`,
+          text: [
+            `Thank you for your order at ${siteName}.`,
+            '',
+            `Order number: ${orderNumber}`,
+            `Total amount: ${total}`,
+            lines.length ? `Shipping to: ${lines[0]}` : '',
+            '',
+            'We will send you another update when your order ships.',
+          ]
+            .filter(Boolean)
+            .join('\n'),
+        });
+      }
+    } catch (err) {
+      console.error('Order confirmation email error:', (err as any)?.message || err);
+    }
 
     res.status(201).json({
       success: true,
