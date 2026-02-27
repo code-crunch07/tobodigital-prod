@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 import Order from '../models/Order';
 import User from '../models/User';
 import { createOrderNotification, createPaymentNotification } from './notifications';
