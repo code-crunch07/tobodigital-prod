@@ -1,7 +1,10 @@
 import { Request, Response } from 'express';
+import crypto from 'crypto';
 import User from '../models/User';
+import PasswordReset from '../models/PasswordReset';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { sendEmail } from '../services/email';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
@@ -313,6 +316,101 @@ export const updateUser = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error?.message || 'Failed to update user',
+    });
+  }
+};
+
+// Forgot password (send reset link via Brevo SMTP)
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required',
+      });
+    }
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail });
+    // Always return success to avoid email enumeration
+    if (!user) {
+      return res.json({
+        success: true,
+        message: 'If an account exists with this email, you will receive a password reset link.',
+      });
+    }
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    await PasswordReset.deleteMany({ email: normalizedEmail });
+    await PasswordReset.create({ email: normalizedEmail, token, expiresAt });
+    const dashboardUrl = process.env.DASHBOARD_URL || process.env.FRONTEND_URL || 'http://localhost:3000';
+    const resetLink = `${dashboardUrl.replace(/\/$/, '')}/reset-password?token=${token}`;
+    const sent = await sendEmail({
+      to: normalizedEmail,
+      subject: 'Reset your Tobo Digital password',
+      text: `You requested a password reset. Open this link to set a new password (valid for 1 hour):\n${resetLink}\n\nIf you didn't request this, ignore this email.`,
+      html: `<p>You requested a password reset.</p><p><a href="${resetLink}">Reset your password</a> (valid for 1 hour).</p><p>If you didn't request this, ignore this email.</p>`,
+    });
+    if (!sent) {
+      return res.status(503).json({
+        success: false,
+        message: 'Email service is not configured. Please contact support.',
+      });
+    }
+    res.json({
+      success: true,
+      message: 'If an account exists with this email, you will receive a password reset link.',
+    });
+  } catch (error: any) {
+    console.error('Forgot password error:', error?.message || error);
+    res.status(500).json({
+      success: false,
+      message: error?.message || 'Failed to send reset email',
+    });
+  }
+};
+
+// Reset password (with token from email link)
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token and new password are required',
+      });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters',
+      });
+    }
+    const resetRecord = await PasswordReset.findOne({ token }).sort({ createdAt: -1 });
+    if (!resetRecord || resetRecord.expiresAt < new Date()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset token. Please request a new link.',
+      });
+    }
+    const user = await User.findOne({ email: resetRecord.email });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset token.',
+      });
+    }
+    user.password = await bcrypt.hash(password, 10);
+    await user.save();
+    await PasswordReset.deleteMany({ email: resetRecord.email });
+    res.json({
+      success: true,
+      message: 'Password updated successfully. You can now log in.',
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error?.message || 'Failed to reset password',
     });
   }
 };

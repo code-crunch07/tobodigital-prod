@@ -8,6 +8,7 @@ import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { forgotPassword } from '@/lib/api';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -28,23 +29,10 @@ export default function ForgotPasswordPage() {
         return;
       }
 
-      // TODO: Replace with actual API call
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      
-      // TODO: Replace with actual API call
-      // import { forgotPassword } from '@/lib/api';
-      // await forgotPassword(email);
-      
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // In production, the API will send an email with reset link
-      // For development, you can log the reset token if needed
-      console.log('Forgot password requested for:', email);
-      
+      await forgotPassword(email.trim());
       setSuccess(true);
     } catch (err: any) {
-      setError(err.message || 'Failed to send reset email. Please try again.');
+      setError(err.response?.data?.message || err.message || 'Failed to send reset email. Please try again.');
     } finally {
       setLoading(false);
     }

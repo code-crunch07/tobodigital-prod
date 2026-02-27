@@ -8,6 +8,7 @@ import { Lock, Eye, EyeOff, CheckCircle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { resetPassword } from '@/lib/api';
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -57,24 +58,13 @@ function ResetPasswordForm() {
     setLoading(true);
 
     try {
-      // TODO: Replace with actual API call
-      // import { resetPassword } from '@/lib/api';
-      // await resetPassword(token, formData.password);
-      
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // In production, this will actually reset the password via API
-      console.log('Password reset requested for token:', token);
-      
+      await resetPassword(token, formData.password);
       setSuccess(true);
-      
-      // Redirect to login after 3 seconds
       setTimeout(() => {
         router.push('/login?message=Password reset successfully');
       }, 3000);
     } catch (err: any) {
-      setError(err.message || 'Failed to reset password. Please try again.');
+      setError(err.response?.data?.message || err.message || 'Failed to reset password. Please try again.');
     } finally {
       setLoading(false);
     }

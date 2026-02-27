@@ -122,6 +122,31 @@ This project consists of:
 
    The dashboard will be available at `http://localhost:3000`
 
+### Razorpay (Payments)
+
+Razorpay is already integrated for checkout. To enable it:
+
+1. **Backend** – In your backend `.env` add:
+   ```env
+   RAZORPAY_KEY_ID=rzp_test_xxxx
+   RAZORPAY_KEY_SECRET=your_secret
+   ```
+2. **Client** – In `client/.env.local` add:
+   ```env
+   NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_xxxx
+   NEXT_PUBLIC_API_URL=http://localhost:5000/api
+   ```
+3. Get test keys from [Razorpay Dashboard](https://dashboard.razorpay.com/) → Settings → API Keys (use Test Mode for development).
+
+See **[docs/RAZORPAY_INTEGRATION.md](docs/RAZORPAY_INTEGRATION.md)** for the full flow and verification steps.
+
+### Shiprocket & Brevo (Email)
+
+- **Shiprocket**: Pincode check and shipping rates are built in. Set `SHIPROCKET_EMAIL` and `SHIPROCKET_PASSWORD` in the backend `.env`.
+- **Brevo (SMTP)**: Used for transactional email (e.g. password reset). Set `BREVO_SMTP_USER`, `BREVO_SMTP_KEY`, and optionally `BREVO_FROM_EMAIL`, `BREVO_FROM_NAME`, `DASHBOARD_URL` in the backend `.env`.
+
+See **[docs/SHIPROCKET_BREVO.md](docs/SHIPROCKET_BREVO.md)** for details and request examples.
+
 ## 📁 Project Structure
 
 ```
