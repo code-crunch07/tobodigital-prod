@@ -860,10 +860,10 @@ export function ProductDetailView(props: ProductDetailViewProps) {
         </div>
 
         <div className="mt-12">
-          {/* Mobile: accordion-style sections with inline content */}
-          <div className="sm:hidden space-y-3 mb-4">
+          {/* Mobile: accordion-style sections with simple bottom borders (no cards) */}
+          <div className="sm:hidden mb-4 border-t border-[#e2e8f0]">
             {/* Description */}
-            <div className="border border-[#e2e8f0] rounded-lg overflow-hidden bg-white">
+            <div className="border-b border-[#e2e8f0] bg-white">
               <button
                 type="button"
                 onClick={() => setActiveTab(activeTab === 'description' ? 'description' : 'description')}
@@ -925,7 +925,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </div>
 
             {/* Specifications */}
-            <div className="border border-[#e2e8f0] rounded-lg overflow-hidden bg-white">
+            <div className="border-b border-[#e2e8f0] bg-white">
               <button
                 type="button"
                 onClick={() => setActiveTab('specifications')}
@@ -1020,7 +1020,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </div>
 
             {/* Shipping & Returns */}
-            <div className="border border-[#e2e8f0] rounded-lg overflow-hidden bg-white">
+            <div className="border-b border-[#e2e8f0] bg-white">
               <button
                 type="button"
                 onClick={() => setActiveTab('shipping')}
@@ -1067,7 +1067,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </div>
 
             {/* Reviews */}
-            <div className="border border-[#e2e8f0] rounded-lg overflow-hidden bg-white">
+            <div className="border-b border-[#e2e8f0] bg-white">
               <button
                 type="button"
                 onClick={() => setActiveTab('reviews')}
