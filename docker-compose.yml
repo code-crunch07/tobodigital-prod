@@ -17,6 +17,20 @@ services:
       MONGODB_URI: ${MONGODB_URI}
       JWT_SECRET: ${JWT_SECRET}
       UPLOADS_DIR: /data/uploads/public
+      # Razorpay (payments)
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET}
+      # Shiprocket (shipping)
+      SHIPROCKET_EMAIL: ${SHIPROCKET_EMAIL}
+      SHIPROCKET_PASSWORD: ${SHIPROCKET_PASSWORD}
+      # Brevo SMTP (transactional email)
+      BREVO_SMTP_HOST: ${BREVO_SMTP_HOST:-smtp-relay.brevo.com}
+      BREVO_SMTP_PORT: ${BREVO_SMTP_PORT:-587}
+      BREVO_SMTP_USER: ${BREVO_SMTP_USER}
+      BREVO_SMTP_KEY: ${BREVO_SMTP_KEY}
+      BREVO_FROM_EMAIL: ${BREVO_FROM_EMAIL}
+      BREVO_FROM_NAME: ${BREVO_FROM_NAME}
+      DASHBOARD_URL: ${DASHBOARD_URL:-https://tobodigital.com/admin}
     volumes:
       # Bind-mount uploads so files appear on disk. On server set in .env:
       # UPLOADS_HOST_PATH=/home/tobodigital/htdocs/tobodigital.com/tobo-uploads/public
@@ -31,6 +45,7 @@ services:
       dockerfile: Dockerfile.dashboard
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.tobodigital.com/api}
+        NEXT_PUBLIC_RAZORPAY_KEY_ID: ${NEXT_PUBLIC_RAZORPAY_KEY_ID}
     container_name: tobo-dashboard
     restart: unless-stopped
     ports:
@@ -47,6 +62,7 @@ services:
       dockerfile: Dockerfile.client
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.tobodigital.com/api}
+        NEXT_PUBLIC_RAZORPAY_KEY_ID: ${NEXT_PUBLIC_RAZORPAY_KEY_ID}
     container_name: tobo-client
     restart: unless-stopped
     ports:

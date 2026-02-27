@@ -19,6 +19,7 @@ export default function ProductAttributesPage() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newAttribute, setNewAttribute] = useState({ name: '', type: 'select', values: [''] });
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingAttribute, setEditingAttribute] = useState<ProductAttribute | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -95,6 +96,62 @@ export default function ProductAttributesPage() {
   const handleDelete = async (id: string) => {
     const next = attributes.filter(a => a.id !== id);
     setAttributes(next);
+    await saveAttributes(next);
+  };
+
+  const startEditing = (attr: ProductAttribute) => {
+    setEditingId(attr.id);
+    // Deep copy to avoid mutating original until save
+    setEditingAttribute({
+      id: attr.id,
+      name: attr.name,
+      type: attr.type,
+      values: [...attr.values],
+    });
+  };
+
+  const cancelEditing = () => {
+    setEditingId(null);
+    setEditingAttribute(null);
+  };
+
+  const handleEditingValueChange = (index: number, value: string) => {
+    if (!editingAttribute) return;
+    const updated: ProductAttribute = {
+      ...editingAttribute,
+      values: editingAttribute.values.map((v, i) => (i === index ? value : v)),
+    };
+    setEditingAttribute(updated);
+  };
+
+  const handleEditingAddValue = () => {
+    if (!editingAttribute) return;
+    setEditingAttribute({
+      ...editingAttribute,
+      values: [...editingAttribute.values, ''],
+    });
+  };
+
+  const handleEditingRemoveValue = (index: number) => {
+    if (!editingAttribute) return;
+    setEditingAttribute({
+      ...editingAttribute,
+      values: editingAttribute.values.filter((_, i) => i !== index),
+    });
+  };
+
+  const saveEditing = async () => {
+    if (!editingId || !editingAttribute) return;
+    const cleaned: ProductAttribute = {
+      ...editingAttribute,
+      name: editingAttribute.name.trim(),
+      values: editingAttribute.type === 'select'
+        ? editingAttribute.values.map(v => v.trim()).filter(Boolean)
+        : [],
+    };
+    const next = attributes.map(a => (a.id === editingId ? cleaned : a));
+    setEditingId(null);
+    setEditingAttribute(null);
     await saveAttributes(next);
   };
 
@@ -227,32 +284,132 @@ export default function ProductAttributesPage() {
               ) : (
                 attributes.map((attr) => (
                   <TableRow key={attr.id}>
-                    <TableCell className="font-medium">{attr.name}</TableCell>
-                    <TableCell>
-                      <span className="px-2 py-1 bg-muted rounded-md text-xs capitalize">
-                        {attr.type}
-                      </span>
+                    <TableCell className="font-medium">
+                      {editingId === attr.id && editingAttribute ? (
+                        <Input
+                          value={editingAttribute.name}
+                          onChange={(e) =>
+                            setEditingAttribute({
+                              ...editingAttribute,
+                              name: e.target.value,
+                            } as ProductAttribute)
+                          }
+                        />
+                      ) : (
+                        attr.name
+                      )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {attr.values.map((val, idx) => (
-                          <span
-                            key={idx}
-                            className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs"
-                          >
-                            {val}
+                      {editingId === attr.id && editingAttribute ? (
+                        <select
+                          className="w-full px-2 py-1 border rounded-md text-xs capitalize"
+                          value={editingAttribute.type}
+                          onChange={(e) =>
+                            setEditingAttribute({
+                              ...editingAttribute,
+                              type: e.target.value,
+                            } as ProductAttribute)
+                          }
+                        >
+                          <option value="select">Select / Dropdown</option>
+                          <option value="text">Text Input</option>
+                          <option value="number">Number</option>
+                        </select>
+                      ) : (
+                        <span className="px-2 py-1 bg-muted rounded-md text-xs capitalize">
+                          {attr.type}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editingId === attr.id && editingAttribute ? (
+                        editingAttribute.type === 'select' ? (
+                          <div className="space-y-1">
+                            {editingAttribute.values.map((val, idx) => (
+                              <div key={idx} className="flex items-center gap-2">
+                                <Input
+                                  value={val}
+                                  onChange={(e) => handleEditingValueChange(idx, e.target.value)}
+                                  placeholder={`Value ${idx + 1}`}
+                                />
+                                {editingAttribute.values.length > 1 && (
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => handleEditingRemoveValue(idx)}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            ))}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleEditingAddValue}
+                            >
+                              <Plus className="h-3 w-3 mr-1" />
+                              Add Value
+                            </Button>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">
+                            Free text / number input (no fixed values)
                           </span>
-                        ))}
-                      </div>
+                        )
+                      ) : (
+                        <div className="flex flex-wrap gap-1">
+                          {attr.values.map((val, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs"
+                            >
+                              {val}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" disabled title="Edit coming soon">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(attr.id)} disabled={saving}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        {editingId === attr.id ? (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={cancelEditing}
+                              disabled={saving}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={saveEditing}
+                              disabled={saving}
+                            >
+                              Save
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => startEditing(attr)}
+                              disabled={saving}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDelete(attr.id)}
+                              disabled={saving}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
