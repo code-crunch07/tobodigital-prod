@@ -203,7 +203,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
   return (
     <>
     <div
-      className="min-h-screen text-[#2d3748] overflow-x-hidden bg-[#fafafa] sm:bg-[#f5f5f5]"
+      className="min-h-screen text-[#2d3748] overflow-x-hidden bg-white sm:bg-[#f5f5f5]"
     >
       <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 mb-6 w-full min-w-0">
         <nav
@@ -906,10 +906,10 @@ export function ProductDetailView(props: ProductDetailViewProps) {
         </div>
 
         <div className="mt-12">
-          {/* Mobile: improved accordion sections */}
-          <div className="sm:hidden mb-6 space-y-2">
+          {/* Mobile: accordion layout – clean list, + / − on right, thin dividers */}
+          <div className="sm:hidden mb-6 bg-white overflow-hidden">
             {/* Description */}
-            <div className="rounded-xl border border-[#e5e7eb] bg-white shadow-sm overflow-hidden">
+            <div className="border-b border-gray-200">
               <button
                 type="button"
                 onClick={() =>
@@ -917,10 +917,10 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 }
                 className="w-full flex items-center justify-between py-4 px-4 text-left transition-colors active:bg-gray-50"
               >
-                <span className={`text-[15px] font-semibold ${mobileOpenSection === 'description' ? 'text-[#111827]' : 'text-[#4b5563]'}`}>
+                <span className="text-[15px] font-semibold text-gray-900">
                   Product Description
                 </span>
-                <span className="flex-shrink-0 ml-2 text-[#6b7280]">
+                <span className="flex-shrink-0 text-gray-600">
                   {mobileOpenSection === 'description' ? (
                     <Minus className="h-5 w-5" />
                   ) : (
@@ -929,7 +929,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 </span>
               </button>
               {mobileOpenSection === 'description' && (
-                <div className="border-t border-[#e5e7eb] px-4 py-4 pb-5 space-y-4 text-sm text-gray-700 bg-gray-50/50">
+                <div className="border-t border-gray-100 px-4 py-4 pb-5 space-y-4 text-sm text-gray-700 bg-white">
                   {product.productDescription && (
                     <div
                       className="product-description-content"
@@ -975,7 +975,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </div>
 
             {/* Specifications */}
-            <div className="rounded-xl border border-[#e5e7eb] bg-white shadow-sm overflow-hidden">
+            <div className="border-b border-gray-200">
               <button
                 type="button"
                 onClick={() =>
@@ -985,10 +985,10 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 }
                 className="w-full flex items-center justify-between py-4 px-4 text-left transition-colors active:bg-gray-50"
               >
-                <span className={`text-[15px] font-semibold ${mobileOpenSection === 'specifications' ? 'text-[#111827]' : 'text-[#4b5563]'}`}>
+                <span className="text-[15px] font-semibold text-gray-900">
                   Specifications
                 </span>
-                <span className="flex-shrink-0 ml-2 text-[#6b7280]">
+                <span className="flex-shrink-0 text-gray-600">
                   {mobileOpenSection === 'specifications' ? (
                     <Minus className="h-5 w-5" />
                   ) : (
@@ -1055,13 +1055,13 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   }
                   if (specRows.length === 0) {
                     return (
-                      <div className="border-t border-[#e5e7eb] px-4 py-4 pb-5 text-center text-[#718096] text-sm bg-gray-50/50">
+                      <div className="border-t border-gray-100 px-4 py-4 pb-5 text-center text-gray-500 text-sm bg-white">
                         No specifications available for this product.
                       </div>
                     );
                   }
                   return (
-                    <div className="border-t border-[#e5e7eb] px-4 py-4 pb-5 bg-gray-50/50">
+                    <div className="border-t border-gray-100 px-4 py-4 pb-5 bg-white">
                       <dl className="divide-y divide-[#e5e7eb]">
                         {specRows.map((row, index) => (
                           <div key={index} className="flex items-center py-3 text-sm">
@@ -1076,7 +1076,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </div>
 
             {/* Shipping & Returns */}
-            <div className="rounded-xl border border-[#e5e7eb] bg-white shadow-sm overflow-hidden">
+            <div className="border-b border-gray-200">
               <button
                 type="button"
                 onClick={() =>
@@ -1084,10 +1084,10 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 }
                 className="w-full flex items-center justify-between py-4 px-4 text-left transition-colors active:bg-gray-50"
               >
-                <span className={`text-[15px] font-semibold ${mobileOpenSection === 'shipping' ? 'text-[#111827]' : 'text-[#4b5563]'}`}>
+                <span className="text-[15px] font-semibold text-gray-900">
                   Shipping & Returns
                 </span>
-                <span className="flex-shrink-0 ml-2 text-[#6b7280]">
+                <span className="flex-shrink-0 text-gray-600">
                   {mobileOpenSection === 'shipping' ? (
                     <Minus className="h-5 w-5" />
                   ) : (
@@ -1096,7 +1096,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 </span>
               </button>
               {mobileOpenSection === 'shipping' && (
-                <div className="border-t border-[#e5e7eb] px-4 py-4 pb-5 space-y-4 text-sm text-gray-700 bg-gray-50/50">
+                <div className="border-t border-gray-100 px-4 py-4 pb-5 space-y-4 text-sm text-gray-700 bg-white">
                   <section>
                     <h3 className="text-sm font-bold text-gray-900 mb-2">Shipping Information</h3>
                     <p className="text-gray-700 mb-3">
@@ -1127,7 +1127,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </div>
 
             {/* Reviews */}
-            <div className="rounded-xl border border-[#e5e7eb] bg-white shadow-sm overflow-hidden">
+            <div className="border-b border-gray-200">
               <button
                 type="button"
                 onClick={() =>
@@ -1135,10 +1135,10 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 }
                 className="w-full flex items-center justify-between py-4 px-4 text-left transition-colors active:bg-gray-50"
               >
-                <span className={`text-[15px] font-semibold ${mobileOpenSection === 'reviews' ? 'text-[#111827]' : 'text-[#4b5563]'}`}>
-                  Reviews ({reviewCount})
+                <span className="text-[15px] font-semibold text-gray-900">
+                  Customer Reviews
                 </span>
-                <span className="flex-shrink-0 ml-2 text-[#6b7280]">
+                <span className="flex-shrink-0 text-gray-600">
                   {mobileOpenSection === 'reviews' ? (
                     <Minus className="h-5 w-5" />
                   ) : (
@@ -1147,7 +1147,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 </span>
               </button>
               {mobileOpenSection === 'reviews' && (
-                <div className="border-t border-[#e5e7eb] px-4 py-4 pb-5 space-y-4 text-sm text-gray-700 bg-gray-50/50" id="reviews">
+                <div className="border-t border-gray-100 px-4 py-4 pb-5 space-y-4 text-sm text-gray-700 bg-white" id="reviews">
                   {reviewCount > 0 && averageRating != null && Number.isFinite(averageRating) ? (
                     <div className="flex flex-col gap-4 pb-4 border-b border-gray-200 bg-[#fafafa] p-4 rounded-xl">
                       <div className="flex items-center gap-3">
