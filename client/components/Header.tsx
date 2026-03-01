@@ -54,9 +54,6 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openMegaMenus, setOpenMegaMenus] = useState<Set<string>>(new Set());
   const [mobileSubmenuNav, setMobileSubmenuNav] = useState<NavigationLink | null>(null);
-  const hasNavWithSubmenu = navigations.some(
-    (nav) => nav.hasMegaMenu && nav.megaMenuColumns?.some((col) => col.links?.length)
-  );
   const [loading, setLoading] = useState(true);
   const [loginDialogOpen, setLoginDialogOpen] = useState(false);
   const [cartPanelOpen, setCartPanelOpen] = useState(false);
@@ -602,15 +599,13 @@ export default function Header() {
               )}
             </button>
 
-            {/* Mobile Menu Button – only show when at least one nav has a submenu */}
-            {hasNavWithSubmenu && (
-              <button
-                className="md:hidden p-2 text-[rgb(16,15,15)]"
-                onClick={() => { const next = !mobileMenuOpen; setMobileMenuOpen(next); if (next) setMobileSubmenuNav(null); }}
-              >
-                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-            )}
+            {/* Mobile Menu Button */}
+            <button
+              className="md:hidden p-2 text-[rgb(16,15,15)]"
+              onClick={() => { const next = !mobileMenuOpen; setMobileMenuOpen(next); if (next) setMobileSubmenuNav(null); }}
+            >
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
         </div>
 
@@ -664,8 +659,8 @@ export default function Header() {
         </>
       )}
 
-      {/* Mobile menu overlay + drawer – only when at least one nav has submenu */}
-      {mounted && hasNavWithSubmenu && createPortal(
+      {/* Mobile menu overlay + drawer */}
+      {mounted && createPortal(
         <>
           {mobileMenuOpen && (
             <div
@@ -729,10 +724,9 @@ export default function Header() {
                 </div>
               ) : navigations.length > 0 ? (
                 <div className="py-1">
-                  {navigations
-                    .filter((nav) => nav.hasMegaMenu && nav.megaMenuColumns?.some((col) => col.links?.length))
-                    .map((nav) => (
-                      <div key={nav._id} className="border-b border-gray-100">
+                  {navigations.map((nav) => (
+                    <div key={nav._id} className="border-b border-gray-100">
+                      {nav.hasMegaMenu && nav.megaMenuColumns?.some((col) => col.links?.length) ? (
                         <button
                           type="button"
                           onClick={() => setMobileSubmenuNav(nav)}
@@ -741,8 +735,19 @@ export default function Header() {
                           <span>{nav.label}</span>
                           <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
                         </button>
-                      </div>
-                    ))}
+                      ) : (
+                        <Link
+                          href={nav.href}
+                          target={nav.isExternal ? '_blank' : '_self'}
+                          rel={nav.isExternal ? 'noopener noreferrer' : undefined}
+                          className="flex items-center w-full py-4 px-4 text-left text-[15px] font-semibold text-gray-900 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <span>{nav.label}</span>
+                        </Link>
+                      )}
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="py-1">
@@ -757,11 +762,10 @@ export default function Header() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="flex items-center justify-between w-full py-4 px-4 text-left text-[15px] font-semibold text-gray-900 hover:bg-gray-50 active:bg-gray-100 border-b border-gray-100 transition-colors"
+                      className="flex items-center w-full py-4 px-4 text-left text-[15px] font-semibold text-gray-900 hover:bg-gray-50 active:bg-gray-100 border-b border-gray-100 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <span>{item.label}</span>
-                      <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
                     </Link>
                   ))}
                 </div>
