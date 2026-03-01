@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { createPortal } from 'react-dom';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { ShoppingCart, Search, Menu, X, ChevronDown, Heart, User, LogOut, UserCircle, Package, FileText } from 'lucide-react';
+import { ShoppingCart, Search, Menu, X, ChevronDown, ChevronRight, ChevronLeft, Heart, User, LogOut, UserCircle, Package, FileText } from 'lucide-react';
 import { getCategories, getNavigations, getPublicSiteSettings } from '@/lib/api';
 import LoginSignupDialog from './LoginSignupDialog';
 import CartPanel from './CartPanel';
@@ -53,6 +53,7 @@ export default function Header() {
   const [announcements, setAnnouncements] = useState<string[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openMegaMenus, setOpenMegaMenus] = useState<Set<string>>(new Set());
+  const [mobileSubmenuNav, setMobileSubmenuNav] = useState<NavigationLink | null>(null);
   const [loading, setLoading] = useState(true);
   const [loginDialogOpen, setLoginDialogOpen] = useState(false);
   const [cartPanelOpen, setCartPanelOpen] = useState(false);
@@ -601,7 +602,7 @@ export default function Header() {
             {/* Mobile Menu Button */}
             <button
               className="md:hidden p-2 text-[rgb(16,15,15)]"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={() => { const next = !mobileMenuOpen; setMobileMenuOpen(next); if (next) setMobileSubmenuNav(null); }}
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -664,7 +665,7 @@ export default function Header() {
           {mobileMenuOpen && (
             <div
               className="fixed inset-0 bg-black/50 z-[100] md:hidden"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={() => { setMobileMenuOpen(false); setMobileSubmenuNav(null); }}
               aria-hidden="true"
             />
           )}
@@ -675,84 +676,101 @@ export default function Header() {
             role="dialog"
             aria-label="Mobile menu"
           >
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
-              <h2 className="text-lg font-bold text-gray-900">Menu</h2>
+            <div className="flex items-center justify-between flex-shrink-0 h-14 px-4 border-b border-gray-200">
+              {mobileSubmenuNav ? (
+                <button
+                  type="button"
+                  onClick={() => setMobileSubmenuNav(null)}
+                  className="flex items-center gap-1 text-gray-700 hover:text-[#ff006e] transition-colors font-medium"
+                  aria-label="Back"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                  <span className="text-base font-semibold">{mobileSubmenuNav.label}</span>
+                </button>
+              ) : (
+                <h2 className="text-lg font-bold text-gray-900">Menu</h2>
+              )}
               <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                onClick={() => { setMobileMenuOpen(false); setMobileSubmenuNav(null); }}
+                className="p-2 text-gray-500 hover:text-gray-800 transition-colors rounded"
                 aria-label="Close menu"
               >
                 <X className="h-6 w-6" />
               </button>
             </div>
-            <nav className="flex-1 overflow-y-auto overflow-x-hidden p-4 flex flex-col space-y-4 min-h-0">
-              {navigations.length > 0 ? (
-                navigations.map((nav) => (
-                  <div key={nav._id}>
-                    {nav.hasMegaMenu ? (
-                      <div className="space-y-2">
+            <nav className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+              {mobileSubmenuNav ? (
+                <div className="py-1">
+                  {mobileSubmenuNav.megaMenuColumns?.map((column, colIndex) => (
+                    <div key={colIndex}>
+                      {column.links.map((link, linkIndex) => {
+                        const linkHref = link.isCategory ? getCategoryLink(link.href) : link.href;
+                        return (
+                          <Link
+                            key={`${colIndex}-${linkIndex}`}
+                            href={linkHref}
+                            target={link.isExternal ? '_blank' : '_self'}
+                            rel={link.isExternal ? 'noopener noreferrer' : undefined}
+                            className="flex items-center justify-between w-full py-4 px-4 text-left text-[15px] font-semibold text-gray-900 hover:bg-gray-50 active:bg-gray-100 border-b border-gray-100 transition-colors"
+                            onClick={() => { setMobileMenuOpen(false); setMobileSubmenuNav(null); }}
+                          >
+                            <span>{link.label}</span>
+                            <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              ) : navigations.length > 0 ? (
+                <div className="py-1">
+                  {navigations.map((nav) => (
+                    <div key={nav._id} className="border-b border-gray-100">
+                      {nav.hasMegaMenu && nav.megaMenuColumns && nav.megaMenuColumns.some(col => col.links?.length) ? (
                         <button
-                          onClick={() => toggleMegaMenu(nav._id)}
-                          className="flex items-center justify-between w-full text-gray-700 hover:text-[#ff006e] transition-colors font-medium"
+                          type="button"
+                          onClick={() => setMobileSubmenuNav(nav)}
+                          className="flex items-center justify-between w-full py-4 px-4 text-left text-[15px] font-semibold text-gray-900 hover:bg-gray-50 active:bg-gray-100 transition-colors"
                         >
                           <span>{nav.label}</span>
-                          {openMegaMenus.has(nav._id) ? (
-                            <ChevronDown className="h-4 w-4 rotate-180 flex-shrink-0" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4 flex-shrink-0" />
-                          )}
+                          <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
                         </button>
-                        {openMegaMenus.has(nav._id) && nav.megaMenuColumns && (
-                          <div className="pl-4 space-y-2">
-                            {nav.megaMenuColumns.map((column, colIndex) => (
-                              <div key={colIndex} className="space-y-2">
-                                {column.title && (
-                                  <div className="text-sm font-semibold text-gray-600 mt-2">
-                                    {column.title}
-                                  </div>
-                                )}
-                                {column.links.map((link, linkIndex) => {
-                                  const linkHref = link.isCategory ? getCategoryLink(link.href) : link.href;
-                                  return (
-                                    <Link
-                                      key={linkIndex}
-                                      href={linkHref}
-                                      target={link.isExternal ? '_blank' : '_self'}
-                                      rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                                      className="block text-gray-600 hover:text-[#ff006e] transition-colors"
-                                      onClick={() => setMobileMenuOpen(false)}
-                                    >
-                                      {link.label}
-                                    </Link>
-                                  );
-                                })}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <Link
-                        href={nav.href}
-                        target={nav.isExternal ? '_blank' : '_self'}
-                        rel={nav.isExternal ? 'noopener noreferrer' : undefined}
-                        className="text-gray-700 hover:text-[#ff006e] transition-colors font-medium block"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        {nav.label}
-                      </Link>
-                    )}
-                  </div>
-                ))
+                      ) : (
+                        <Link
+                          href={nav.href}
+                          target={nav.isExternal ? '_blank' : '_self'}
+                          rel={nav.isExternal ? 'noopener noreferrer' : undefined}
+                          className="flex items-center justify-between w-full py-4 px-4 text-left text-[15px] font-semibold text-gray-900 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <span>{nav.label}</span>
+                          <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                        </Link>
+                      )}
+                    </div>
+                  ))}
+                </div>
               ) : (
-                <>
-            <Link href="/" className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-                  <Link href="/new-arrivals" className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>New Arrivals</Link>
-                  <Link href="/shop" className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Shop</Link>
-                  <Link href="/about" className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
-                  <Link href="/blog" className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
-                  <Link href="/contact" className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium block" onClick={() => setMobileMenuOpen(false)}>Contact Us</Link>
-                </>
+                <div className="py-1">
+                  {[
+                    { label: 'Home', href: '/' },
+                    { label: 'New Arrivals', href: '/new-arrivals' },
+                    { label: 'Shop', href: '/shop' },
+                    { label: 'About Us', href: '/about' },
+                    { label: 'Blog', href: '/blog' },
+                    { label: 'Contact Us', href: '/contact' },
+                  ].map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="flex items-center justify-between w-full py-4 px-4 text-left text-[15px] font-semibold text-gray-900 hover:bg-gray-50 active:bg-gray-100 border-b border-gray-100 transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <span>{item.label}</span>
+                      <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                    </Link>
+                  ))}
+                </div>
               )}
             </nav>
           </div>

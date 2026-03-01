@@ -41,9 +41,9 @@ export default function CartPanel({ isOpen, onClose, items, onUpdateQuantity, on
         />
       )}
 
-      {/* Cart dropdown - responsive floating panel */}
+      {/* Cart dropdown - responsive floating panel (starts below header; on mobile header can be promo + main bar) */}
       <div
-        className={`fixed top-16 left-3 right-3 sm:left-auto sm:right-4 z-[101] w-auto max-w-sm sm:max-w-md max-h-[calc(100vh-4.5rem)] flex flex-col bg-white rounded-2xl sm:rounded-lg shadow-xl border border-gray-200 overflow-hidden transition-all duration-200 ${
+        className={`fixed top-24 left-3 right-3 sm:left-auto sm:right-4 sm:top-16 z-[101] w-auto max-w-sm sm:max-w-md max-h-[calc(100vh-6rem)] sm:max-h-[calc(100vh-4.5rem)] flex flex-col bg-white rounded-2xl sm:rounded-lg shadow-xl border border-gray-200 overflow-hidden transition-all duration-200 ${
           isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
         }`}
         onClick={(e) => e.stopPropagation()}

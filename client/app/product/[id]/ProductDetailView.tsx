@@ -203,8 +203,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
   return (
     <>
     <div
-      className="min-h-screen text-[#2d3748] overflow-x-hidden"
-      style={{ backgroundColor: 'rgb(239 239 239 / 33%)' }}
+      className="min-h-screen text-[#2d3748] overflow-x-hidden bg-[#fafafa] sm:bg-[#f5f5f5]"
     >
       <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 mb-6 w-full min-w-0">
         <nav
@@ -907,28 +906,30 @@ export function ProductDetailView(props: ProductDetailViewProps) {
         </div>
 
         <div className="mt-12">
-          {/* Mobile: accordion-style sections with simple bottom borders (no cards) */}
-          <div className="sm:hidden mb-4 border-t border-[#e2e8f0]">
+          {/* Mobile: improved accordion sections */}
+          <div className="sm:hidden mb-6 space-y-2">
             {/* Description */}
-            <div className="border-b border-[#e2e8f0] bg-white">
+            <div className="rounded-xl border border-[#e5e7eb] bg-white shadow-sm overflow-hidden">
               <button
                 type="button"
                 onClick={() =>
                   setMobileOpenSection(mobileOpenSection === 'description' ? null : 'description')
                 }
-                className="w-full flex items-center justify-between py-3 px-4 text-sm font-semibold text-left"
+                className="w-full flex items-center justify-between py-4 px-4 text-left transition-colors active:bg-gray-50"
               >
-                <span className={mobileOpenSection === 'description' ? 'text-[#111827]' : 'text-[#6b7280]'}>
+                <span className={`text-[15px] font-semibold ${mobileOpenSection === 'description' ? 'text-[#111827]' : 'text-[#4b5563]'}`}>
                   Product Description
                 </span>
-                {mobileOpenSection === 'description' ? (
-                  <Minus className="h-4 w-4 text-[#111827]" />
-                ) : (
-                  <Plus className="h-4 w-4 text-[#6b7280]" />
-                )}
+                <span className="flex-shrink-0 ml-2 text-[#6b7280]">
+                  {mobileOpenSection === 'description' ? (
+                    <Minus className="h-5 w-5" />
+                  ) : (
+                    <Plus className="h-5 w-5" />
+                  )}
+                </span>
               </button>
               {mobileOpenSection === 'description' && (
-                <div className="border-t border-[#e2e8f0] px-4 py-4 space-y-4 text-sm text-gray-800">
+                <div className="border-t border-[#e5e7eb] px-4 py-4 pb-5 space-y-4 text-sm text-gray-700 bg-gray-50/50">
                   {product.productDescription && (
                     <div
                       className="product-description-content"
@@ -974,7 +975,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </div>
 
             {/* Specifications */}
-            <div className="border-b border-[#e2e8f0] bg-white">
+            <div className="rounded-xl border border-[#e5e7eb] bg-white shadow-sm overflow-hidden">
               <button
                 type="button"
                 onClick={() =>
@@ -982,16 +983,18 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                     mobileOpenSection === 'specifications' ? null : 'specifications'
                   )
                 }
-                className="w-full flex items-center justify-between py-3 px-4 text-sm font-semibold text-left"
+                className="w-full flex items-center justify-between py-4 px-4 text-left transition-colors active:bg-gray-50"
               >
-                <span className={mobileOpenSection === 'specifications' ? 'text-[#111827]' : 'text-[#6b7280]'}>
+                <span className={`text-[15px] font-semibold ${mobileOpenSection === 'specifications' ? 'text-[#111827]' : 'text-[#4b5563]'}`}>
                   Specifications
                 </span>
-                {mobileOpenSection === 'specifications' ? (
-                  <Minus className="h-4 w-4 text-[#111827]" />
-                ) : (
-                  <Plus className="h-4 w-4 text-[#6b7280]" />
-                )}
+                <span className="flex-shrink-0 ml-2 text-[#6b7280]">
+                  {mobileOpenSection === 'specifications' ? (
+                    <Minus className="h-5 w-5" />
+                  ) : (
+                    <Plus className="h-5 w-5" />
+                  )}
+                </span>
               </button>
               {mobileOpenSection === 'specifications' &&
                 (() => {
@@ -1052,14 +1055,14 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   }
                   if (specRows.length === 0) {
                     return (
-                      <div className="border-t border-[#e2e8f0] px-4 py-4 text-center text-[#718096] text-sm">
+                      <div className="border-t border-[#e5e7eb] px-4 py-4 pb-5 text-center text-[#718096] text-sm bg-gray-50/50">
                         No specifications available for this product.
                       </div>
                     );
                   }
                   return (
-                    <div className="border-t border-[#e2e8f0] px-4 py-4">
-                      <dl className="divide-y divide-[#e0e0e0]">
+                    <div className="border-t border-[#e5e7eb] px-4 py-4 pb-5 bg-gray-50/50">
+                      <dl className="divide-y divide-[#e5e7eb]">
                         {specRows.map((row, index) => (
                           <div key={index} className="flex items-center py-3 text-sm">
                             <dt className="text-[#4a4a4a] font-semibold pr-4 flex-shrink-0">{row.label}</dt>
@@ -1073,25 +1076,27 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </div>
 
             {/* Shipping & Returns */}
-            <div className="border-b border-[#e2e8f0] bg-white">
+            <div className="rounded-xl border border-[#e5e7eb] bg-white shadow-sm overflow-hidden">
               <button
                 type="button"
                 onClick={() =>
                   setMobileOpenSection(mobileOpenSection === 'shipping' ? null : 'shipping')
                 }
-                className="w-full flex items-center justify-between py-3 px-4 text-sm font-semibold text-left"
+                className="w-full flex items-center justify-between py-4 px-4 text-left transition-colors active:bg-gray-50"
               >
-                <span className={mobileOpenSection === 'shipping' ? 'text-[#111827]' : 'text-[#6b7280]'}>
+                <span className={`text-[15px] font-semibold ${mobileOpenSection === 'shipping' ? 'text-[#111827]' : 'text-[#4b5563]'}`}>
                   Shipping & Returns
                 </span>
-                {mobileOpenSection === 'shipping' ? (
-                  <Minus className="h-4 w-4 text-[#111827]" />
-                ) : (
-                  <Plus className="h-4 w-4 text-[#6b7280]" />
-                )}
+                <span className="flex-shrink-0 ml-2 text-[#6b7280]">
+                  {mobileOpenSection === 'shipping' ? (
+                    <Minus className="h-5 w-5" />
+                  ) : (
+                    <Plus className="h-5 w-5" />
+                  )}
+                </span>
               </button>
               {mobileOpenSection === 'shipping' && (
-                <div className="border-t border-[#e2e8f0] px-4 py-4 space-y-4 text-sm text-gray-800">
+                <div className="border-t border-[#e5e7eb] px-4 py-4 pb-5 space-y-4 text-sm text-gray-700 bg-gray-50/50">
                   <section>
                     <h3 className="text-sm font-bold text-gray-900 mb-2">Shipping Information</h3>
                     <p className="text-gray-700 mb-3">
@@ -1122,25 +1127,27 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </div>
 
             {/* Reviews */}
-            <div className="border-b border-[#e2e8f0] bg-white">
+            <div className="rounded-xl border border-[#e5e7eb] bg-white shadow-sm overflow-hidden">
               <button
                 type="button"
                 onClick={() =>
                   setMobileOpenSection(mobileOpenSection === 'reviews' ? null : 'reviews')
                 }
-                className="w-full flex items-center justify-between py-3 px-4 text-sm font-semibold text-left"
+                className="w-full flex items-center justify-between py-4 px-4 text-left transition-colors active:bg-gray-50"
               >
-                <span className={mobileOpenSection === 'reviews' ? 'text-[#111827]' : 'text-[#6b7280]'}>
+                <span className={`text-[15px] font-semibold ${mobileOpenSection === 'reviews' ? 'text-[#111827]' : 'text-[#4b5563]'}`}>
                   Reviews ({reviewCount})
                 </span>
-                {mobileOpenSection === 'reviews' ? (
-                  <Minus className="h-4 w-4 text-[#111827]" />
-                ) : (
-                  <Plus className="h-4 w-4 text-[#6b7280]" />
-                )}
+                <span className="flex-shrink-0 ml-2 text-[#6b7280]">
+                  {mobileOpenSection === 'reviews' ? (
+                    <Minus className="h-5 w-5" />
+                  ) : (
+                    <Plus className="h-5 w-5" />
+                  )}
+                </span>
               </button>
               {mobileOpenSection === 'reviews' && (
-                <div className="border-t border-[#e2e8f0] px-4 py-4 space-y-4 text-sm text-gray-800" id="reviews">
+                <div className="border-t border-[#e5e7eb] px-4 py-4 pb-5 space-y-4 text-sm text-gray-700 bg-gray-50/50" id="reviews">
                   {reviewCount > 0 && averageRating != null && Number.isFinite(averageRating) ? (
                     <div className="flex flex-col gap-4 pb-4 border-b border-gray-200 bg-[#fafafa] p-4 rounded-xl">
                       <div className="flex items-center gap-3">
