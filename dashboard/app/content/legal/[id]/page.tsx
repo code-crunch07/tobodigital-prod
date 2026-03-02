@@ -5,7 +5,6 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import { getLegalPageById, updateLegalPage } from '@/lib/api';
@@ -95,10 +94,10 @@ export default function EditLegalPage() {
             </div>
             <div className="space-y-2">
               <Label>Content *</Label>
-              <Textarea
+              <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="min-h-[240px]"
+                className="w-full min-h-[240px] px-3 py-2 border rounded-md resize-y text-sm"
                 required
               />
             </div>
