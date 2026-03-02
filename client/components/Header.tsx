@@ -49,7 +49,7 @@ export default function Header() {
   const { wishlistItems } = useWishlist();
   const [categories, setCategories] = useState<Category[]>([]);
   const [navigations, setNavigations] = useState<NavigationLink[]>([]);
-  const [siteLogo, setSiteLogo] = useState<string>('/tobo-logo.png');
+  const [siteLogo, setSiteLogo] = useState<string>('/tobo-logo.svg');
   const [announcements, setAnnouncements] = useState<string[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openMegaMenus, setOpenMegaMenus] = useState<Set<string>>(new Set());
@@ -148,7 +148,7 @@ export default function Header() {
     try {
       const res = await getPublicSiteSettings();
       const logo = res?.data?.logo;
-      if (logo) setSiteLogo(logo);
+      if (logo && typeof logo === 'string' && logo.trim()) setSiteLogo(logo.trim());
       if (Array.isArray(res?.data?.announcements)) {
         setAnnouncements(res.data.announcements);
       }
@@ -293,7 +293,18 @@ export default function Header() {
               className="object-contain h-7 w-auto sm:h-8"
               priority
               quality={100}
+              unoptimized={siteLogo.startsWith('/uploads/')}
               style={{ imageRendering: 'auto' }}
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+                const parent = (e.target as HTMLImageElement).parentElement;
+                if (parent && !parent.querySelector('.logo-fallback')) {
+                  const fallback = document.createElement('span');
+                  fallback.className = 'logo-fallback font-bold text-lg text-gray-900';
+                  fallback.textContent = 'Tobo Digital';
+                  parent.appendChild(fallback);
+                }
+              }}
             />
           </Link>
 

@@ -420,10 +420,10 @@ export default function ProductForm({ product, categories, subCategories = [], o
     <button
       type="button"
       onClick={onToggle}
-      className="w-full flex items-center justify-between p-4 rounded-t-xl hover:bg-muted/60 transition-colors text-left"
+      className="w-full flex items-center justify-between p-4 rounded-none hover:bg-muted/60 transition-colors text-left"
     >
       <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <span className="flex h-9 w-9 items-center justify-center rounded-none bg-primary/10 text-primary">
           <Icon className="h-5 w-5" />
         </span>
         <h3 className="text-base font-semibold text-foreground">{title}</h3>
@@ -440,7 +440,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
       {/* Main Form */}
       <form onSubmit={handleSubmit} className="flex-1 space-y-6">
         {/* Product Information */}
-        <Card className="rounded-2xl overflow-hidden border-border shadow-sm">
+        <Card className="rounded-none overflow-hidden border-border shadow-sm">
           <CardHeader className="p-0">
             <SectionHeader
               icon={Package}
@@ -698,7 +698,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
         </Card>
 
         {/* 2️⃣ Media Section */}
-        <Card className="rounded-2xl overflow-hidden border-border shadow-sm">
+        <Card className="rounded-none overflow-hidden border-border shadow-sm">
           <CardHeader className="p-0">
             <SectionHeader
               icon={ImageIcon}
@@ -739,12 +739,12 @@ export default function ProductForm({ product, categories, subCategories = [], o
                   <img
                     src={getUploadUrl(formData.mainImage)}
                     alt="Main product"
-                        className="w-48 h-48 object-cover border rounded-lg"
+                        className="w-48 h-48 object-cover border rounded-none"
                   />
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, mainImage: '' })}
-                        className="absolute top-2 right-2 bg-destructive text-white rounded-full p-1 hover:bg-destructive/80"
+                        className="absolute top-2 right-2 bg-destructive text-white rounded-none p-1 hover:bg-destructive/80"
                   >
                         <X className="h-4 w-4" />
                   </button>
@@ -752,7 +752,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
                   ) : (
                     <div
                       onClick={() => mainImageInputRef.current?.click()}
-                      className="w-48 h-48 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-50"
+                      className="w-48 h-48 border-2 border-dashed rounded-none flex items-center justify-center cursor-pointer hover:bg-gray-50"
                     >
                       <div className="text-center">
                         <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
@@ -820,12 +820,12 @@ export default function ProductForm({ product, categories, subCategories = [], o
                     <img
                       src={getUploadUrl(img)}
                       alt={`Gallery ${i + 1}`}
-                      className="w-full h-24 object-cover border rounded-md"
+                      className="w-full h-24 object-cover border rounded-none"
                     />
                     <button
                       type="button"
                       onClick={() => removeFromArray('galleryImages', i)}
-                      className="absolute top-1 right-1 bg-destructive text-white rounded-full p-1 hover:bg-destructive/80"
+                      className="absolute top-1 right-1 bg-destructive text-white rounded-none p-1 hover:bg-destructive/80"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -857,7 +857,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
         </Card>
 
         {/* 3️⃣ Pricing & Inventory */}
-        <Card className="rounded-2xl overflow-hidden border-border shadow-sm">
+        <Card className="rounded-none overflow-hidden border-border shadow-sm">
           <CardHeader className="p-0">
             <SectionHeader
               icon={IndianRupee}
@@ -868,7 +868,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
             />
           </CardHeader>
         {expandedSections.pricing && (
-          <CardContent className="bg-primary/5 dark:bg-primary/10 p-6 rounded-b-2xl space-y-6">
+          <CardContent className="bg-primary/5 dark:bg-primary/10 p-6 rounded-none space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <h4 className="font-semibold text-sm text-foreground">Price</h4>
@@ -1029,7 +1029,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
                   {formData.variants.map((variant, index) => (
                     <div
                       key={variant.id || index}
-                      className="rounded-lg border border-blue-100 bg-white p-3 sm:p-4 space-y-3"
+                      className="rounded-none border border-blue-100 bg-white p-3 sm:p-4 space-y-3"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
@@ -1462,7 +1462,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
               <div className="space-y-2">
                 <Label>Warranty Description</Label>
                 <textarea
-                  className="w-full min-h-[80px] px-3 py-2 border rounded-md resize-y"
+                  className="w-full min-h-[80px] px-3 py-2 border rounded-none resize-y"
                   value={formData.warrantyDescription}
                   onChange={(e) => setFormData({ ...formData, warrantyDescription: e.target.value })}
                   placeholder="Enter warranty details"
@@ -1487,7 +1487,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
           <div className="space-y-2">
             <Label>Importer Contact Information</Label>
             <textarea
-              className="w-full min-h-[100px] px-3 py-2 border rounded-md resize-y"
+              className="w-full min-h-[100px] px-3 py-2 border rounded-none resize-y"
               value={formData.importerContactInformation}
               onChange={(e) => setFormData({ ...formData, importerContactInformation: e.target.value })}
               placeholder="Name, Address, Phone, Email"
@@ -1496,7 +1496,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
           <div className="space-y-2">
             <Label>Packer Contact Information</Label>
             <textarea
-              className="w-full min-h-[100px] px-3 py-2 border rounded-md resize-y"
+              className="w-full min-h-[100px] px-3 py-2 border rounded-none resize-y"
               value={formData.packerContactInformation}
               onChange={(e) => setFormData({ ...formData, packerContactInformation: e.target.value })}
               placeholder="Name, Address, Phone, Email"
@@ -1539,7 +1539,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
               <div className="space-y-2">
             <Label>Meta Description</Label>
             <textarea
-              className="w-full min-h-[100px] px-3 py-2 border rounded-md resize-y"
+              className="w-full min-h-[100px] px-3 py-2 border rounded-none resize-y"
               value={formData.seoDescription}
               onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
               placeholder="SEO optimized description (150-160 characters)"
@@ -1648,7 +1648,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
       {/* Summary Panel */}
       <div className="w-full xl:w-[30%] mt-6 xl:mt-0">
         <div className="xl:sticky xl:top-6">
-          <Card className="rounded-2xl overflow-hidden border-border shadow-sm">
+          <Card className="rounded-none overflow-hidden border-border shadow-sm" style={{ backgroundColor: 'lab(93 0.72 0.23)' }}>
             <CardHeader className="border-b border-border">
               <CardTitle className="text-lg">Product Summary</CardTitle>
             </CardHeader>
@@ -1669,10 +1669,10 @@ export default function ProductForm({ product, categories, subCategories = [], o
                     <img
                       src={getUploadUrl(formData.mainImage)}
                       alt="Preview"
-                      className="w-full h-48 object-cover border border-border rounded-xl"
+                      className="w-full h-48 object-cover border border-border rounded-none"
                     />
                   ) : (
-                    <div className="w-full h-48 border-2 border-dashed border-border rounded-xl flex items-center justify-center bg-muted/50">
+                    <div className="w-full h-48 border-2 border-dashed border-border rounded-none flex items-center justify-center bg-muted/50">
                       <ImageIcon className="h-12 w-12 text-muted-foreground" />
                     </div>
                   )}
@@ -1738,10 +1738,10 @@ export default function ProductForm({ product, categories, subCategories = [], o
                     <span className="text-sm font-medium">{completionPercentage}%</span>
                     <Percent className="h-4 w-4 text-muted-foreground" />
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
+                  <div className="w-full bg-muted rounded-none h-2.5 overflow-hidden">
                     <div
                       className={cn(
-                        'h-2.5 rounded-full transition-all duration-300',
+                        'h-2.5 rounded-none transition-all duration-300',
                         completionPercentage === 100 && 'bg-emerald-500',
                         completionPercentage >= 70 && completionPercentage < 100 && 'bg-primary',
                         completionPercentage >= 40 && completionPercentage < 70 && 'bg-amber-500',

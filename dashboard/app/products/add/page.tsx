@@ -49,13 +49,13 @@ export default function AddProductPage() {
   return (
     <div className="space-y-6">
       {/* Page Header - modern */}
-      <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm">
+      <div className="rounded-none border border-border bg-card p-4 sm:p-5 shadow-sm">
         <div className="flex flex-wrap items-center gap-3 sm:gap-4">
           <Button
             variant="outline"
             size="sm"
             onClick={() => router.push('/products')}
-            className="gap-2 rounded-lg"
+            className="gap-2 rounded-none"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
