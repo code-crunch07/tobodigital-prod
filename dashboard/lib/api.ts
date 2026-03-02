@@ -70,12 +70,9 @@ api.interceptors.response.use(
   }
 );
 
-// Upload API with FormData support
+// Upload API for FormData (do not set Content-Type; axios sets multipart/form-data with boundary)
 const uploadApi = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'multipart/form-data',
-  },
 });
 
 // Add request interceptor to include auth token for upload API
