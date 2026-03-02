@@ -19,6 +19,15 @@ export interface IOrder extends Document {
     zipCode: string;
     country: string;
   };
+  billingAddress?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  companyName?: string;
+  gstNumber?: string;
   paymentMethod: string;
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
   createdAt: Date;
@@ -83,6 +92,12 @@ const OrderSchema: Schema = new Schema(
       type: ShippingAddressSchema,
       required: true,
     },
+    billingAddress: {
+      type: ShippingAddressSchema,
+      required: false,
+    },
+    companyName: { type: String, trim: true, default: '' },
+    gstNumber: { type: String, trim: true, default: '' },
     paymentMethod: {
       type: String,
     },

@@ -42,6 +42,9 @@ export default function CheckoutPage() {
     zipCode: '',
     country: 'India',
   });
+  const [wantGstBill, setWantGstBill] = useState(false);
+  const [companyName, setCompanyName] = useState('');
+  const [gstNumber, setGstNumber] = useState('');
 
   const [paymentMethod, setPaymentMethod] = useState('razorpay');
   const [couponCode, setCouponCode] = useState('');
@@ -104,9 +107,10 @@ export default function CheckoutPage() {
   const subtotal = cartItems.reduce((sum, item) => sum + item.yourPrice * item.quantity, 0);
   const allItemsFreeShipping = cartItems.length > 0 && cartItems.every((item) => item.freeShipping);
   const shipping = allItemsFreeShipping ? 0 : defaultShippingCharge;
-  const tax = subtotal * 0.18; // 18% GST
+  // Tax inclusive: prices already include GST; this is the GST component in subtotal (for display only)
+  const taxInclusive = subtotal * (0.18 / 1.18);
   const discount = appliedCoupon ? (subtotal * appliedCoupon.discountPercentage) / 100 : 0;
-  const total = subtotal + shipping + tax - discount;
+  const total = subtotal + shipping - discount;
 
   // Redirect if cart is empty
   useEffect(() => {
@@ -386,6 +390,10 @@ export default function CheckoutPage() {
           zipCode: billingAddress.zipCode,
           country: billingAddress.country,
         },
+        ...(wantGstBill && {
+          companyName: companyName.trim() || undefined,
+          gstNumber: gstNumber.trim() || undefined,
+        }),
         customer: {
           firstName: shippingAddress.firstName,
           lastName: shippingAddress.lastName,
@@ -767,6 +775,47 @@ export default function CheckoutPage() {
               )}
             </div>
 
+            {/* GST Invoice (Business) */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <label className="flex items-center gap-3 cursor-pointer mb-4">
+                <input
+                  type="checkbox"
+                  checked={wantGstBill}
+                  onChange={(e) => setWantGstBill(e.target.checked)}
+                  className="w-4 h-4 border-gray-300 rounded"
+                  style={{ accentColor: 'rgb(237, 130, 79)' }}
+                />
+                <span className="text-sm font-medium text-gray-900">I need a GST invoice (Business)</span>
+              </label>
+              {wantGstBill && (
+                <div className="grid md:grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Company name</label>
+                    <input
+                      type="text"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      placeholder="Enter company / business name"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                      style={{ '--tw-ring-color': 'rgb(237, 130, 79)' } as React.CSSProperties}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">GST number (GSTIN)</label>
+                    <input
+                      type="text"
+                      value={gstNumber}
+                      onChange={(e) => setGstNumber(e.target.value.toUpperCase())}
+                      placeholder="e.g. 27XXXXX1234X1ZX"
+                      maxLength={15}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                      style={{ '--tw-ring-color': 'rgb(237, 130, 79)' } as React.CSSProperties}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Payment Method */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center gap-2 mb-6">
@@ -928,8 +977,8 @@ export default function CheckoutPage() {
                   )}
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Tax (GST 18%)</span>
-                  <span className="text-gray-900">{formatPrice(tax)}</span>
+                  <span className="text-gray-600">Tax (GST 18% - inclusive)</span>
+                  <span className="text-gray-900">{formatPrice(taxInclusive)}</span>
                 </div>
               </div>
 

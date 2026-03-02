@@ -219,3 +219,34 @@ button,
 .product-description-content img:first-child {
   margin-top: 1rem;
 }
+
+/* Header mega menu: open animation */
+@keyframes mega-menu-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes mega-menu-link-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mega-menu-dropdown-enter {
+  animation: mega-menu-dropdown-in 0.2s ease-out forwards;
+}
+
+.mega-menu-link-enter {
+  animation: mega-menu-link-in 0.2s ease-out forwards;
+}

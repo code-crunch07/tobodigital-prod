@@ -122,7 +122,7 @@ const getOrderById = async (req: Request, res: Response) => {
 
 const createOrder = async (req: Request, res: Response) => {
   try {
-    const { customer, items, shippingAddress, paymentMethod, paymentStatus } = req.body;
+    const { customer, items, shippingAddress, billingAddress, companyName, gstNumber, paymentMethod, paymentStatus } = req.body;
 
     if (!customer || !items || !shippingAddress) {
       return res.status(400).json({
@@ -192,6 +192,15 @@ const createOrder = async (req: Request, res: Response) => {
 
     if (paymentStatus) {
       orderData.paymentStatus = paymentStatus;
+    }
+    if (billingAddress && typeof billingAddress === 'object') {
+      orderData.billingAddress = billingAddress;
+    }
+    if (companyName != null && String(companyName).trim()) {
+      orderData.companyName = String(companyName).trim();
+    }
+    if (gstNumber != null && String(gstNumber).trim()) {
+      orderData.gstNumber = String(gstNumber).trim();
     }
 
     const order = new Order(orderData);

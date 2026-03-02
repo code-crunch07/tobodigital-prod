@@ -211,20 +211,25 @@ export const downloadInvoice = (order: any) => {
         <div class="address-section">
             <div class="address-box">
                 <h3>Bill To:</h3>
-                <p><strong>${order.shippingAddress.firstName} ${order.shippingAddress.lastName}</strong></p>
-                <p>${order.shippingAddress.street}</p>
-                <p>${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zipCode}</p>
-                <p>${order.shippingAddress.country}</p>
-                <p style="margin-top: 10px;">Phone: ${order.shippingAddress.phone}</p>
-                <p>Email: ${order.shippingAddress.email}</p>
+                ${(order.companyName || order.gstNumber)
+                  ? (order.companyName ? `<p><strong>${order.companyName}</strong></p>` : '') +
+                    (order.gstNumber ? `<p style="color:#555;">GSTIN: ${order.gstNumber}</p>` : '')
+                  : `<p><strong>${order.shippingAddress?.firstName || ''} ${order.shippingAddress?.lastName || ''}</strong></p>`}
+                ${(function () {
+                  const addr = order.billingAddress || order.shippingAddress;
+                  if (!addr) return '';
+                  return `<p>${addr.street || ''}</p><p>${addr.city || ''}, ${addr.state || ''} ${addr.zipCode || ''}</p><p>${addr.country || ''}</p>`;
+                })()}
+                <p style="margin-top: 10px;">Phone: ${order.shippingAddress?.phone || ''}</p>
+                <p>Email: ${order.shippingAddress?.email || ''}</p>
             </div>
             <div class="address-box">
                 <h3>Ship To:</h3>
-                <p><strong>${order.shippingAddress.firstName} ${order.shippingAddress.lastName}</strong></p>
-                <p>${order.shippingAddress.street}</p>
-                <p>${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zipCode}</p>
-                <p>${order.shippingAddress.country}</p>
-                <p style="margin-top: 10px;">Phone: ${order.shippingAddress.phone}</p>
+                <p><strong>${order.shippingAddress?.firstName || ''} ${order.shippingAddress?.lastName || ''}</strong></p>
+                <p>${order.shippingAddress?.street || ''}</p>
+                <p>${order.shippingAddress?.city || ''}, ${order.shippingAddress?.state || ''} ${order.shippingAddress?.zipCode || ''}</p>
+                <p>${order.shippingAddress?.country || ''}</p>
+                <p style="margin-top: 10px;">Phone: ${order.shippingAddress?.phone || ''}</p>
             </div>
         </div>
 

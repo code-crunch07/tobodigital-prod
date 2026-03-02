@@ -190,6 +190,38 @@ export default function Header() {
     });
   };
 
+  // Delayed close so moving from nav link to submenu doesn't close it
+  const megaMenuCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const megaMenuCloseTargetRef = useRef<string | null>(null);
+
+  const openMegaMenu = (navId: string) => {
+    if (megaMenuCloseTimeoutRef.current) {
+      clearTimeout(megaMenuCloseTimeoutRef.current);
+      megaMenuCloseTimeoutRef.current = null;
+      megaMenuCloseTargetRef.current = null;
+    }
+    setOpenMegaMenus(prev => new Set(prev).add(navId));
+  };
+
+  const closeMegaMenuDelayed = (navId: string) => {
+    megaMenuCloseTargetRef.current = navId;
+    megaMenuCloseTimeoutRef.current = setTimeout(() => {
+      setOpenMegaMenus(prev => {
+        const next = new Set(prev);
+        if (megaMenuCloseTargetRef.current) next.delete(megaMenuCloseTargetRef.current);
+        return next;
+      });
+      megaMenuCloseTimeoutRef.current = null;
+      megaMenuCloseTargetRef.current = null;
+    }, 180);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (megaMenuCloseTimeoutRef.current) clearTimeout(megaMenuCloseTimeoutRef.current);
+    };
+  }, []);
+
   const getCategoryLink = (href: string) => {
     // If href is a category slug, format it properly
     const category = categories.find(cat => cat.slug === href || cat._id === href);
@@ -272,8 +304,8 @@ export default function Header() {
                 <div
                   key={nav._id}
                   className="relative group inline-block"
-                  onMouseEnter={() => nav.hasMegaMenu && toggleMegaMenu(nav._id)}
-                  onMouseLeave={() => nav.hasMegaMenu && toggleMegaMenu(nav._id)}
+                  onMouseEnter={() => nav.hasMegaMenu && openMegaMenu(nav._id)}
+                  onMouseLeave={() => nav.hasMegaMenu && closeMegaMenuDelayed(nav._id)}
                 >
                   {nav.hasMegaMenu ? (
                     <button className="flex items-center space-x-1 text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap">
@@ -301,7 +333,7 @@ export default function Header() {
                       if (isSimpleDropdown) {
                         const column = nav.megaMenuColumns![0];
                         return (
-                          <div className="absolute left-1/2 top-full -translate-x-1/2 mt-3 bg-white border border-gray-200 rounded-xl shadow-lg w-56 sm:w-64 max-w-[calc(100vw-2rem)] overflow-hidden z-40">
+                          <div className="absolute left-1/2 top-full -translate-x-1/2 mt-3 bg-white border border-gray-200 rounded-xl shadow-lg w-56 sm:w-64 max-w-[calc(100vw-2rem)] overflow-hidden z-40 mega-menu-dropdown-enter">
                             <div className="py-2">
                               {column.links.map((link, linkIndex) => {
                                 const linkHref = link.isCategory ? getCategoryLink(link.href) : link.href;
@@ -311,7 +343,8 @@ export default function Header() {
                                     href={linkHref}
                                     target={link.isExternal ? '_blank' : '_self'}
                                     rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                                    className="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 hover:text-[#ff006e] transition-colors whitespace-nowrap"
+                                    className="mega-menu-link-enter block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 hover:text-[#ff006e] transition-colors whitespace-nowrap"
+                                    style={{ animationDelay: `${linkIndex * 0.04}s`, animationFillMode: 'both' }}
                                   >
                                     {link.label}
                                   </Link>
@@ -324,7 +357,7 @@ export default function Header() {
 
                       return (
                         <div
-                          className={`absolute left-1/2 top-full -translate-x-1/2 mt-3 bg-white border border-gray-200 rounded-2xl shadow-xl p-4 sm:p-6 ${
+                          className={`absolute left-1/2 top-full -translate-x-1/2 mt-3 bg-white border border-gray-200 rounded-2xl shadow-xl p-4 sm:p-6 mega-menu-dropdown-enter ${
                             nav.megaMenuWidth === 'full'
                               ? 'w-[calc(100vw-2rem)]'
                               : nav.megaMenuWidth === 'wide'
@@ -343,13 +376,15 @@ export default function Header() {
                                 <div className="space-y-1.5 sm:space-y-2">
                                   {column.links.map((link, linkIndex) => {
                                     const linkHref = link.isCategory ? getCategoryLink(link.href) : link.href;
+                                    const staggerIndex = nav.megaMenuColumns!.slice(0, colIndex).reduce((sum, c) => sum + c.links.length, 0) + linkIndex;
                                     return (
                                       <Link
                                         key={linkIndex}
                                         href={linkHref}
                                         target={link.isExternal ? '_blank' : '_self'}
                                         rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                                        className="block p-2.5 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                                        className="mega-menu-link-enter block p-2.5 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                                        style={{ animationDelay: `${staggerIndex * 0.03}s`, animationFillMode: 'both' }}
                                       >
                                         {link.image && (
                                           <img

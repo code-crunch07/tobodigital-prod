@@ -59,22 +59,37 @@ export default function Invoice({ order }: InvoiceProps) {
         <div>
           <h3 className="font-bold text-lg mb-3 border-b border-gray-300 pb-2">Bill To:</h3>
           <div className="text-sm">
-            <p className="font-semibold">{order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
-            <p>{order.shippingAddress.street}</p>
-            <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}</p>
-            <p>{order.shippingAddress.country}</p>
-            <p className="mt-2">Phone: {order.shippingAddress.phone}</p>
-            <p>Email: {order.shippingAddress.email}</p>
+            {(order.companyName || order.gstNumber) && (
+              <>
+                {order.companyName && <p className="font-semibold">{order.companyName}</p>}
+                {order.gstNumber && <p className="text-gray-600">GSTIN: {order.gstNumber}</p>}
+              </>
+            )}
+            {!(order.companyName || order.gstNumber) && (
+              <p className="font-semibold">{order.shippingAddress?.firstName} {order.shippingAddress?.lastName}</p>
+            )}
+            {(() => {
+              const addr = order.billingAddress || order.shippingAddress;
+              return addr ? (
+                <>
+                  <p>{addr.street}</p>
+                  <p>{addr.city}, {addr.state} {addr.zipCode}</p>
+                  <p>{addr.country}</p>
+                </>
+              ) : null;
+            })()}
+            <p className="mt-2">Phone: {order.shippingAddress?.phone}</p>
+            <p>Email: {order.shippingAddress?.email}</p>
           </div>
         </div>
         <div>
           <h3 className="font-bold text-lg mb-3 border-b border-gray-300 pb-2">Ship To:</h3>
           <div className="text-sm">
-            <p className="font-semibold">{order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
-            <p>{order.shippingAddress.street}</p>
-            <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}</p>
-            <p>{order.shippingAddress.country}</p>
-            <p className="mt-2">Phone: {order.shippingAddress.phone}</p>
+            <p className="font-semibold">{order.shippingAddress?.firstName} {order.shippingAddress?.lastName}</p>
+            <p>{order.shippingAddress?.street}</p>
+            <p>{order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.zipCode}</p>
+            <p>{order.shippingAddress?.country}</p>
+            <p className="mt-2">Phone: {order.shippingAddress?.phone}</p>
           </div>
         </div>
       </div>
