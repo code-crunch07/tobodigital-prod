@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, Star, ShoppingCart } from 'lucide-react';
-import { getProducts } from '@/lib/api';
+import { getProducts, getUploadUrl } from '@/lib/api';
 
 export default function ClientHomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
@@ -90,7 +90,7 @@ export default function ClientHomePage() {
                     <div className="aspect-square relative overflow-hidden bg-muted">
                       {product.mainImage ? (
                         <Image
-                          src={product.mainImage}
+                          src={getUploadUrl(product.mainImage)}
                           alt={product.itemName}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-300"

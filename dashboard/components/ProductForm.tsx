@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { createProduct, updateProduct, uploadImage, uploadImages, getProductAttributes, type ProductAttribute } from '@/lib/api';
+import { createProduct, updateProduct, uploadImage, uploadImages, getUploadUrl, getProductAttributes, type ProductAttribute } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import RichTextEditor from '@/components/RichTextEditor';
 import {
@@ -737,7 +737,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
                   {formData.mainImage ? (
                     <div className="relative inline-block">
                   <img
-                    src={formData.mainImage}
+                    src={getUploadUrl(formData.mainImage)}
                     alt="Main product"
                         className="w-48 h-48 object-cover border rounded-lg"
                   />
@@ -818,7 +818,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
                 {formData.galleryImages.map((img, i) => (
                   <div key={i} className="relative">
                     <img
-                      src={img}
+                      src={getUploadUrl(img)}
                       alt={`Gallery ${i + 1}`}
                       className="w-full h-24 object-cover border rounded-md"
                     />
@@ -1667,7 +1667,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
                 <div className="mt-2">
                   {formData.mainImage ? (
                     <img
-                      src={formData.mainImage}
+                      src={getUploadUrl(formData.mainImage)}
                       alt="Preview"
                       className="w-full h-48 object-cover border border-border rounded-xl"
                     />

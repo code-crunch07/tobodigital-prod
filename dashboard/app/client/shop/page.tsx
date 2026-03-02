@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Star, ShoppingCart, Filter, Grid, List } from 'lucide-react';
 import { getPublicProducts } from '@/lib/api-public';
+import { getUploadUrl } from '@/lib/api';
 
 function ShopPageContent() {
   const searchParams = useSearchParams();
@@ -108,7 +109,7 @@ function ShopPageContent() {
                   >
                     {product.mainImage ? (
                       <Image
-                        src={product.mainImage}
+                        src={getUploadUrl(product.mainImage)}
                         alt={product.itemName}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"

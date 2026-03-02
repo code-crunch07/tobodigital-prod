@@ -5,30 +5,33 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/a
 /** API origin (no /api) for serving uploads. Use for building image URLs. */
 export const API_UPLOAD_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '') || 'http://localhost:5000';
 
-/**
- * Return an absolute URL for an upload path. Use for img src so images load from the API, not the dashboard origin.
- * Handles relative paths (/uploads/...) and fixes wrong hosts (e.g. admin domain).
- */
-export function getUploadUrl(pathOrUrl: string | undefined): string {
+const BASE_PATH = (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_BASE_PATH) || '';
+
+/** Normalize to /uploads/... path for proxy or API. */
+function getUploadPath(pathOrUrl: string | undefined): string {
   if (!pathOrUrl) return '';
-  const apiOrigin = API_UPLOAD_ORIGIN;
   if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
     try {
       const u = new URL(pathOrUrl);
-      const apiU = new URL(apiOrigin);
-      if (u.origin !== apiU.origin) {
-        // Wrong host (e.g. admin domain): serve from API. If path contains /uploads/, use only that part.
-        if (u.pathname.includes('/uploads/')) {
-          const afterUploads = u.pathname.split('/uploads/').pop() || '';
-          return `${apiOrigin}/uploads/${afterUploads}${u.search}`;
-        }
-        return `${apiOrigin}${u.pathname}${u.search}`;
+      if (u.pathname.includes('/uploads/')) {
+        const after = u.pathname.split('/uploads/').pop() || '';
+        return `/uploads/${after}`;
       }
-      return pathOrUrl;
+      return u.pathname;
     } catch (_) {}
     return pathOrUrl;
   }
-  return `${apiOrigin}${pathOrUrl.startsWith('/') ? '' : '/'}${pathOrUrl}`;
+  return pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
+}
+
+/**
+ * Return URL for an upload path. Uses same-origin proxy to avoid ERR_BLOCKED_BY_ORB when dashboard and API are on different origins.
+ */
+export function getUploadUrl(pathOrUrl: string | undefined): string {
+  const path = getUploadPath(pathOrUrl);
+  if (!path) return '';
+  // Same-origin proxy so browser never does cross-origin request (no ORB)
+  return `${BASE_PATH}/api/proxy-image?path=${encodeURIComponent(path)}`;
 }
 
 const api = axios.create({
@@ -449,13 +452,12 @@ export const createNotification = async (data: {
   return response.data;
 };
 
-// Upload
+// Upload – returns path (/uploads/xxx) for storing; use getUploadUrl(path) for img src
 export const uploadImage = async (file: File): Promise<string> => {
   const formData = new FormData();
   formData.append('image', file);
-  
   const response = await uploadApi.post('/upload/single', formData);
-  return getUploadUrl(response.data.data.url);
+  return response.data.data.url;
 };
 
 export const uploadImages = async (files: File[]): Promise<string[]> => {
@@ -463,9 +465,8 @@ export const uploadImages = async (files: File[]): Promise<string[]> => {
   files.forEach((file) => {
     formData.append('images', file);
   });
-  
   const response = await uploadApi.post('/upload/multiple', formData);
-  return response.data.data.map((item: any) => getUploadUrl(item.url));
+  return response.data.data.map((item: any) => item.url);
 };
 
 // Authentication

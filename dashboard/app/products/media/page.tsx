@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Upload, Image as ImageIcon, X, Plus } from 'lucide-react';
-import { getProducts } from '@/lib/api';
+import { getProducts, getUploadUrl } from '@/lib/api';
 
 export default function MediaManagerPage() {
   const router = useRouter();
@@ -171,7 +171,7 @@ export default function MediaManagerPage() {
                 {products.filter(p => p.mainImage).map((product) => (
                   <div key={product._id} className="space-y-2">
                     <img
-                      src={product.mainImage}
+                      src={getUploadUrl(product.mainImage)}
                       alt={product.itemName}
                       className="w-full h-32 object-cover rounded-md border"
                     />
@@ -180,7 +180,7 @@ export default function MediaManagerPage() {
                       {product.galleryImages?.slice(0, 3).map((img: string, idx: number) => (
                         <img
                           key={idx}
-                          src={img}
+                          src={getUploadUrl(img)}
                           alt={`${product.itemName} ${idx + 1}`}
                           className="w-12 h-12 object-cover rounded border"
                         />

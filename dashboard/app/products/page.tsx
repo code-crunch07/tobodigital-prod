@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getProducts, deleteProduct, getCategories, getSubCategories, updateProduct, createProduct, bulkDeleteProducts, duplicateProduct } from '@/lib/api';
+import { getProducts, deleteProduct, getCategories, getSubCategories, updateProduct, createProduct, bulkDeleteProducts, duplicateProduct, getUploadUrl } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -835,7 +835,7 @@ export default function ProductsPage() {
                     <TableCell>
                       {product.mainImage && (
                         <img
-                          src={product.mainImage}
+                          src={getUploadUrl(product.mainImage)}
                           alt={product.itemName}
                           className="w-16 h-16 object-cover rounded"
                         />

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Star, ShoppingCart } from 'lucide-react';
 import { getPublicProducts } from '@/lib/api-public';
+import { getUploadUrl } from '@/lib/api';
 
 export default function NewArrivalsPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -51,7 +52,7 @@ export default function NewArrivalsPage() {
                 <div className="aspect-square relative overflow-hidden bg-muted">
                   {product.mainImage ? (
                     <Image
-                      src={product.mainImage}
+                      src={getUploadUrl(product.mainImage)}
                       alt={product.itemName}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"

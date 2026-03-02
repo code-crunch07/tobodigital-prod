@@ -30,7 +30,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Edit, Trash2, X, ChevronDown, ChevronUp, GripVertical, Eye, EyeOff, Upload, Menu } from 'lucide-react';
-import { getNavigations, createNavigation, updateNavigation, deleteNavigation, getCategories, uploadImage } from '@/lib/api';
+import { getNavigations, createNavigation, updateNavigation, deleteNavigation, getCategories, uploadImage, getUploadUrl } from '@/lib/api';
 
 interface MegaMenuLink {
   label: string;
@@ -330,7 +330,7 @@ export default function NavigationPage() {
             {formData.megaMenuImage && (
               <div className="col-span-1">
                 <img
-                  src={formData.megaMenuImage}
+                  src={getUploadUrl(formData.megaMenuImage)}
                   alt="Promotional"
                   className="w-full h-full object-cover rounded-lg"
                 />
@@ -541,7 +541,7 @@ export default function NavigationPage() {
                                 </Button>
                               </div>
                               {formData.megaMenuImage && (
-                                <img src={formData.megaMenuImage} alt="Preview" className="mt-2 h-20 w-auto rounded" />
+                                <img src={getUploadUrl(formData.megaMenuImage)} alt="Preview" className="mt-2 h-20 w-auto rounded" />
                               )}
                             </div>
                           </div>

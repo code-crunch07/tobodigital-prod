@@ -240,7 +240,7 @@ export default function CategoriesPage() {
                   {formData.bannerImage && (
                     <div className="relative">
                       <img
-                        src={formData.bannerImage}
+                        src={getUploadUrl(formData.bannerImage)}
                         alt="Banner"
                         className="w-32 h-20 object-cover border rounded-md"
                       />
