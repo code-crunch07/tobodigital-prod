@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import RichTextEditor from '@/components/RichTextEditor';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import { getArticleById, updateArticle } from '@/lib/api';
@@ -110,11 +111,13 @@ export default function EditArticlePage() {
             </div>
             <div className="space-y-2">
               <Label>Content *</Label>
-              <textarea
+              <p className="text-xs text-muted-foreground mb-2">
+                Use the toolbar above to format your content. You can add headings, lists, links, images, and more.
+              </p>
+              <RichTextEditor
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full min-h-[200px] px-3 py-2 border rounded-md resize-y text-sm"
-                required
+                onChange={setContent}
+                placeholder="Write your blog post content..."
               />
             </div>
             <div className="space-y-2">
