@@ -264,6 +264,58 @@ export const getCustomers = async (params?: any) => {
   return response.data;
 };
 
+// Articles (blog)
+export const getArticles = async (params?: any) => {
+  const response = await api.get('/articles', { params });
+  return response.data;
+};
+
+export const getArticleById = async (id: string) => {
+  const response = await api.get(`/articles/${id}`);
+  return response.data;
+};
+
+export const createArticle = async (data: any) => {
+  const response = await api.post('/articles', data);
+  return response.data;
+};
+
+export const updateArticle = async (id: string, data: any) => {
+  const response = await api.patch(`/articles/${id}`, data);
+  return response.data;
+};
+
+export const deleteArticle = async (id: string) => {
+  const response = await api.delete(`/articles/${id}`);
+  return response.data;
+};
+
+// Legal pages
+export const getLegalPages = async () => {
+  const response = await api.get('/legal-pages');
+  return response.data;
+};
+
+export const getLegalPageById = async (id: string) => {
+  const response = await api.get(`/legal-pages/${id}`);
+  return response.data;
+};
+
+export const createLegalPage = async (data: any) => {
+  const response = await api.post('/legal-pages', data);
+  return response.data;
+};
+
+export const updateLegalPage = async (id: string, data: any) => {
+  const response = await api.patch(`/legal-pages/${id}`, data);
+  return response.data;
+};
+
+export const deleteLegalPage = async (id: string) => {
+  const response = await api.delete(`/legal-pages/${id}`);
+  return response.data;
+};
+
 export const getCustomerById = async (id: string) => {
   const response = await api.get(`/customers/${id}`);
   return response.data;

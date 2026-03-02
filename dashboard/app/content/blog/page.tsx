@@ -1,19 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, BookOpen, Plus, Edit, Trash2, Eye } from 'lucide-react';
+import { getArticles, deleteArticle } from '@/lib/api';
 
 export default function BlogPage() {
   const router = useRouter();
-  // Start with no demo data; real articles should come from the API later.
-  const [articles, setArticles] = useState<
-    { id: string; title: string; author: string; status: string; views: number; date: string }[]
-  >([]);
+  const [articles, setArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const loadArticles = async () => {
+    try {
+      setLoading(true);
+      const res = await getArticles();
+      setArticles(res.data || []);
+    } catch (error) {
+      console.error('Failed to load articles', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadArticles();
+  }, []);
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, any> = {
@@ -36,7 +51,7 @@ export default function BlogPage() {
             <p className="text-muted-foreground">Manage blog posts and articles</p>
           </div>
         </div>
-        <Button>
+        <Button onClick={() => router.push('/content/blog/new')}>
           <Plus className="h-4 w-4 mr-2" />
           New Article
         </Button>
@@ -91,33 +106,65 @@ export default function BlogPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {articles.map((article) => (
-                <TableRow key={article.id}>
-                  <TableCell className="font-medium">{article.title}</TableCell>
-                  <TableCell>{article.author}</TableCell>
-                  <TableCell>{getStatusBadge(article.status)}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                      {article.views.toLocaleString()}
-                    </div>
-                  </TableCell>
-                  <TableCell>{article.date}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon">
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
+              {loading && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-sm text-muted-foreground">
+                    Loading articles...
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
+              {!loading && articles.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-sm text-muted-foreground">
+                    No articles yet. Click &quot;New Article&quot; to create your first blog post.
+                  </TableCell>
+                </TableRow>
+              )}
+              {!loading &&
+                articles.map((article: any) => (
+                  <TableRow key={article._id}>
+                    <TableCell className="font-medium">{article.title}</TableCell>
+                    <TableCell>{article.author}</TableCell>
+                    <TableCell>{getStatusBadge(article.status)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                        {(article.views || 0).toLocaleString()}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {article.publishedAt
+                        ? new Date(article.publishedAt).toLocaleDateString()
+                        : new Date(article.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => router.push(`/content/blog/${article._id}`)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={async () => {
+                            if (!confirm('Delete this article?')) return;
+                            try {
+                              await deleteArticle(article._id);
+                              loadArticles();
+                            } catch (error) {
+                              console.error('Failed to delete article', error);
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </CardContent>

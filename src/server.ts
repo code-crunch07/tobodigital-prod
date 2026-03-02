@@ -7,6 +7,8 @@ import connectDB from './config/database';
 
 // Import Routes
 import dashboardRoutes from './routes/dashboard';
+import articleRoutes from './routes/articles';
+import legalPageRoutes from './routes/legalPages';
 import productRoutes from './routes/products';
 import categoryRoutes from './routes/categories';
 import subCategoryRoutes from './routes/subcategories';
@@ -65,6 +67,8 @@ app.use('/uploads', (req, res, next) => {
 
 // Routes
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/articles', articleRoutes);
+app.use('/api/legal-pages', legalPageRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/subcategories', subCategoryRoutes);

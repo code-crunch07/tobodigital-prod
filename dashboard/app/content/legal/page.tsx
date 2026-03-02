@@ -1,23 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowLeft, FileCheck, Edit, Eye } from 'lucide-react';
+import { getLegalPages } from '@/lib/api';
 
 export default function LegalPagesPage() {
   const router = useRouter();
-  const [pages, setPages] = useState([
-    { id: '1', title: 'Terms of Service', slug: 'terms-of-service', lastUpdated: '2024-01-15' },
-    { id: '2', title: 'Privacy Policy', slug: 'privacy-policy', lastUpdated: '2024-01-10' },
-    { id: '3', title: 'Refund Policy', slug: 'refund-policy', lastUpdated: '2024-01-05' },
-    { id: '4', title: 'Shipping Policy', slug: 'shipping-policy', lastUpdated: '2023-12-20' },
-    { id: '5', title: 'Cookie Policy', slug: 'cookie-policy', lastUpdated: '2023-12-15' },
-  ]);
+  const [pages, setPages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const loadPages = async () => {
+    try {
+      setLoading(true);
+      const res = await getLegalPages();
+      setPages(res.data || []);
+    } catch (error) {
+      console.error('Failed to load legal pages', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPages();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -48,23 +58,43 @@ export default function LegalPagesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pages.map((page) => (
-                  <TableRow key={page.id}>
-                    <TableCell className="font-medium">{page.title}</TableCell>
-                    <TableCell className="text-muted-foreground">/{page.slug}</TableCell>
-                    <TableCell>{page.lastUpdated}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </div>
+                {loading && (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-sm text-muted-foreground">
+                      Loading pages...
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
+                {!loading && pages.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-sm text-muted-foreground">
+                      No legal pages yet. You can create them from the API or seed script.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {!loading &&
+                  pages.map((page: any) => (
+                    <TableRow key={page._id}>
+                      <TableCell className="font-medium">{page.title}</TableCell>
+                      <TableCell className="text-muted-foreground">/{page.slug}</TableCell>
+                      <TableCell>
+                        {page.lastUpdatedAt
+                          ? new Date(page.lastUpdatedAt).toLocaleDateString()
+                          : new Date(page.updatedAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => router.push(`/content/legal/${page._id}`)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
           </div>
