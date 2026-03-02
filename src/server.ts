@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import fs from 'fs';
 import path from 'path';
 import connectDB from './config/database';
 
@@ -38,11 +39,18 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from uploads directory (same path as upload controller)
+// Serve static files from uploads directory (must match upload controller path exactly)
 const uploadsPublicDir = process.env.UPLOADS_DIR
   ? path.resolve(process.env.UPLOADS_DIR)
   : path.join(__dirname, '../uploads/public');
-app.use('/uploads', express.static(uploadsPublicDir));
+if (!fs.existsSync(uploadsPublicDir)) {
+  fs.mkdirSync(uploadsPublicDir, { recursive: true });
+}
+// CORS + CORP so cross-origin (e.g. admin) can load images; avoid ORB blocking
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+}, express.static(uploadsPublicDir));
 
 // Routes
 app.use('/api/dashboard', dashboardRoutes);
@@ -71,6 +79,15 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     status: 'Running',
   });
+});
+
+// Error handler (e.g. from express.static or elsewhere) – avoid 500 for missing uploads
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (req.path.startsWith('/uploads/') && (err?.code === 'ENOENT' || err?.status === 404)) {
+    return res.status(404).send('Not found');
+  }
+  console.error(err?.stack || err);
+  res.status(500).json({ success: false, message: 'Internal server error' });
 });
 
 // 404 handler
