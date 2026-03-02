@@ -239,6 +239,7 @@ export default function HomePageBlocksPage() {
                         width={200}
                         height={100}
                         className="rounded border object-cover"
+                        unoptimized
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = 'none';
                         }}
@@ -393,6 +394,7 @@ export default function HomePageBlocksPage() {
                             width={80}
                             height={40}
                             className="rounded object-cover"
+                            unoptimized
                             onError={(e) => {
                               (e.target as HTMLImageElement).style.display = 'none';
                             }}

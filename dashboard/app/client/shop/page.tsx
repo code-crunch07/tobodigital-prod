@@ -112,6 +112,7 @@ function ShopPageContent() {
                         alt={product.itemName}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        unoptimized
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground">

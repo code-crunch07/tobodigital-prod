@@ -8,6 +8,16 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'api.tobodigital.com',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'm.media-amazon.com',
       },
       {
@@ -19,10 +29,6 @@ const nextConfig: NextConfig = {
         hostname: '**.amazonaws.com',
       },
       {
-        protocol: 'http',
-        hostname: 'localhost',
-      },
-      {
         protocol: 'https',
         hostname: '**.vercel.app',
       },
@@ -30,7 +36,6 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '**.railway.app',
       },
-      // Allow all domains (for development - restrict in production)
       {
         protocol: 'https',
         hostname: '**',
