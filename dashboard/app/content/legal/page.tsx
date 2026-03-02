@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, FileCheck, Edit, Eye } from 'lucide-react';
+import { ArrowLeft, FileCheck, Edit, Eye, Plus } from 'lucide-react';
 import { getLegalPages } from '@/lib/api';
 
 export default function LegalPagesPage() {
@@ -31,14 +31,20 @@ export default function LegalPagesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Legal Pages</h1>
-          <p className="text-muted-foreground">Manage legal and policy pages</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Legal Pages</h1>
+            <p className="text-muted-foreground">Manage legal and policy pages</p>
+          </div>
         </div>
+        <Button onClick={() => router.push('/content/legal/new')}>
+          <Plus className="h-4 w-4 mr-2" />
+          New Legal Page
+        </Button>
       </div>
 
       <Card className="rounded-2xl overflow-hidden">

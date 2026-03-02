@@ -334,7 +334,7 @@ export default function Header() {
                       if (isSimpleDropdown) {
                         const column = nav.megaMenuColumns![0];
                         return (
-                          <div className="absolute left-1/2 top-full -translate-x-1/2 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg w-56 sm:w-64 max-w-[calc(100vw-2rem)] overflow-hidden z-40 mega-menu-dropdown-enter">
+                          <div className="absolute left-1/2 top-full -translate-x-1/2 mt-[1px] bg-white border border-gray-200 shadow-lg w-56 sm:w-64 max-w-[calc(100vw-2rem)] overflow-hidden z-40 mega-menu-dropdown-enter">
                             <div className="py-2">
                               {column.links.map((link, linkIndex) => {
                                 const linkHref = link.isCategory ? getCategoryLink(link.href) : link.href;
@@ -358,7 +358,7 @@ export default function Header() {
 
                       return (
                         <div
-                          className={`absolute left-1/2 top-full -translate-x-1/2 mt-1 bg-white border border-gray-200 rounded-2xl shadow-xl p-4 sm:p-6 mega-menu-dropdown-enter ${
+                          className={`absolute left-1/2 top-full -translate-x-1/2 mt-[1px] bg-white border border-gray-200 shadow-xl p-4 sm:p-6 mega-menu-dropdown-enter ${
                             nav.megaMenuWidth === 'full'
                               ? 'w-[calc(100vw-2rem)]'
                               : nav.megaMenuWidth === 'wide'

@@ -9,6 +9,10 @@ export interface IArticle extends Document {
   author: string;
   coverImage?: string;
   tags?: string[];
+  category?: string;
+  images?: string[];
+  metaTitle?: string;
+  metaDescription?: string;
   views: number;
   publishedAt?: Date | null;
 }
@@ -28,6 +32,10 @@ const ArticleSchema = new Schema<IArticle>(
     author: { type: String, required: true, trim: true },
     coverImage: { type: String, trim: true, default: '' },
     tags: { type: [String], default: [] },
+    category: { type: String, trim: true, default: '' },
+    images: { type: [String], default: [] },
+    metaTitle: { type: String, trim: true, default: '' },
+    metaDescription: { type: String, trim: true, default: '' },
     views: { type: Number, default: 0 },
     publishedAt: { type: Date, default: null },
   },

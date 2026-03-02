@@ -36,7 +36,20 @@ export const getArticle = async (req: Request, res: Response) => {
 
 export const createArticle = async (req: Request, res: Response) => {
   try {
-    const { title, slug, excerpt, content, status, author, coverImage, tags } = req.body;
+    const {
+      title,
+      slug,
+      excerpt,
+      content,
+      status,
+      author,
+      coverImage,
+      tags,
+      category,
+      images,
+      metaTitle,
+      metaDescription,
+    } = req.body;
 
     if (!title || !slug || !content || !author) {
       return res.status(400).json({ success: false, message: 'Title, slug, author and content are required' });
@@ -56,6 +69,10 @@ export const createArticle = async (req: Request, res: Response) => {
       author,
       coverImage,
       tags,
+      category,
+      images: Array.isArray(images) ? images : [],
+      metaTitle,
+      metaDescription,
       publishedAt: status === 'published' ? new Date() : null,
     });
 
@@ -67,7 +84,20 @@ export const createArticle = async (req: Request, res: Response) => {
 
 export const updateArticle = async (req: Request, res: Response) => {
   try {
-    const { title, slug, excerpt, content, status, author, coverImage, tags } = req.body;
+    const {
+      title,
+      slug,
+      excerpt,
+      content,
+      status,
+      author,
+      coverImage,
+      tags,
+      category,
+      images,
+      metaTitle,
+      metaDescription,
+    } = req.body;
     const article = await Article.findById(req.params.id);
     if (!article) {
       return res.status(404).json({ success: false, message: 'Article not found' });
@@ -87,6 +117,10 @@ export const updateArticle = async (req: Request, res: Response) => {
     if (author !== undefined) article.author = author;
     if (coverImage !== undefined) article.coverImage = coverImage;
     if (tags !== undefined) article.tags = Array.isArray(tags) ? tags : [];
+    if (category !== undefined) article.category = category;
+    if (images !== undefined) article.images = Array.isArray(images) ? images : [];
+    if (metaTitle !== undefined) article.metaTitle = metaTitle;
+    if (metaDescription !== undefined) article.metaDescription = metaDescription;
     if (status === 'published' || status === 'draft') {
       if (article.status !== status && status === 'published') {
         article.publishedAt = new Date();
