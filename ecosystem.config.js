@@ -46,7 +46,9 @@ module.exports = {
       exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
-        PORT: 3001
+        PORT: 3001,
+        // Path to uploads so proxy-image can serve from disk (adjust for your server)
+        CLIENT_UPLOADS_DIR: '/home/tobodigital/htdocs/tobodigital.com/tobo-uploads/public'
       },
       error_file: '/home/cloudpanel/htdocs/tobo-backend/logs/client-err.log',
       out_file: '/home/cloudpanel/htdocs/tobo-backend/logs/client-out.log',

@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs';
 
+export const runtime = 'nodejs';
+
 const API_ORIGIN = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '') || 'http://localhost:5000';
 
-/** When storefront and uploads share the same server (e.g. CloudPanel), read from disk instead of fetching API. */
+/** When storefront and uploads share the same server (e.g. CloudPanel/Docker), read from disk. */
 const UPLOADS_DIR = process.env.CLIENT_UPLOADS_DIR || process.env.UPLOADS_DIR;
 
 const MIMES: Record<string, string> = {
@@ -13,9 +15,8 @@ const MIMES: Record<string, string> = {
 };
 
 /**
- * Same-origin image proxy to avoid ERR_BLOCKED_BY_ORB when storefront and API are on different origins.
+ * Same-origin image proxy to avoid ERR_BLOCKED_BY_ORB.
  * GET /api/proxy-image?path=/uploads/image-xxx.jpg
- * Prefers local filesystem when CLIENT_UPLOADS_DIR or UPLOADS_DIR is set (same-server deployment).
  */
 export async function GET(request: NextRequest) {
   const pathParam = request.nextUrl.searchParams.get('path');
@@ -28,12 +29,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
   }
 
-  // 1. Try local filesystem when uploads dir is configured (same server)
+  // 1. Try local filesystem when uploads dir is configured
   if (UPLOADS_DIR) {
     try {
       const dir = path.resolve(UPLOADS_DIR);
-      const filePath = path.join(dir, filename);
-      if (!filePath.startsWith(dir)) {
+      const filePath = path.resolve(dir, filename);
+      const relative = path.relative(dir, filePath);
+      if (relative.startsWith('..') || path.isAbsolute(relative)) {
         return new NextResponse(null, { status: 400 });
       }
       const stat = fs.statSync(filePath);
@@ -59,11 +61,7 @@ export async function GET(request: NextRequest) {
   // 2. Fallback: fetch from API
   try {
     const url = `${API_ORIGIN}${pathParam}`;
-    const res = await fetch(url, {
-      headers: { Accept: 'image/*' },
-      cache: 'force-cache',
-      next: { revalidate: 3600 },
-    });
+    const res = await fetch(url, { headers: { Accept: 'image/*' } });
 
     if (!res.ok) {
       return new NextResponse(null, { status: res.status });

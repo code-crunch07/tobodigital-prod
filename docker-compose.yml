@@ -70,6 +70,9 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
+      CLIENT_UPLOADS_DIR: /data/uploads/public
+    volumes:
+      - ${UPLOADS_HOST_PATH:-./uploads/public}:/data/uploads/public:ro
     depends_on:
       - backend
 
