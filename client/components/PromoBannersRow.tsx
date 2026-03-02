@@ -34,16 +34,7 @@ export default function PromoBannersRow() {
   const loadBanners = async () => {
     try {
       const response = await getPromoRowBanners();
-      const promoBanners = (response.data || [])
-        .map((banner: Banner) => {
-          // Ensure image URL is absolute if it exists
-          if (banner.image && !banner.image.startsWith('http')) {
-            const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5001';
-            banner.image = `${apiBaseUrl}${banner.image.startsWith('/') ? '' : '/'}${banner.image}`;
-          }
-          return banner;
-        })
-        .sort((a: Banner, b: Banner) => a.order - b.order);
+      const promoBanners = (response.data || []).sort((a: Banner, b: Banner) => a.order - b.order);
       
       // Set first two banners
       if (promoBanners.length > 0) {

@@ -49,14 +49,7 @@ export default function CategoryCarousel() {
     try {
       const response = await getCategories();
       // Filter only active categories and ensure image URLs are properly formatted
-      const activeCategories = (response.data || []).filter((cat: Category) => cat.isActive !== false).map((cat: Category) => {
-        // Ensure image URL is absolute if it exists
-        if (cat.image && !cat.image.startsWith('http')) {
-          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5001';
-          cat.image = `${apiBaseUrl}${cat.image.startsWith('/') ? '' : '/'}${cat.image}`;
-        }
-        return cat;
-      });
+      const activeCategories = (response.data || []).filter((cat: Category) => cat.isActive !== false);
       
       setCategories(activeCategories);
     } catch (error) {

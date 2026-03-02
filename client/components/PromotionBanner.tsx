@@ -59,16 +59,7 @@ export default function PromotionBanner() {
     try {
       const response = await getPromotionBanners();
       // Ensure image URLs are properly formatted
-      const activeBanners = (response.data || [])
-        .map((banner: Banner) => {
-          // Ensure image URL is absolute if it exists
-          if (banner.image && !banner.image.startsWith('http')) {
-            const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5001';
-            banner.image = `${apiBaseUrl}${banner.image.startsWith('/') ? '' : '/'}${banner.image}`;
-          }
-          return banner;
-        })
-        .sort((a: Banner, b: Banner) => a.order - b.order);
+      const activeBanners = (response.data || []).sort((a: Banner, b: Banner) => a.order - b.order);
       
       setBanners(activeBanners);
     } catch (error) {

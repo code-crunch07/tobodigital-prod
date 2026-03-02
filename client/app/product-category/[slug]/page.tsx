@@ -265,16 +265,7 @@ export default function CategoryPage() {
   const loadCategory = async () => {
     try {
       const response = await getCategoryBySlug(slug);
-      const categoryData = response.data;
-      if (categoryData.bannerImage && !categoryData.bannerImage.startsWith('http')) {
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
-        categoryData.bannerImage = `${apiBaseUrl}${categoryData.bannerImage.startsWith('/') ? '' : '/'}${categoryData.bannerImage}`;
-      }
-      if (categoryData.image && !categoryData.image.startsWith('http')) {
-        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
-        categoryData.image = `${apiBaseUrl}${categoryData.image.startsWith('/') ? '' : '/'}${categoryData.image}`;
-      }
-      setCategory(categoryData);
+      setCategory(response.data);
       setSelectedCategory(categoryData._id);
     } catch (error) {
       console.error('Error loading category:', error);
@@ -295,14 +286,7 @@ export default function CategoryPage() {
       const response = await getBannersByCategory(slug, 'promotion');
       const banners = response.data || [];
       if (banners.length > 0) {
-        // Get the first active banner for this category
-        const banner = banners[0];
-        // Ensure image URL is absolute if it exists
-        if (banner.image && !banner.image.startsWith('http')) {
-          const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
-          banner.image = `${apiBaseUrl}${banner.image.startsWith('/') ? '' : '/'}${banner.image}`;
-        }
-        setCategoryBanner(banner);
+        setCategoryBanner(banners[0]);
       }
     } catch (error) {
       console.error('Error loading category banner:', error);

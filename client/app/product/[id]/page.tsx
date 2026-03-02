@@ -109,12 +109,12 @@ export default function ProductDetailPage() {
       const title = `${product.itemName} | ${siteName}`;
       document.title = title;
 
-      // Get absolute image URL (product.mainImage should already be resolved by API, but ensure it's absolute)
+      // Absolute URL for og:image (product.mainImage is proxy path; use storefront origin)
       const getAbsoluteImageUrl = (img: string | undefined): string => {
         if (!img) return '';
         if (img.startsWith('http://') || img.startsWith('https://')) return img;
-        const apiOrigin = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || 'http://localhost:5000';
-        return `${apiOrigin}${img.startsWith('/') ? '' : '/'}${img}`;
+        const origin = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_STOREFRONT_URL || 'https://tobodigital.com');
+        return `${origin}${img.startsWith('/') ? '' : '/'}${img}`;
       };
       const imageUrl = getAbsoluteImageUrl(product.mainImage);
 

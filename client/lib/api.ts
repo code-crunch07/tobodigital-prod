@@ -3,23 +3,34 @@ import axios from 'axios';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 const API_ORIGIN = API_URL.replace(/\/api\/?$/, '') || 'http://localhost:5000';
 
-function resolveUploadUrl(pathOrUrl: string | undefined | null): string {
+const BASE_PATH = (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_BASE_PATH) || '';
+
+/** Normalize to /uploads/... path for proxy. */
+function getUploadPath(pathOrUrl: string | undefined | null): string {
   if (!pathOrUrl) return '';
   if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
     try {
       const u = new URL(pathOrUrl);
       if (u.pathname.includes('/uploads/')) {
-        const afterUploads = u.pathname.split('/uploads/').pop() || '';
-        return `${API_ORIGIN}/uploads/${afterUploads}${u.search}`;
+        const after = u.pathname.split('/uploads/').pop() || '';
+        return `/uploads/${after}`;
       }
+      return u.pathname;
     } catch (_) {}
     return pathOrUrl;
   }
   if (pathOrUrl.includes('/uploads/')) {
-    const afterUploads = pathOrUrl.split('/uploads/').pop() || '';
-    return `${API_ORIGIN}/uploads/${afterUploads}`;
+    const after = pathOrUrl.split('/uploads/').pop() || '';
+    return `/uploads/${after}`;
   }
-  return `${API_ORIGIN}${pathOrUrl.startsWith('/') ? '' : '/'}${pathOrUrl}`;
+  return pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
+}
+
+/** Same-origin proxy URL to avoid ERR_BLOCKED_BY_ORB when storefront and API are on different origins. */
+export function resolveUploadUrl(pathOrUrl: string | undefined | null): string {
+  const path = getUploadPath(pathOrUrl);
+  if (!path) return '';
+  return `${BASE_PATH}/api/proxy-image?path=${encodeURIComponent(path)}`;
 }
 
 function normalizeProduct(p: any) {
