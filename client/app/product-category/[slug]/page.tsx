@@ -265,7 +265,8 @@ export default function CategoryPage() {
   const loadCategory = async () => {
     try {
       const response = await getCategoryBySlug(slug);
-      setCategory(response.data);
+      const categoryData = response.data;
+      setCategory(categoryData);
       setSelectedCategory(categoryData._id);
     } catch (error) {
       console.error('Error loading category:', error);
