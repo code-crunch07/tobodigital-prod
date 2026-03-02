@@ -46,11 +46,22 @@ const uploadsPublicDir = process.env.UPLOADS_DIR
 if (!fs.existsSync(uploadsPublicDir)) {
   fs.mkdirSync(uploadsPublicDir, { recursive: true });
 }
-// CORS + CORP so cross-origin (e.g. admin) can load images; avoid ORB blocking
+// Headers so cross-origin (admin/storefront) can load images; avoid ERR_BLOCKED_BY_ORB
 app.use('/uploads', (req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   next();
-}, express.static(uploadsPublicDir));
+}, express.static(uploadsPublicDir, {
+  setHeaders: (res, filePath) => {
+    // Ensure correct MIME type so browser doesn't treat as opaque
+    const ext = path.extname(filePath).toLowerCase();
+    const mimes: Record<string, string> = {
+      '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
+      '.gif': 'image/gif', '.webp': 'image/webp', '.svg': 'image/svg+xml',
+    };
+    if (mimes[ext]) res.setHeader('Content-Type', mimes[ext]);
+  },
+}));
 
 // Routes
 app.use('/api/dashboard', dashboardRoutes);
