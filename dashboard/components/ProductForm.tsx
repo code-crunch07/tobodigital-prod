@@ -1648,7 +1648,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
       {/* Summary Panel */}
       <div className="w-full xl:w-[30%] mt-6 xl:mt-0">
         <div className="xl:sticky xl:top-6">
-          <Card className="rounded-none overflow-hidden border-border shadow-sm" style={{ backgroundColor: 'lab(93 0.72 0.23)' }}>
+          <Card className="rounded-none overflow-hidden border-border shadow-sm">
             <CardHeader className="border-b border-border">
               <CardTitle className="text-lg">Product Summary</CardTitle>
             </CardHeader>
