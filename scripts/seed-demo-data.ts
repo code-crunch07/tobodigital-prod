@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import dotenv from 'dotenv';
 import Category from '../src/models/Category';
 import Product from '../src/models/Product';
@@ -11,6 +13,15 @@ dotenv.config();
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tobo';
 
+// Demo user password: from env only (never hard-code). Set SEED_DEMO_PASSWORD before running seed.
+function getDemoPassword(): string {
+  const pw = process.env.SEED_DEMO_PASSWORD;
+  if (pw && pw.length >= 6) return pw;
+  console.error('❌ Set SEED_DEMO_PASSWORD (min 6 chars) in .env or environment before running seed.');
+  process.exit(1);
+  throw new Error('SEED_DEMO_PASSWORD required');
+}
+
 // Connect to MongoDB
 async function connectDB() {
   try {
@@ -22,9 +33,9 @@ async function connectDB() {
   }
 }
 
-// Generate order number
+// Generate order number (use crypto for S2245, not Math.random)
 function generateOrderNumber(): string {
-  return `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  return `ORD-${Date.now()}-${crypto.randomInt(0, 1000)}`;
 }
 
 // Seed demo data
@@ -289,14 +300,16 @@ async function seedDemoData() {
 
     console.log(`✅ Created ${products.length} products\n`);
 
-    // Create Customers
+    // Create Customers (password from env, hashed – never hard-code)
     console.log('👥 Creating customers...');
+    const demoPassword = getDemoPassword();
+    const hashedPassword = await bcrypt.hash(demoPassword, 10);
     const customers = [];
 
     customers.push(await User.create({
       name: 'Rajesh Kumar',
       email: 'rajesh.kumar@example.com',
-      password: 'password123',
+      password: hashedPassword,
       role: 'customer',
       theme: 'light',
       isActive: true,
@@ -305,7 +318,7 @@ async function seedDemoData() {
     customers.push(await User.create({
       name: 'Priya Sharma',
       email: 'priya.sharma@example.com',
-      password: 'password123',
+      password: hashedPassword,
       role: 'customer',
       theme: 'dark',
       isActive: true,
@@ -314,7 +327,7 @@ async function seedDemoData() {
     customers.push(await User.create({
       name: 'Amit Patel',
       email: 'amit.patel@example.com',
-      password: 'password123',
+      password: hashedPassword,
       role: 'customer',
       theme: 'light',
       isActive: true,
@@ -323,7 +336,7 @@ async function seedDemoData() {
     customers.push(await User.create({
       name: 'Sneha Reddy',
       email: 'sneha.reddy@example.com',
-      password: 'password123',
+      password: hashedPassword,
       role: 'customer',
       theme: 'dark',
       isActive: true,
@@ -332,7 +345,7 @@ async function seedDemoData() {
     customers.push(await User.create({
       name: 'Vikram Singh',
       email: 'vikram.singh@example.com',
-      password: 'password123',
+      password: hashedPassword,
       role: 'customer',
       theme: 'light',
       isActive: true,
@@ -365,13 +378,13 @@ async function seedDemoData() {
       const orderDate = new Date(monthsAgo(monthOffset));
       orderDate.setDate(orderDate.getDate() - dayOffset);
       
-      const customer = customers[Math.floor(Math.random() * customers.length)];
-      const product = products[Math.floor(Math.random() * products.length)];
-      const quantity = Math.floor(Math.random() * 3) + 1;
+      const customer = customers[crypto.randomInt(0, customers.length)];
+      const product = products[crypto.randomInt(0, products.length)];
+      const quantity = crypto.randomInt(1, 4);
       const price = product.yourPrice || product.salePrice || 1000;
       const totalAmount = price * quantity;
-      
-      const statusIndex = Math.floor(Math.random() * statuses.length);
+
+      const statusIndex = crypto.randomInt(0, statuses.length);
       const status = statuses[statusIndex];
       const paymentStatus = paymentStatuses[statusIndex];
 
@@ -386,13 +399,13 @@ async function seedDemoData() {
         totalAmount: totalAmount,
         status: status,
         shippingAddress: {
-          street: `${Math.floor(Math.random() * 100) + 1} Main Street`,
-          city: ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai'][Math.floor(Math.random() * 5)],
-          state: ['Maharashtra', 'Delhi', 'Karnataka', 'Telangana', 'Tamil Nadu'][Math.floor(Math.random() * 5)],
-          zipCode: `${Math.floor(Math.random() * 900000) + 100000}`,
+          street: `${crypto.randomInt(1, 101)} Main Street`,
+          city: ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai'][crypto.randomInt(0, 5)],
+          state: ['Maharashtra', 'Delhi', 'Karnataka', 'Telangana', 'Tamil Nadu'][crypto.randomInt(0, 5)],
+          zipCode: `${crypto.randomInt(100000, 1000000)}`,
           country: 'India',
         },
-        paymentMethod: ['credit_card', 'debit_card', 'upi', 'cash_on_delivery'][Math.floor(Math.random() * 4)],
+        paymentMethod: ['credit_card', 'debit_card', 'upi', 'cash_on_delivery'][crypto.randomInt(0, 4)],
         paymentStatus: paymentStatus,
         createdAt: orderDate,
         updatedAt: orderDate,
@@ -410,7 +423,9 @@ async function seedDemoData() {
     console.log(`   - Orders: ${await Order.countDocuments()}`);
     console.log('\n✅ Demo data seeding completed successfully!');
     console.log('\n🎉 Your dashboard is now ready for demo!');
-    console.log('   Visit: http://localhost:3000\n');
+    console.log('   Visit: http://localhost:3000');
+    console.log('   Demo customer login: use the password from SEED_DEMO_PASSWORD.');
+    console.log('');
 
   } catch (error) {
     console.error('❌ Error seeding demo data:', error);

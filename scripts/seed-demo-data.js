@@ -4,6 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const crypto_1 = require("crypto");
 const dotenv_1 = __importDefault(require("dotenv"));
 const Category_1 = __importDefault(require("../src/models/Category"));
 const Product_1 = __importDefault(require("../src/models/Product"));
@@ -13,6 +15,15 @@ const SubCategory_1 = __importDefault(require("../src/models/SubCategory"));
 // Load environment variables
 dotenv_1.default.config();
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tobo';
+// Demo user password: from env only (never hard-code). Set SEED_DEMO_PASSWORD before running seed.
+function getDemoPassword() {
+    const pw = process.env.SEED_DEMO_PASSWORD;
+    if (pw && pw.length >= 6)
+        return pw;
+    console.error('❌ Set SEED_DEMO_PASSWORD (min 6 chars) in .env or environment before running seed.');
+    process.exit(1);
+    throw new Error('SEED_DEMO_PASSWORD required');
+}
 // Connect to MongoDB
 async function connectDB() {
     try {
@@ -24,9 +35,9 @@ async function connectDB() {
         process.exit(1);
     }
 }
-// Generate order number
+// Generate order number (use crypto for S2245, not Math.random)
 function generateOrderNumber() {
-    return `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    return `ORD-${Date.now()}-${crypto_1.randomInt(0, 1000)}`;
 }
 // Seed demo data
 async function seedDemoData() {
@@ -271,13 +282,15 @@ async function seedDemoData() {
             warrantyDescription: '5 years warranty',
         }));
         console.log(`✅ Created ${products.length} products\n`);
-        // Create Customers
+        // Create Customers (password from env, hashed – never hard-code)
         console.log('👥 Creating customers...');
+        const demoPassword = getDemoPassword();
+        const hashedPassword = await bcrypt_1.default.hash(demoPassword, 10);
         const customers = [];
         customers.push(await User_1.default.create({
             name: 'Rajesh Kumar',
             email: 'rajesh.kumar@example.com',
-            password: 'password123',
+            password: hashedPassword,
             role: 'customer',
             theme: 'light',
             isActive: true,
@@ -285,7 +298,7 @@ async function seedDemoData() {
         customers.push(await User_1.default.create({
             name: 'Priya Sharma',
             email: 'priya.sharma@example.com',
-            password: 'password123',
+            password: hashedPassword,
             role: 'customer',
             theme: 'dark',
             isActive: true,
@@ -293,7 +306,7 @@ async function seedDemoData() {
         customers.push(await User_1.default.create({
             name: 'Amit Patel',
             email: 'amit.patel@example.com',
-            password: 'password123',
+            password: hashedPassword,
             role: 'customer',
             theme: 'light',
             isActive: true,
@@ -301,7 +314,7 @@ async function seedDemoData() {
         customers.push(await User_1.default.create({
             name: 'Sneha Reddy',
             email: 'sneha.reddy@example.com',
-            password: 'password123',
+            password: hashedPassword,
             role: 'customer',
             theme: 'dark',
             isActive: true,
@@ -309,7 +322,7 @@ async function seedDemoData() {
         customers.push(await User_1.default.create({
             name: 'Vikram Singh',
             email: 'vikram.singh@example.com',
-            password: 'password123',
+            password: hashedPassword,
             role: 'customer',
             theme: 'light',
             isActive: true,
@@ -333,12 +346,12 @@ async function seedDemoData() {
             const dayOffset = i % 30; // Distribute across days
             const orderDate = new Date(monthsAgo(monthOffset));
             orderDate.setDate(orderDate.getDate() - dayOffset);
-            const customer = customers[Math.floor(Math.random() * customers.length)];
-            const product = products[Math.floor(Math.random() * products.length)];
-            const quantity = Math.floor(Math.random() * 3) + 1;
+            const customer = customers[crypto_1.randomInt(0, customers.length)];
+            const product = products[crypto_1.randomInt(0, products.length)];
+            const quantity = crypto_1.randomInt(1, 4);
             const price = product.yourPrice || product.salePrice || 1000;
             const totalAmount = price * quantity;
-            const statusIndex = Math.floor(Math.random() * statuses.length);
+            const statusIndex = crypto_1.randomInt(0, statuses.length);
             const status = statuses[statusIndex];
             const paymentStatus = paymentStatuses[statusIndex];
             orders.push(await Order_1.default.create({
@@ -352,13 +365,13 @@ async function seedDemoData() {
                 totalAmount: totalAmount,
                 status: status,
                 shippingAddress: {
-                    street: `${Math.floor(Math.random() * 100) + 1} Main Street`,
-                    city: ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai'][Math.floor(Math.random() * 5)],
-                    state: ['Maharashtra', 'Delhi', 'Karnataka', 'Telangana', 'Tamil Nadu'][Math.floor(Math.random() * 5)],
-                    zipCode: `${Math.floor(Math.random() * 900000) + 100000}`,
+                    street: `${crypto_1.randomInt(1, 101)} Main Street`,
+                    city: ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai'][crypto_1.randomInt(0, 5)],
+                    state: ['Maharashtra', 'Delhi', 'Karnataka', 'Telangana', 'Tamil Nadu'][crypto_1.randomInt(0, 5)],
+                    zipCode: `${crypto_1.randomInt(100000, 1000000)}`,
                     country: 'India',
                 },
-                paymentMethod: ['credit_card', 'debit_card', 'upi', 'cash_on_delivery'][Math.floor(Math.random() * 4)],
+                paymentMethod: ['credit_card', 'debit_card', 'upi', 'cash_on_delivery'][crypto_1.randomInt(0, 4)],
                 paymentStatus: paymentStatus,
                 createdAt: orderDate,
                 updatedAt: orderDate,

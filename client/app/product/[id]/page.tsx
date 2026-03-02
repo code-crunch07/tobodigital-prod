@@ -11,12 +11,34 @@ import { useWishlist } from '@/contexts/WishlistContext';
 import type { Product, ProductVariant } from './types';
 import { ProductDetailView } from './ProductDetailView';
 
-/** Strip HTML tags and collapse whitespace for plain-text excerpt */
-function toPlainText(html: string): string {
-  return html
-    .replace(new RegExp('<[^>]+>', 'g'), ' ')
-    .replace(new RegExp('\\s+', 'g'), ' ')
-    .trim();
+/** Strip HTML tags and collapse whitespace (O(n), no regex DoS risk S5852) */
+function stripHtmlToPlainText(html: string): string {
+  let out = '';
+  let i = 0;
+  let lastSpace = true;
+  while (i < html.length) {
+    if (html[i] === '<') {
+      const end = html.indexOf('>', i);
+      i = end === -1 ? html.length : end + 1;
+      if (!lastSpace) {
+        out += ' ';
+        lastSpace = true;
+      }
+      continue;
+    }
+    const isSpace = html[i] === ' ' || html[i] === '\t' || html[i] === '\n' || html[i] === '\r';
+    if (isSpace) {
+      if (!lastSpace) {
+        out += ' ';
+        lastSpace = true;
+      }
+    } else {
+      out += html[i];
+      lastSpace = false;
+    }
+    i += 1;
+  }
+  return out.trim();
 }
 
 /** Amazon-style zoom: lens size and zoom panel size (no img scaling, background-image zoom) */
@@ -101,9 +123,9 @@ export default function ProductDetailPage() {
         ? window.location.href 
         : `${process.env.NEXT_PUBLIC_STOREFRONT_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://tobodigital.com'}${getProductUrl(product)}`;
 
-      // Description from product description or short description
-      const description = product.productDescription 
-        ? product.productDescription.replace(/<[^>]*>/g, '').substring(0, 160)
+      // Description from product description or short description (use safe strip, no regex DoS)
+      const description = product.productDescription
+        ? stripHtmlToPlainText(product.productDescription).substring(0, 160)
         : (product as any).shortDescription || `Check out ${product.itemName} on ${siteName}`;
 
       // Set or update meta tags for Open Graph and Twitter
@@ -735,7 +757,7 @@ export default function ProductDetailPage() {
     ? [product.mainImage, ...product.galleryImages]
     : [product.mainImage];
 
-  const plainDescription = product.productDescription ? toPlainText(product.productDescription) : '';
+  const plainDescription = product.productDescription ? stripHtmlToPlainText(product.productDescription) : '';
 
   return (
     <ProductDetailView

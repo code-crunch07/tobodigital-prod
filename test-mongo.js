@@ -5,7 +5,14 @@ const mongoose = require('mongoose');
 const testConnection = async () => {
   try {
     console.log('🔌 Attempting to connect to MongoDB...');
-    console.log('📍 Connection string:', process.env.MONGODB_URI?.replace(/\/\/.*:.*@/, '//***:***@'));
+    // Mask credentials without regex (avoids S5852 backtracking)
+    const uri = process.env.MONGODB_URI || '';
+    const protocolEnd = uri.indexOf('//');
+    const atSign = protocolEnd >= 0 ? uri.indexOf('@', protocolEnd + 2) : -1;
+    const masked = (protocolEnd >= 0 && atSign >= 0)
+      ? uri.slice(0, protocolEnd + 2) + '***:***' + uri.slice(atSign)
+      : uri || '(not set)';
+    console.log('📍 Connection string:', masked);
     
     await mongoose.connect(process.env.MONGODB_URI);
     

@@ -27,6 +27,9 @@ dotenv.config();
 
 const app: Application = express();
 
+// Do not disclose Express version to clients (S5689)
+app.disable('x-powered-by');
+
 // Connect to MongoDB
 connectDB();
 
