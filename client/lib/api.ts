@@ -26,11 +26,14 @@ function getUploadPath(pathOrUrl: string | undefined | null): string {
   return pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
 }
 
-/** Same-origin proxy URL to avoid ERR_BLOCKED_BY_ORB when storefront and API are on different origins. */
+/**
+ * Return same-origin URL for uploads. Use /uploads/xxx so Nginx can serve from disk (no proxy, no ORB).
+ * Requires Nginx: location /uploads/ { alias /path/to/tobo-uploads/public/; }
+ */
 export function resolveUploadUrl(pathOrUrl: string | undefined | null): string {
   const path = getUploadPath(pathOrUrl);
   if (!path) return '';
-  return `${BASE_PATH}/api/proxy-image?path=${encodeURIComponent(path)}`;
+  return `${BASE_PATH}${path}`;
 }
 
 function normalizeProduct(p: any) {
