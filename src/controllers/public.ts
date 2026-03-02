@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Product from '../models/Product';
 import Category from '../models/Category';
 import SubCategory from '../models/SubCategory';
+import Article from '../models/Article';
 
 // Get public products (only active products)
 export const getPublicProducts = async (req: Request, res: Response) => {
@@ -213,6 +214,53 @@ export const getPublicSubCategories = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error.message || 'Error fetching subcategories',
+    });
+  }
+};
+
+// Get public articles (only published)
+export const getPublicArticles = async (req: Request, res: Response) => {
+  try {
+    const page = Math.max(parseInt(String(req.query.page || '1'), 10), 1);
+    const limit = Math.min(Math.max(parseInt(String(req.query.limit || '12'), 10), 1), 50);
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await Promise.all([
+      Article.find({ status: 'published' })
+        .sort({ publishedAt: -1, createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select('title slug excerpt author coverImage publishedAt createdAt')
+        .lean(),
+      Article.countDocuments({ status: 'published' }),
+    ]);
+
+    res.json({
+      success: true,
+      data: items,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error?.message || 'Failed to fetch articles',
+    });
+  }
+};
+
+// Get public article by slug
+export const getPublicArticleBySlug = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const article = await Article.findOne({ slug, status: 'published' }).lean();
+    if (!article) {
+      return res.status(404).json({ success: false, message: 'Article not found' });
+    }
+    res.json({ success: true, data: article });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error?.message || 'Failed to fetch article',
     });
   }
 };

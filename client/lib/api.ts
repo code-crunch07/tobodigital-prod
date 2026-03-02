@@ -72,6 +72,13 @@ function normalizeNavigation(n: any) {
   return n;
 }
 
+function normalizeArticle(a: any) {
+  if (!a) return a;
+  if (a.coverImage) a.coverImage = resolveUploadUrl(a.coverImage);
+  if (Array.isArray(a.images)) a.images = a.images.map((x: string) => resolveUploadUrl(x));
+  return a;
+}
+
 const api = axios.create({
   baseURL: `${API_URL}/public`,
   headers: {
@@ -214,6 +221,21 @@ export const getPublicSiteSettings = async () => {
   if (payload?.data?.logo) payload.data.logo = resolveUploadUrl(payload.data.logo);
   if (payload?.data?.favicon) payload.data.favicon = resolveUploadUrl(payload.data.favicon);
   return payload;
+};
+
+// Articles (blog) – only published
+export const getArticles = async (params?: { page?: number; limit?: number }) => {
+  const response = await api.get('/articles', { params });
+  const payload = response.data;
+  if (Array.isArray(payload?.data)) payload.data = payload.data.map(normalizeArticle);
+  return response.data;
+};
+
+export const getArticleBySlug = async (slug: string) => {
+  const response = await api.get(`/articles/slug/${slug}`);
+  const payload = response.data;
+  if (payload?.data) payload.data = normalizeArticle(payload.data);
+  return response.data;
 };
 
 // Auth functions

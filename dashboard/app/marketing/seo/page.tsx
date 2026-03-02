@@ -1,17 +1,52 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Search, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
+import { getSiteSettings, updateSiteSettings } from '@/lib/api';
 
 export default function SEOToolsPage() {
   const router = useRouter();
   const [url, setUrl] = useState('');
   const [seoData, setSeoData] = useState<any>(null);
+  const [metaTitle, setMetaTitle] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
+  const [metaKeywords, setMetaKeywords] = useState('');
+  const [metaSaving, setMetaSaving] = useState(false);
+  const [metaLoaded, setMetaLoaded] = useState(false);
+
+  useEffect(() => {
+    getSiteSettings()
+      .then((res) => {
+        const d = res?.data;
+        setMetaTitle(d?.siteName ?? '');
+        setMetaDescription(d?.metaDescription ?? '');
+        setMetaKeywords(d?.metaKeywords ?? '');
+      })
+      .catch(() => {})
+      .finally(() => setMetaLoaded(true));
+  }, []);
+
+  const handleSaveMeta = async () => {
+    try {
+      setMetaSaving(true);
+      await updateSiteSettings({
+        siteName: metaTitle,
+        metaDescription,
+        metaKeywords,
+      });
+      alert('Meta tags saved successfully.');
+    } catch (error) {
+      console.error('Failed to save meta tags', error);
+      alert('Failed to save. Please try again.');
+    } finally {
+      setMetaSaving(false);
+    }
+  };
 
   const handleAnalyze = () => {
     // Placeholder: replace with real SEO API or crawler
@@ -118,17 +153,31 @@ export default function SEOToolsPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Site Title</Label>
-              <Input placeholder="My Store" />
+              <Input
+                value={metaTitle}
+                onChange={(e) => setMetaTitle(e.target.value)}
+                placeholder="My Store"
+              />
             </div>
             <div className="space-y-2">
               <Label>Meta Description</Label>
-              <Input placeholder="Best products online" />
+              <Input
+                value={metaDescription}
+                onChange={(e) => setMetaDescription(e.target.value)}
+                placeholder="Best products online"
+              />
             </div>
             <div className="space-y-2">
               <Label>Keywords</Label>
-              <Input placeholder="shopping, products, online" />
+              <Input
+                value={metaKeywords}
+                onChange={(e) => setMetaKeywords(e.target.value)}
+                placeholder="shopping, products, online"
+              />
             </div>
-            <Button className="w-full">Save Settings</Button>
+            <Button className="w-full" onClick={handleSaveMeta} disabled={metaSaving || !metaLoaded}>
+              {metaSaving ? 'Saving...' : 'Save Settings'}
+            </Button>
           </CardContent>
         </Card>
 

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Setting from '../models/Setting';
 import Integration from '../models/Integration';
+import { isEmailConfigured } from '../services/email';
 
 const SITE_KEY = 'site';
 const DEFAULT_SITE = {
@@ -15,6 +16,8 @@ const DEFAULT_SITE = {
   favicon: '',
   defaultShippingCharge: 50,
   announcements: [] as string[],
+  metaDescription: '',
+  metaKeywords: '',
 };
 
 // GET /api/public/site-settings
@@ -33,6 +36,8 @@ export const getPublicSiteSettings = async (req: Request, res: Response) => {
         favicon: merged.favicon || '',
         defaultShippingCharge: typeof merged.defaultShippingCharge === 'number' ? merged.defaultShippingCharge : 50,
         announcements: Array.isArray(merged.announcements) ? merged.announcements : [],
+        metaDescription: merged.metaDescription || '',
+        metaKeywords: merged.metaKeywords || '',
       },
     });
   } catch (error: any) {
@@ -69,7 +74,7 @@ export const getSiteSettings = async (req: Request, res: Response) => {
 // PATCH /api/settings/site
 export const updateSiteSettings = async (req: Request, res: Response) => {
   try {
-    const allowed = ['siteName', 'siteUrl', 'email', 'phone', 'address', 'currency', 'timezone', 'logo', 'favicon', 'defaultShippingCharge', 'announcements'];
+    const allowed = ['siteName', 'siteUrl', 'email', 'phone', 'address', 'currency', 'timezone', 'logo', 'favicon', 'defaultShippingCharge', 'announcements', 'metaDescription', 'metaKeywords'];
     const updates: Record<string, unknown> = {};
     for (const k of allowed) {
       if (req.body[k] === undefined) continue;
@@ -105,6 +110,21 @@ export const updateSiteSettings = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: error?.message || 'Failed to update site settings',
+    });
+  }
+};
+
+// GET /api/settings/email-status – whether Brevo SMTP is configured (env vars)
+export const getEmailStatus = async (_req: Request, res: Response) => {
+  try {
+    res.json({
+      success: true,
+      data: { emailConfigured: isEmailConfigured() },
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error?.message || 'Failed to fetch email status',
     });
   }
 };

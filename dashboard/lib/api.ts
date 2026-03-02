@@ -592,6 +592,11 @@ export const getIntegrations = async () => {
   return response.data;
 };
 
+export const getEmailStatus = async () => {
+  const response = await api.get('/settings/email-status');
+  return response.data;
+};
+
 export const updateIntegration = async (id: string, data: { status?: 'connected' | 'disconnected'; apiKey?: string }) => {
   const response = await api.patch(`/settings/integrations/${id}`, data);
   return response.data;

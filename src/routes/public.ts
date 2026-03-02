@@ -1,5 +1,13 @@
 import { Router } from 'express';
-import { getPublicProducts, getPublicProductById, getPublicCategories, getPublicCategoryBySlug, getPublicSubCategories } from '../controllers/public';
+import {
+  getPublicProducts,
+  getPublicProductById,
+  getPublicCategories,
+  getPublicCategoryBySlug,
+  getPublicSubCategories,
+  getPublicArticles,
+  getPublicArticleBySlug,
+} from '../controllers/public';
 import { getActiveBanners, getActivePromotionBanners, getActivePromoRowBanners, getActiveBannersByCategory } from '../controllers/banners';
 import { getActiveNavigations } from '../controllers/navigation';
 import { getPublicSiteSettings } from '../controllers/settings';
@@ -27,5 +35,9 @@ router.get('/navigations', getActiveNavigations);
 
 // Public site settings (logo, name, url)
 router.get('/site-settings', getPublicSiteSettings);
+
+// Public articles (only published)
+router.get('/articles', getPublicArticles);
+router.get('/articles/slug/:slug', getPublicArticleBySlug);
 
 export default router;

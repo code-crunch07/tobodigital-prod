@@ -1,20 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Mail, Plus, Send, Eye } from 'lucide-react';
+import { getEmailStatus } from '@/lib/api';
 
 export default function EmailCampaignsPage() {
   const router = useRouter();
+  const [emailConfigured, setEmailConfigured] = useState<boolean | null>(null);
   const [campaigns, setCampaigns] = useState([
     { id: '1', name: 'Welcome Email', status: 'sent', recipients: 1250, opens: 980, clicks: 320, date: '2024-01-15' },
     { id: '2', name: 'Weekly Newsletter', status: 'scheduled', recipients: 2000, opens: 0, clicks: 0, date: '2024-01-20' },
     { id: '3', name: 'Product Launch', status: 'draft', recipients: 0, opens: 0, clicks: 0, date: '-' },
   ]);
+
+  useEffect(() => {
+    getEmailStatus()
+      .then((res) => setEmailConfigured(res?.data?.emailConfigured ?? false))
+      .catch(() => setEmailConfigured(false));
+  }, []);
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, any> = {
@@ -86,7 +94,11 @@ export default function EmailCampaignsPage() {
         <CardHeader>
           <CardTitle>Email Campaigns</CardTitle>
           <CardDescription>Manage your email marketing campaigns</CardDescription>
-          <p className="text-sm text-amber-600 mt-1">Placeholder: No email API connected. Connect an email provider to enable campaigns.</p>
+          {emailConfigured === true ? (
+            <p className="text-sm text-green-600 mt-1">Brevo SMTP connected. Transactional emails (e.g. password reset) are enabled.</p>
+          ) : emailConfigured === false ? (
+            <p className="text-sm text-amber-600 mt-1">No email provider configured. Set BREVO_SMTP_USER and BREVO_SMTP_KEY in your backend .env to enable transactional emails.</p>
+          ) : null}
         </CardHeader>
         <CardContent>
           <Table>

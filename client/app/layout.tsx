@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Favicon from "@/components/Favicon";
+import DynamicMeta from "@/components/DynamicMeta";
 import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 
@@ -33,6 +34,7 @@ export default function RootLayout({
     <html lang="en" className={figtree.variable}>
       <body>
         <Favicon />
+        <DynamicMeta />
         <CartProvider>
           <WishlistProvider>
             <Header />
