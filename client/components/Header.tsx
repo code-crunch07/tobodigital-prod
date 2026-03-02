@@ -178,29 +178,19 @@ export default function Header() {
     }
   };
 
-  const toggleMegaMenu = (navId: string) => {
-    setOpenMegaMenus(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(navId)) {
-        newSet.delete(navId);
-      } else {
-        newSet.add(navId);
-      }
-      return newSet;
-    });
-  };
-
   // Delayed close so moving from nav link to submenu doesn't close it
   const megaMenuCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const megaMenuCloseTargetRef = useRef<string | null>(null);
 
   const openMegaMenu = (navId: string) => {
-    if (megaMenuCloseTimeoutRef.current) {
+    // Only cancel a pending close for the same nav; allow other menus to finish closing
+    if (megaMenuCloseTimeoutRef.current && megaMenuCloseTargetRef.current === navId) {
       clearTimeout(megaMenuCloseTimeoutRef.current);
       megaMenuCloseTimeoutRef.current = null;
       megaMenuCloseTargetRef.current = null;
     }
-    setOpenMegaMenus(prev => new Set(prev).add(navId));
+    // Ensure only one mega menu is open at a time
+    setOpenMegaMenus(new Set([navId]));
   };
 
   const closeMegaMenuDelayed = (navId: string) => {
@@ -344,7 +334,7 @@ export default function Header() {
                       if (isSimpleDropdown) {
                         const column = nav.megaMenuColumns![0];
                         return (
-                          <div className="absolute left-1/2 top-full -translate-x-1/2 mt-3 bg-white border border-gray-200 rounded-xl shadow-lg w-56 sm:w-64 max-w-[calc(100vw-2rem)] overflow-hidden z-40 mega-menu-dropdown-enter">
+                          <div className="absolute left-1/2 top-full -translate-x-1/2 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg w-56 sm:w-64 max-w-[calc(100vw-2rem)] overflow-hidden z-40 mega-menu-dropdown-enter">
                             <div className="py-2">
                               {column.links.map((link, linkIndex) => {
                                 const linkHref = link.isCategory ? getCategoryLink(link.href) : link.href;
@@ -368,7 +358,7 @@ export default function Header() {
 
                       return (
                         <div
-                          className={`absolute left-1/2 top-full -translate-x-1/2 mt-3 bg-white border border-gray-200 rounded-2xl shadow-xl p-4 sm:p-6 mega-menu-dropdown-enter ${
+                          className={`absolute left-1/2 top-full -translate-x-1/2 mt-1 bg-white border border-gray-200 rounded-2xl shadow-xl p-4 sm:p-6 mega-menu-dropdown-enter ${
                             nav.megaMenuWidth === 'full'
                               ? 'w-[calc(100vw-2rem)]'
                               : nav.megaMenuWidth === 'wide'
