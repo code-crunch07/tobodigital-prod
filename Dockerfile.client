@@ -23,10 +23,13 @@ ENV PORT=3001
 
 RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 
-# Copy read-only (no write permissions for S6504)
+# Copy read-only app files (S6504)
 COPY --from=builder --chown=nextjs:nodejs --chmod=555 /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs --chmod=555 /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs --chmod=555 /app/.next/static ./.next/static
+
+# Next.js may need writable cache
+RUN mkdir -p /app/.next/cache && chown -R nextjs:nodejs /app/.next && chmod -R u+w /app/.next
 
 USER nextjs
 EXPOSE 3001
