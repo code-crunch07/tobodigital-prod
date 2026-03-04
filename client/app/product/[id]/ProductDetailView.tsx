@@ -203,7 +203,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
   return (
     <>
     <div
-      className="min-h-screen text-[#2d3748] overflow-x-hidden bg-white sm:bg-[#f5f5f5]"
+      className="min-h-screen text-[#2d3748] overflow-x-hidden bg-[#f9fafb]"
     >
       <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 mb-6 w-full min-w-0">
         <nav
@@ -233,7 +233,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
         </nav>
 
         {/* Layout: left = full-width main image + thumbnails; right = product info. Zoom panel overlaps right on hover. */}
-        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-10 bg-white p-3 sm:p-6 lg:p-8 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.1)] mb-6 min-w-0 relative">
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-10 bg-white/95 backdrop-blur-sm p-3 sm:p-6 lg:p-8 rounded-[2rem] shadow-[0_18px_55px_rgba(15,23,42,0.12)] border border-gray-100 mb-8 min-w-0 relative">
           <div className="min-w-0 relative">
             {/* Mobile: image carousel with dots + wishlist/share below image */}
             <div className="lg:hidden flex flex-col gap-3">
@@ -620,7 +620,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             )}
 
             {/* Title */}
-            <h1 className="text-xl sm:text-2xl lg:text-[1.75rem] font-bold text-[#111111] leading-tight break-words tracking-tight">
+            <h1 className="font-[var(--heading-font-family)] text-2xl sm:text-3xl lg:text-[2.1rem] font-black text-gray-900 leading-tight break-words tracking-tight">
               {product.itemName}
             </h1>
 
@@ -743,7 +743,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             )}
 
             {/* Pincode + primary CTAs card */}
-            <div className="mt-4 space-y-4 p-4 sm:p-5">
+            <div className="mt-4 space-y-4 p-4 sm:p-5 rounded-2xl bg-[#f9fafb] border border-gray-100">
               <form onSubmit={handlePincodeCheck} className="space-y-3">
                 <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#2d3748]">
                   <div className="flex items-center gap-2">
@@ -767,7 +767,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   </div>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 rounded-lg bg-[#ff6b35] text-white text-sm sm:text-base font-semibold shadow-sm hover:bg-[#e85a28] transition-colors whitespace-nowrap"
+                    className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white text-xs sm:text-sm font-semibold text-gray-800 hover:border-[#f97316] hover:text-[#f97316] transition-colors whitespace-nowrap"
                   >
                     Check
                   </button>
@@ -812,10 +812,10 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 <button
                   onClick={handleBuyNow}
                   disabled={product.stockQuantity === 0}
-                  className={`w-full sm:w-auto py-3 sm:py-3.5 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-sm transition-all ${
+                  className={`w-full sm:w-auto py-3 sm:py-3.5 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base flex items-center justify-center gap-2 border transition-all ${
                     product.stockQuantity === 0
-                      ? 'bg-gray-800 text-white/70 cursor-not-allowed opacity-60'
-                      : 'bg-[#111827] text-white hover:bg-black hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(0,0,0,0.45)]'
+                      ? 'border-gray-300 text-gray-400 cursor-not-allowed opacity-60'
+                      : 'border-gray-300 text-gray-900 bg-white hover:border-[#111827] hover:text-[#111827]'
                   }`}
                 >
                   <Zap className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -827,7 +827,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                     href={product.amazonLink.trim()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full sm:w-auto py-3 sm:py-3.5 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base bg-[#ff9900] text-black hover:bg-[#e88b00] transition-all border border-[#cc7a00] flex items-center justify-center gap-2 shadow-sm hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(250,204,21,0.5)]"
+                    className="w-full sm:w-auto py-3 sm:py-3.5 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base border border-gray-300 bg-white text-gray-900 hover:border-[#f97316] hover:text-[#f97316] transition-all flex items-center justify-center gap-2"
                   >
                     <ExternalLink className="h-5 w-5" />
                     Amazon

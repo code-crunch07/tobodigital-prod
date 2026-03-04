@@ -92,11 +92,8 @@ export default function QuickViewDialog({
               </div>
             )}
             {discount > 0 ? (
-              <span
-                className="absolute top-4 left-4 flex items-center gap-1.5 bg-[#ff006e] text-white text-xs font-semibold pl-2 pr-3 py-1.5 shadow-md"
-                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
-              >
-                <Tag className="h-3.5 w-3.5 flex-shrink-0" strokeWidth={2.5} />
+              <span className="absolute top-4 left-4 inline-flex items-center gap-1 rounded-full bg-black text-white text-[9px] font-black uppercase tracking-[0.25em] px-3 py-1 shadow-md">
+                <Tag className="h-3 w-3 flex-shrink-0" strokeWidth={2.5} />
                 <span>{discount}% off</span>
               </span>
             ) : null}

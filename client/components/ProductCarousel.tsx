@@ -218,17 +218,19 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
                           </div>
                         )}
                       </Link>
+                      {/* Discount badge */}
                       {discount > 0 ? (
                         <div className="absolute top-2 left-2 z-20">
-                          <span className="flex items-center gap-1.5 bg-[#ff006e] text-white text-xs font-semibold pl-2 pr-3 py-1.5 shadow-md rounded-r-md rounded-bl-md">
-                            <Tag className="h-3.5 w-3.5 flex-shrink-0" strokeWidth={2.5} />
+                          <span className="inline-flex items-center gap-1 rounded-full bg-black text-white text-[9px] font-black uppercase tracking-[0.25em] px-3 py-1 shadow-md">
+                            <Tag className="h-3 w-3 flex-shrink-0" strokeWidth={2.5} />
                             <span>{discount}% off</span>
                           </span>
                         </div>
                       ) : null}
+                      {/* Hot badge */}
                       {product.isFeatured && (
-                        <div className="absolute left-2 z-20" style={{ top: discount > 0 ? '2.5rem' : '0.5rem' }}>
-                          <span className="inline-flex items-center bg-[#ff006e] text-white text-xs font-semibold px-2.5 py-1 shadow-md rounded-r-md rounded-bl-md">
+                        <div className="absolute left-2 z-20" style={{ top: discount > 0 ? '2.6rem' : '0.5rem' }}>
+                          <span className="inline-flex items-center rounded-full bg-[#f97316] text-white text-[9px] font-black uppercase tracking-[0.25em] px-3 py-1 shadow-md">
                             Hot
                           </span>
                         </div>
