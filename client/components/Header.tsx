@@ -243,7 +243,7 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm w-full max-w-[100vw] transition-transform duration-300 ease-out ${
+      className={`sticky top-0 z-50 w-full max-w-[100vw] border-b border-gray-100 bg-white/95 backdrop-blur-2xl shadow-[0_10px_30px_rgba(15,23,42,0.06)] transition-transform duration-300 ease-out ${
         headerVisible ? 'translate-y-0' : '-translate-y-full'
       }`}
     >
@@ -309,18 +309,20 @@ export default function Header() {
                   onMouseLeave={() => nav.hasMegaMenu && closeMegaMenuDelayed(nav._id)}
                 >
                   {nav.hasMegaMenu ? (
-                    <button className="flex items-center space-x-1 text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap">
+                    <button className="relative flex items-center space-x-1 text-[10px] font-semibold uppercase tracking-[0.25em] text-gray-500 hover:text-gray-900 transition-colors whitespace-nowrap">
                       <span>{nav.label}</span>
-                      <ChevronDown className="h-4 w-4" />
+                      <ChevronDown className="h-3.5 w-3.5" />
+                      <span className="pointer-events-none absolute -bottom-1 left-0 h-0.5 w-0 rounded-full bg-gray-900 transition-all duration-300 group-hover:w-full" />
                     </button>
                   ) : (
                     <Link
                       href={nav.href}
                       target={nav.isExternal ? '_blank' : '_self'}
                       rel={nav.isExternal ? 'noopener noreferrer' : undefined}
-                      className="text-[rgb(16,15,15)] hover:text-[#ff006e] transition-colors font-medium whitespace-nowrap"
+                      className="relative text-[10px] font-semibold uppercase tracking-[0.25em] text-gray-500 hover:text-gray-900 transition-colors whitespace-nowrap"
                     >
                       {nav.label}
+                      <span className="pointer-events-none absolute -bottom-1 left-0 h-0.5 w-0 rounded-full bg-gray-900 transition-all duration-300 group-hover:w-full" />
                     </Link>
                   )}
 
