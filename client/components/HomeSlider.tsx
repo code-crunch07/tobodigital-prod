@@ -71,127 +71,131 @@ export default function HomeSlider() {
 
   if (banners.length === 0) {
     return (
-      <div className="w-full h-[500px] md:h-[600px] bg-gradient-to-r from-[#ff006e] to-[#00d4ff] flex items-center justify-center text-white">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold mb-4">Welcome to Tobo Digital</h2>
-          <p className="text-xl mb-6">Discover amazing products</p>
+      <section className="relative h-[70vh] md:h-[80vh] w-full overflow-hidden bg-gray-950">
+        <div className="relative h-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center text-center text-white">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">Welcome to Tobo Digital</h2>
+          <p className="text-lg md:text-xl mb-8 text-gray-300">Discover amazing products</p>
           <Link
             href="/shop"
-            className="bg-white text-[#ff006e] px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-block"
+            className="inline-flex items-center justify-center gap-3 bg-white text-black px-8 py-4 rounded-2xl font-semibold text-xs uppercase tracking-[0.25em] hover:bg-gray-100 transition-colors"
           >
-            Shop Now
+            <span>Shop Now</span>
           </Link>
         </div>
-      </div>
+      </section>
     );
   }
 
-  return (
-    <div className="relative w-full h-[500px] md:h-[600px] overflow-hidden">
-      {/* Slides */}
-      <div
-        className="flex transition-transform duration-500 ease-in-out h-full"
-        style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-      >
-        {banners.map((banner) => (
-          <div
-            key={banner._id}
-            className="min-w-full h-full relative flex items-center"
-          >
-            {/* Background Image */}
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{
-                backgroundImage: `url(${banner.image})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }}
-            >
-              <div className="absolute inset-0 bg-black/20"></div>
-            </div>
+  const currentBanner = banners[currentSlide];
 
-            {/* Content Overlay */}
-            <div className="relative z-10 w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="max-w-2xl">
-                {banner.subtitle && (
-                  <p 
-                    className="text-sm md:text-base mb-2 font-semibold uppercase tracking-wider"
-                    style={{ color: banner.subtitleColor || '#ffffff' }}
-                  >
-                    {banner.subtitle}
-                  </p>
-                )}
-                {banner.title && (
-                  <h1 
-                    className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight"
-                    style={{ color: banner.titleColor || '#ffffff' }}
-                  >
-                    {banner.title}
-                  </h1>
-                )}
-                {banner.description && (
-                  <p 
-                    className="text-lg md:text-xl mb-8"
-                    style={{ color: banner.descriptionColor || '#ffffff' }}
-                  >
-                    {banner.description}
-                  </p>
-                )}
-                {banner.buttonText && (
-                  <Link
-                    href={banner.buttonLink || '/shop'}
-                    className="inline-block px-8 py-3 md:px-10 md:py-4 rounded-lg font-semibold text-lg transition-colors shadow-lg hover:opacity-90"
-                    style={{ 
-                      backgroundColor: banner.buttonBgColor || '#ff006e',
-                      color: banner.buttonTextColor || '#ffffff'
-                    }}
-                  >
-                    {banner.buttonText}
-                  </Link>
-                )}
+  return (
+    <section className="relative h-[80vh] md:h-[90vh] w-full overflow-hidden bg-gray-950">
+      {/* Backgrounds */}
+      {banners.map((banner, index) => (
+        <div
+          key={banner._id}
+          className={`absolute inset-0 transition-opacity duration-700 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+        >
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${banner.image})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
+        </div>
+      ))}
+
+      {/* Content */}
+      <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
+        <div className="max-w-2xl">
+          {currentBanner.subtitle && (
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+                <span className="h-2 w-2 rounded-full bg-orange-400 shadow-[0_0_10px_rgba(251,146,60,0.9)]" />
+                <span
+                  className="text-[10px] font-black uppercase tracking-[0.3em] text-white"
+                  style={{ color: currentBanner.subtitleColor || '#ffffff' }}
+                >
+                  {currentBanner.subtitle}
+                </span>
               </div>
             </div>
-          </div>
-        ))}
+          )}
+
+          {currentBanner.title && (
+            <h1
+              className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-white leading-[0.95] mb-6"
+              style={{ color: currentBanner.titleColor || '#ffffff' }}
+            >
+              {currentBanner.title}
+            </h1>
+          )}
+
+          {currentBanner.description && (
+            <p
+              className="text-base md:text-lg text-gray-300 font-medium mb-10 max-w-lg leading-relaxed"
+              style={{ color: currentBanner.descriptionColor || '#d1d5db' }}
+            >
+              {currentBanner.description}
+            </p>
+          )}
+
+          {currentBanner.buttonText && (
+            <div className="flex items-center space-x-6">
+              <Link
+                href={currentBanner.buttonLink || '/shop'}
+                className="group relative inline-flex items-center space-x-4 bg-white text-black px-10 py-4 rounded-3xl font-black text-[11px] uppercase tracking-[0.3em] overflow-hidden transition-all hover:pr-14"
+                style={{
+                  backgroundColor: currentBanner.buttonBgColor || '#ffffff',
+                  color: currentBanner.buttonTextColor || '#000000',
+                }}
+              >
+                <span>{currentBanner.buttonText}</span>
+                <ChevronRight className="h-4 w-4 transition-all group-hover:translate-x-2" />
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Navigation Arrows */}
+      {/* Navigation Controls */}
       {banners.length > 1 && (
-        <>
+        <div className="absolute bottom-10 right-6 md:right-12 flex items-center space-x-4 z-20">
           <button
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full transition-colors shadow-lg"
+            className="w-10 h-10 md:w-12 md:h-12 rounded-2xl border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all backdrop-blur-md"
             aria-label="Previous slide"
           >
-            <ChevronLeft className="h-6 w-6" />
+            <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full transition-colors shadow-lg"
+            className="w-10 h-10 md:w-12 md:h-12 rounded-2xl border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all backdrop-blur-md"
             aria-label="Next slide"
           >
-            <ChevronRight className="h-6 w-6" />
+            <ChevronRight className="h-5 w-5" />
           </button>
-        </>
+        </div>
       )}
 
-      {/* Dots Indicator */}
+      {/* Progress Indicators */}
       {banners.length > 1 && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+        <div className="absolute bottom-10 left-6 md:left-12 flex space-x-3 z-20">
           {banners.map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`w-3 h-3 rounded-full transition-all ${
-                index === currentSlide
-                  ? 'bg-[#ff006e] w-8'
-                  : 'bg-white/60 hover:bg-white/80'
+              className={`h-1.5 transition-all duration-500 rounded-full ${
+                currentSlide === index ? 'w-10 bg-[#ff006e]' : 'w-4 bg-white/30'
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }
