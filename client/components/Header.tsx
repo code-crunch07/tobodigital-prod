@@ -309,7 +309,7 @@ export default function Header() {
                   onMouseLeave={() => nav.hasMegaMenu && closeMegaMenuDelayed(nav._id)}
                 >
                   {nav.hasMegaMenu ? (
-                    <button className="relative flex items-center space-x-1 text-[10px] font-semibold uppercase tracking-[0.25em] text-gray-500 hover:text-gray-900 transition-colors whitespace-nowrap">
+                    <button className="relative flex items-center space-x-1 text-[11px] font-bold uppercase tracking-[0.25em] text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap">
                       <span>{nav.label}</span>
                       <ChevronDown className="h-3.5 w-3.5" />
                       <span className="pointer-events-none absolute -bottom-1 left-0 h-0.5 w-0 rounded-full bg-gray-900 transition-all duration-300 group-hover:w-full" />
@@ -319,7 +319,7 @@ export default function Header() {
                       href={nav.href}
                       target={nav.isExternal ? '_blank' : '_self'}
                       rel={nav.isExternal ? 'noopener noreferrer' : undefined}
-                      className="relative text-[10px] font-semibold uppercase tracking-[0.25em] text-gray-500 hover:text-gray-900 transition-colors whitespace-nowrap"
+                      className="relative text-[11px] font-bold uppercase tracking-[0.25em] text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap"
                     >
                       {nav.label}
                       <span className="pointer-events-none absolute -bottom-1 left-0 h-0.5 w-0 rounded-full bg-gray-900 transition-all duration-300 group-hover:w-full" />
@@ -336,7 +336,7 @@ export default function Header() {
                       if (isSimpleDropdown) {
                         const column = nav.megaMenuColumns![0];
                         return (
-                          <div className="absolute right-0 top-full mt-4 bg-white border border-gray-100 rounded-[2rem] shadow-[0_20px_50px_rgba(15,23,42,0.18)] w-auto min-w-[12rem] max-w-[calc(100vw-2rem)] overflow-hidden z-40 mega-menu-dropdown-enter px-3 py-3">
+                          <div className="absolute left-1/2 top-full -translate-x-1/2 mt-4 bg-white border border-gray-100 rounded-[2rem] shadow-[0_20px_50px_rgba(15,23,42,0.18)] w-auto min-w-[12rem] max-w-[90vw] overflow-hidden z-40 mega-menu-dropdown-enter px-3 py-3">
                             <div className="grid grid-cols-1 gap-1">
                               {column.links.map((link, linkIndex) => {
                                 const linkHref = link.isCategory ? getCategoryLink(link.href) : link.href;
@@ -346,7 +346,7 @@ export default function Header() {
                                     href={linkHref}
                                     target={link.isExternal ? '_blank' : '_self'}
                                     rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                                    className="mega-menu-link-enter flex items-center justify-between px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.25em] text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-2xl transition-all whitespace-nowrap"
+                                    className="mega-menu-link-enter flex items-center justify-between px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.25em] text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-2xl transition-all"
                                     style={{ animationDelay: `${linkIndex * 0.04}s`, animationFillMode: 'both' }}
                                   >
                                     <span>{link.label}</span>
