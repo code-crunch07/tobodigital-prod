@@ -109,7 +109,7 @@ export default function HomeSlider() {
       ))}
 
       {/* Content */}
-      <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
+      <div className="relative h-full max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 flex flex-col justify-center">
         <div className="max-w-2xl">
           {currentBanner.subtitle && (
             <div className="flex items-center space-x-3 mb-6">

@@ -62,23 +62,15 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [userData, setUserData] = useState<any>(null);
-  const [headerVisible, setHeaderVisible] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const lastScrollY = useRef(0);
 
-  // Smart sticky: hide header on scroll down, show on scroll up
+  // Smart sticky: track scroll state (used for compact header)
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       setIsScrolled(currentScrollY > 20);
-      if (currentScrollY < 10) {
-        setHeaderVisible(true);
-      } else if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
-        setHeaderVisible(false);
-      } else if (currentScrollY < lastScrollY.current) {
-        setHeaderVisible(true);
-      }
       lastScrollY.current = currentScrollY;
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -245,9 +237,7 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full max-w-[100vw] border-b border-gray-100 bg-white/95 backdrop-blur-2xl shadow-[0_10px_30px_rgba(15,23,42,0.06)] transition-transform duration-300 ease-out ${
-        headerVisible ? 'translate-y-0' : '-translate-y-full'
-      }`}
+      className="sticky top-0 z-50 w-full max-w-[100vw] border-b border-gray-100 bg-white/95 backdrop-blur-2xl shadow-[0_10px_30px_rgba(15,23,42,0.06)] transition-all duration-300 ease-out"
     >
       {announcements.length > 0 && (
         <div className="w-full bg-black text-white text-[9px] sm:text-[10px] font-semibold tracking-[0.3em] uppercase">
@@ -263,8 +253,8 @@ export default function Header() {
           </div>
         </div>
       )}
-      <div className={`w-full min-w-0 px-4 sm:px-6 lg:px-8 ${isScrolled ? 'py-2' : 'py-4'}`}>
-        <div className="flex items-center justify-between h-16 min-w-0 gap-2">
+      <div className={`w-full min-w-0 px-4 sm:px-6 lg:px-8 ${isScrolled ? 'py-2' : 'py-3'}`}>
+        <div className="flex items-center justify-between h-14 min-w-0 gap-2">
           {/* Logo - high quality rendering */}
           <Link 
             href="/" 
