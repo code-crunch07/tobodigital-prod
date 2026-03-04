@@ -248,13 +248,13 @@ export default function Header() {
       }`}
     >
       {announcements.length > 0 && (
-        <div className="w-full bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 text-white text-[11px] sm:text-xs">
-          <div className="w-full px-2 sm:px-4 h-8 flex items-center overflow-hidden">
-            <div className="flex items-center gap-8 whitespace-nowrap animate-announcement-scroll">
-              {announcements.concat(announcements).map((msg, index) => (
+        <div className="w-full bg-black text-white text-[9px] sm:text-[10px] font-semibold tracking-[0.3em] uppercase">
+          <div className="px-3 sm:px-4 py-2 overflow-hidden">
+            <div className="animate-announcement-scroll inline-flex items-center gap-6 whitespace-nowrap">
+              {announcements.concat(announcements, announcements).map((msg, index) => (
                 <div key={index} className="flex items-center gap-2">
-                  <span className="text-[0.9rem]">⚡</span>
-                  <span className="font-medium">{msg}</span>
+                  <span className="flex items-center justify-center text-[0.8rem] text-orange-400">⚡</span>
+                  <span>{msg}</span>
                 </div>
               ))}
             </div>
@@ -336,8 +336,8 @@ export default function Header() {
                       if (isSimpleDropdown) {
                         const column = nav.megaMenuColumns![0];
                         return (
-                          <div className="absolute left-1/2 top-full -translate-x-1/2 mt-1 bg-white border border-gray-200 shadow-lg w-auto min-w-[10rem] max-w-[calc(100vw-2rem)] overflow-hidden z-40 mega-menu-dropdown-enter">
-                            <div className="py-2">
+                          <div className="absolute right-0 top-full mt-4 bg-white border border-gray-100 rounded-[2rem] shadow-[0_20px_50px_rgba(15,23,42,0.18)] w-auto min-w-[12rem] max-w-[calc(100vw-2rem)] overflow-hidden z-40 mega-menu-dropdown-enter px-3 py-3">
+                            <div className="grid grid-cols-1 gap-1">
                               {column.links.map((link, linkIndex) => {
                                 const linkHref = link.isCategory ? getCategoryLink(link.href) : link.href;
                                 return (
@@ -346,10 +346,10 @@ export default function Header() {
                                     href={linkHref}
                                     target={link.isExternal ? '_blank' : '_self'}
                                     rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                                    className="mega-menu-link-enter block px-4 py-2 text-sm text-gray-900 hover:bg-gray-50 hover:text-[#ff006e] transition-colors whitespace-nowrap"
+                                    className="mega-menu-link-enter flex items-center justify-between px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.25em] text-gray-500 hover:text-gray-900 hover:bg-gray-50 rounded-2xl transition-all whitespace-nowrap"
                                     style={{ animationDelay: `${linkIndex * 0.04}s`, animationFillMode: 'both' }}
                                   >
-                                    {link.label}
+                                    <span>{link.label}</span>
                                   </Link>
                                 );
                               })}

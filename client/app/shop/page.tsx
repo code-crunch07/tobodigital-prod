@@ -128,25 +128,25 @@ const ProductCard = ({
 
   // Match category carousel: white card, content shift -translate-y-3, button in absolute strip that slides up
   const inStock = product.stockQuantity !== undefined ? product.stockQuantity > 0 : true;
-  const buttonClass = 'bg-[rgb(17,24,39)] hover:bg-[rgb(15,23,42)]';
+  const buttonClass = 'bg-[rgb(17,24,39)] hover:bg-[#f97316]';
 
   return (
-    <div className="group relative bg-white border border-gray-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md h-full flex flex-col">
-      {/* Product Image - full image visible, no cropping */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-white">
+    <div className="group relative bg-white rounded-[2.25rem] border border-gray-100 overflow-hidden transition-all duration-500 hover:shadow-[0_32px_80px_rgba(15,23,42,0.16)] h-full flex flex-col">
+      {/* Product Image */}
+      <div className="relative aspect-[4/5] overflow-hidden bg-[#f8f8f8]">
         <Link href={getProductUrl(product)} className="block w-full h-full flex items-center justify-center">
           {product.mainImage ? (
             <>
               <img
                 src={product.mainImage}
                 alt={product.itemName}
-                className="w-full h-full object-cover object-center transition-all duration-500 group-hover:scale-105"
+              className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
               />
               {hasHoverImage && (
                 <img
                   src={hoverImage}
                   alt={product.itemName}
-                  className="absolute inset-0 w-full h-full object-cover object-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105"
+                className="absolute inset-0 w-full h-full object-cover object-center opacity-0 group-hover:opacity-100 transition-all duration-700 group-hover:scale-110"
                 />
               )}
             </>
@@ -157,12 +157,15 @@ const ProductCard = ({
           )}
         </Link>
 
-        {/* Sale badge - inset so not cut off */}
+        {/* Soft overlay on hover */}
+        <div className="pointer-events-none absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
+
+        {/* Sale badge - compact pill */}
         {discount > 0 ? (
           <div className="absolute top-2 left-2 z-20">
-            <span className="flex items-center gap-1.5 bg-[#ff006e] text-white text-xs font-semibold pl-2 pr-3 py-1.5 shadow-md rounded-r-md rounded-bl-md">
-              <Tag className="h-3.5 w-3.5 flex-shrink-0" strokeWidth={2.5} />
-              <span>{discount}% off</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-black/80 text-white text-[10px] font-semibold px-3 py-1 shadow-lg backdrop-blur-md">
+              <Tag className="h-3 w-3 flex-shrink-0" strokeWidth={2.5} />
+              <span>{discount}% OFF</span>
             </span>
           </div>
         ) : null}
@@ -171,14 +174,14 @@ const ProductCard = ({
         {product.isFeatured && (
           <div className="absolute left-2 z-20" style={{ top: discount > 0 ? '2.5rem' : '0.5rem' }}>
             <span
-              className="inline-flex items-center bg-[#ff006e] text-white text-xs font-semibold px-2.5 py-1 shadow-md rounded-r-md rounded-bl-md"
+              className="inline-flex items-center rounded-full bg-[#f97316]/90 text-white text-[10px] font-semibold px-3 py-1 shadow-lg backdrop-blur-md"
             >
               Hot
             </span>
           </div>
         )}
 
-        {/* Action Icons - Right (slide in on hover like category) */}
+        {/* Action Icons - Right */}
         <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 z-20">
           <button
             type="button"
@@ -203,14 +206,14 @@ const ProductCard = ({
         </div>
       </div>
 
-      <div className="px-5 pb-14 pt-4 flex-1 flex flex-col min-h-0 transition-transform duration-300 group-hover:-translate-y-3">
+      <div className="px-6 pb-16 pt-5 flex-1 flex flex-col min-h-0 transition-transform duration-300 group-hover:-translate-y-3">
         {product.productCategory?.name && (
-          <div className="text-xs font-medium text-gray-500 mb-1">
+          <div className="text-[10px] font-semibold text-gray-400 tracking-[0.25em] uppercase mb-1">
             {product.productCategory.name}
           </div>
         )}
         <Link href={getProductUrl(product)}>
-          <h3 className="product-title leading-snug line-clamp-2 min-h-[20px] hover:text-[#ff006e] transition-colors">
+          <h3 className="product-title leading-snug line-clamp-2 min-h-[2.5rem] hover:text-[#f97316] transition-colors font-semibold tracking-tight">
             {product.itemName}
           </h3>
         </Link>
@@ -221,15 +224,29 @@ const ProductCard = ({
           )}
         </div>
       </div>
-      <div className={`absolute left-0 right-0 bottom-0 px-5 pb-5 pt-3 bg-white border-t border-gray-100 transition-transform duration-300 ${isAdded ? 'translate-y-0' : 'translate-y-full group-hover:translate-y-0'}`}>
-        <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`w-full rounded-full ${buttonClass} text-white text-sm font-semibold py-3 disabled:opacity-60 transition-colors`}>
+      {/* Bottom action strip */}
+      <div className={`absolute left-0 right-0 bottom-0 px-6 pb-5 pt-3 bg-white/95 backdrop-blur-xl border-t border-gray-100 transition-transform duration-300 ${isAdded ? 'translate-y-0' : 'translate-y-full group-hover:translate-y-0'}`}>
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          disabled={!inStock}
+          className={`w-full h-12 rounded-2xl ${buttonClass} text-white text-sm font-semibold disabled:opacity-60 transition-colors flex items-center justify-center gap-2`}
+        >
           {isAdded ? (
-            <span className="flex items-center justify-center gap-2"><span>✓</span><span>Added to Cart</span></span>
+            <span className="flex items-center justify-center gap-2">
+              <span>✓</span>
+              <span>Added to Cart</span>
+            </span>
           ) : (
-            <span className="flex items-center justify-center gap-2"><ShoppingCart className="h-4 w-4" /><span>Add To Cart</span></span>
+            <span className="flex items-center justify-center gap-2">
+              <ShoppingCart className="h-4 w-4" />
+              <span>Add To Cart</span>
+            </span>
           )}
         </button>
       </div>
+      {/* Technical detail line */}
+      <div className="pointer-events-none absolute bottom-0 left-0 h-1 bg-[#f97316] w-0 group-hover:w-full transition-all duration-700" />
     </div>
   );
 };
