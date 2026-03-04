@@ -71,7 +71,7 @@ export default function HomeSlider() {
 
   if (banners.length === 0) {
     return (
-      <section className="relative h-[70vh] md:h-[80vh] w-full overflow-hidden bg-gray-950">
+      <section className="relative h-[55vh] md:h-[65vh] w-full overflow-hidden bg-gray-950">
         <div className="relative h-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center text-center text-white">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">Welcome to Tobo Digital</h2>
           <p className="text-lg md:text-xl mb-8 text-gray-300">Discover amazing products</p>
@@ -89,7 +89,7 @@ export default function HomeSlider() {
   const currentBanner = banners[currentSlide];
 
   return (
-    <section className="relative h-[80vh] md:h-[90vh] w-full overflow-hidden bg-gray-950">
+    <section className="relative h-[60vh] md:h-[72vh] w-full overflow-hidden bg-gray-950">
       {/* Backgrounds */}
       {banners.map((banner, index) => (
         <div
