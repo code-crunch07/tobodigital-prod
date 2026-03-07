@@ -461,7 +461,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </div>
 
           {lightboxOpen && (
-            <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center p-0 sm:p-4">
+            <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center p-0">
               {/* Back / close button (mobile-style) */}
               <button
                 type="button"
@@ -471,7 +471,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               >
                 Back
               </button>
-              <div className="relative w-full h-full sm:max-w-[95vw] sm:h-[75vh] flex flex-col sm:flex-row bg-white shadow-2xl overflow-hidden rounded-none sm:rounded-lg">
+              <div className="relative w-full h-full flex flex-col sm:flex-row bg-white shadow-2xl overflow-hidden rounded-none">
                 <div className="flex-1 flex flex-col items-center justify-center relative bg-white min-h-0 overflow-hidden">
                   {images.length > 1 && (
                     <>
