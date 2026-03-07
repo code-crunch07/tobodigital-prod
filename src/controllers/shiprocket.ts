@@ -52,7 +52,6 @@ export const checkPincode = async (req: Request, res: Response): Promise<Respons
       });
     }
 
-    // Validate pincode format (6 digits)
     const pincodeRegex = /^\d{6}$/;
     if (!pincodeRegex.test(pickup_pincode) || !pincodeRegex.test(delivery_pincode)) {
       return res.status(400).json({
@@ -63,14 +62,15 @@ export const checkPincode = async (req: Request, res: Response): Promise<Respons
 
     const token = await getAuthToken();
 
-    // Check pincode serviceability
-    const serviceabilityResponse = await axios.post(
-      `${SHIPROCKET_BASE_URL}/open/orders/check-pincode`,
+    const serviceabilityResponse = await axios.get(
+      `${SHIPROCKET_BASE_URL}/courier/serviceability/`,
       {
-        pickup_pincode,
-        delivery_pincode,
-      },
-      {
+        params: {
+          pickup_postcode: pickup_pincode,
+          delivery_postcode: delivery_pincode,
+          weight: parseFloat(weight) || 0.5,
+          cod: 0,
+        },
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -78,35 +78,8 @@ export const checkPincode = async (req: Request, res: Response): Promise<Respons
       }
     );
 
-    const isServiceable = serviceabilityResponse.data.status === 200;
-
-    // If serviceable and weight provided, get shipping rates
-    let shippingRates = null;
-    if (isServiceable && weight) {
-      try {
-        const rateResponse = await axios.post(
-          `${SHIPROCKET_BASE_URL}/courier/serviceability/rate`,
-          {
-            pickup_pincode,
-            delivery_pincode,
-            weight: parseFloat(weight) || 0.5,
-            cod: 0,
-            cod_amount: 0,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
-        shippingRates = rateResponse.data.data?.available_courier_companies || [];
-      } catch (rateError: any) {
-        console.error('Error fetching shipping rates:', rateError.response?.data || rateError.message);
-        // Continue without rates if rate check fails
-      }
-    }
+    const couriers = serviceabilityResponse.data?.data?.available_courier_companies || [];
+    const isServiceable = couriers.length > 0;
 
     return res.json({
       success: true,
@@ -118,16 +91,14 @@ export const checkPincode = async (req: Request, res: Response): Promise<Respons
         pickup_pincode,
         delivery_pincode,
         serviceability: serviceabilityResponse.data,
-        shipping_rates: shippingRates,
-        estimated_days: shippingRates?.[0]?.estimated_delivery_days || '3-5',
+        shipping_rates: isServiceable ? couriers : null,
+        estimated_days: couriers[0]?.estimated_delivery_days || '3-5',
       },
     });
   } catch (error: any) {
     console.error('Shiprocket pincode check error:', error.response?.data || error.message);
 
-    // Handle specific Shiprocket errors
     if (error.response?.status === 401) {
-      // Token expired, clear it and retry once
       authToken = null;
       tokenExpiry = 0;
       try {
@@ -162,16 +133,15 @@ export const calculateShipping = async (req: Request, res: Response): Promise<Re
 
     const token = await getAuthToken();
 
-    const response = await axios.post(
-      `${SHIPROCKET_BASE_URL}/courier/serviceability/rate`,
+    const response = await axios.get(
+      `${SHIPROCKET_BASE_URL}/courier/serviceability/`,
       {
-        pickup_pincode,
-        delivery_pincode,
-        weight: parseFloat(weight),
-        cod: cod_amount > 0 ? 1 : 0,
-        cod_amount: cod_amount || 0,
-      },
-      {
+        params: {
+          pickup_postcode: pickup_pincode,
+          delivery_postcode: delivery_pincode,
+          weight: parseFloat(weight),
+          cod: cod_amount > 0 ? 1 : 0,
+        },
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
