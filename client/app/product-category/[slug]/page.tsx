@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ShoppingCart, Star, Heart, Eye, Layers, ChevronLeft, ChevronRight, Home, Filter, X, ChevronDown, Tag } from 'lucide-react';
+import { ShoppingCart, Star, Heart, Eye, Layers, ChevronLeft, ChevronRight, Home, Filter, X, ChevronDown, Tag, Package } from 'lucide-react';
 import { getProducts, getCategoryBySlug, getSubCategories, getCategories, getBannersByCategory } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
@@ -145,78 +145,72 @@ const ProductCard = ({
   const hoverImage = (product.galleryImages?.length && product.galleryImages[0]) ? product.galleryImages[0] : product.mainImage;
   const hasHoverImage = product.galleryImages?.length && product.galleryImages[0] && product.galleryImages[0] !== product.mainImage;
   const inStock = product.stockQuantity !== undefined ? product.stockQuantity > 0 : true;
-  const buttonClass = 'bg-[rgb(17,24,39)] hover:bg-[rgb(15,23,42)]';
 
   return (
-    <div className="group relative bg-white border border-gray-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md h-full flex flex-col">
-      <div className="relative aspect-[4/3] overflow-hidden bg-white">
-        <Link href={getProductUrl(product)} className="block w-full h-full flex items-center justify-center">
+    <div className="group relative bg-white rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] h-full flex flex-col border border-gray-100">
+      <div className="relative aspect-square overflow-hidden bg-gray-50">
+        <Link href={getProductUrl(product)} className="block w-full h-full">
           {product.mainImage ? (
             <>
-              <img src={product.mainImage} alt={product.itemName} className="w-full h-full object-cover object-center transition-all duration-500 group-hover:scale-105" />
+              <img src={product.mainImage} alt={product.itemName} className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110" />
               {hasHoverImage && (
-                <img src={hoverImage} alt={product.itemName} className="absolute inset-0 w-full h-full object-cover object-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105" />
+                <img src={hoverImage} alt={product.itemName} className="absolute inset-0 w-full h-full object-cover object-center opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               )}
             </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gray-100">
-              <span className="text-sm">No Image</span>
+            <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">
+              <Package className="h-10 w-10" />
             </div>
           )}
         </Link>
-        {/* Discount badge */}
-        {discount > 0 ? (
-          <div className="absolute top-2 left-2 z-20">
-            <span className="inline-flex items-center gap-1 rounded-full bg-black text-white text-[9px] font-black uppercase tracking-[0.25em] px-3 py-1 shadow-md">
-              <Tag className="h-3 w-3 flex-shrink-0" strokeWidth={2.5} />
-              <span>{discount}% off</span>
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-20">
+          {discount > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-lg bg-rose-500 text-white text-[10px] font-bold px-2.5 py-1 shadow-sm">
+              -{discount}%
             </span>
-          </div>
-        ) : null}
-        {/* Hot badge */}
-        {product.isFeatured && (
-          <div className="absolute left-2 z-20" style={{ top: discount > 0 ? '2.6rem' : '0.5rem' }}>
-            <span className="inline-flex items-center rounded-full bg-[#f97316] text-white text-[9px] font-black uppercase tracking-[0.25em] px-3 py-1 shadow-md">
+          )}
+          {product.isFeatured && (
+            <span className="inline-flex items-center rounded-lg bg-amber-500 text-white text-[10px] font-bold px-2.5 py-1 shadow-sm">
               Hot
             </span>
-          </div>
-        )}
-        <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 z-20">
-          <button type="button" onClick={handleWishlist} className={`w-9 h-9 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center transition-colors ${isWishlisted ? 'text-red-500 hover:text-red-600' : 'text-gray-700 hover:text-[#ff006e]'}`} title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}>
-            <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-red-500' : ''}`} />
-          </button>
-          <button type="button" className="w-9 h-9 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-gray-700 hover:text-[#ff006e] transition-colors" title="Compare">
-            <Layers className="h-4 w-4" />
-          </button>
-          <button type="button" className="w-9 h-9 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-gray-700 hover:text-[#ff006e] transition-colors" title="Quick View" onClick={handleQuickView}>
+          )}
+        </div>
+        <button type="button" onClick={handleWishlist} className={`absolute top-3 right-3 z-20 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${isWishlisted ? 'bg-rose-50 text-rose-500 shadow-sm' : 'bg-white/80 backdrop-blur-sm text-gray-400 hover:text-rose-500 hover:bg-white shadow-sm'}`} title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}>
+          <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-rose-500' : ''}`} />
+        </button>
+        <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-2 p-3 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-20 bg-gradient-to-t from-black/20 to-transparent">
+          <button type="button" onClick={handleQuickView} className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:text-gray-900 hover:scale-110 transition-all duration-200" title="Quick View">
             <Eye className="h-4 w-4" />
+          </button>
+          <button type="button" className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:text-gray-900 hover:scale-110 transition-all duration-200" title="Compare">
+            <Layers className="h-4 w-4" />
           </button>
         </div>
       </div>
-      <div className="px-5 pb-14 pt-4 flex-1 flex flex-col min-h-0 transition-transform duration-300 group-hover:-translate-y-3">
+      <div className="p-4 flex-1 flex flex-col">
         {product.productCategory?.name && (
-          <div className="text-xs font-medium text-gray-500 mb-1">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-1.5">
             {product.productCategory.name}
-          </div>
+          </span>
         )}
         <Link href={getProductUrl(product)}>
-          <h3 className="product-title leading-snug line-clamp-2 min-h-[20px] hover:text-[#ff006e] transition-colors">
+          <h3 className="product-title line-clamp-2 min-h-[36px] hover:text-[#ff006e] transition-colors">
             {product.itemName}
           </h3>
         </Link>
-        <div className="mt-3 flex items-end gap-2">
+        <div className="mt-auto pt-3 flex items-baseline gap-2">
           <span className="product-price">{formatPrice(currentPrice)}</span>
           {maxRetailPrice && maxRetailPrice > currentPrice && (
-            <span className="text-sm text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
+            <span className="text-xs text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
           )}
         </div>
-      </div>
-      <div className={`absolute left-0 right-0 bottom-0 px-5 pb-5 pt-3 bg-white border-t border-gray-100 transition-transform duration-300 ${isAdded ? 'translate-y-0' : 'translate-y-full group-hover:translate-y-0'}`}>
-        <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`w-full rounded-full ${buttonClass} text-white text-sm font-semibold py-3 disabled:opacity-60 transition-colors`}>
+        <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`mt-3 w-full rounded-xl text-sm font-semibold py-2.5 transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-gray-900 text-white hover:bg-gray-800 active:scale-[0.98]'}`}>
           {isAdded ? (
-            <span className="flex items-center justify-center gap-2"><span>✓</span><span>Added to Cart</span></span>
+            <span className="flex items-center justify-center gap-2"><span>✓</span><span>Added</span></span>
+          ) : !inStock ? (
+            <span>Out of Stock</span>
           ) : (
-            <span className="flex items-center justify-center gap-2"><ShoppingCart className="h-4 w-4" /><span>Add To Cart</span></span>
+            <span className="flex items-center justify-center gap-2"><ShoppingCart className="h-4 w-4" /><span>Add to Cart</span></span>
           )}
         </button>
       </div>

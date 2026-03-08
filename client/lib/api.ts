@@ -305,4 +305,17 @@ export const calculateShippingRate = async (data: {
   }
 };
 
+export const getOrderTracking = async (orderId: string) => {
+  try {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    const response = await authApi.get(`/orders/${orderId}/tracking`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    return response.data;
+  } catch (error: any) {
+    console.error('Order tracking error:', error?.response?.data || error?.message);
+    throw error;
+  }
+};
+
 export default api;

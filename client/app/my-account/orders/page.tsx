@@ -286,6 +286,16 @@ export default function OrdersPage() {
                       <Eye className="h-4 w-4" />
                       View Details
                     </Link>
+                    {(order.status === 'shipped' || order.status === 'processing') && (
+                      <Link
+                        href={`/my-account/orders/${order._id || order.id}`}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors"
+                        style={{ backgroundColor: 'rgb(22, 176, 238)' }}
+                      >
+                        <Truck className="h-4 w-4" />
+                        Track Order
+                      </Link>
+                    )}
                     {order.status === 'delivered' && (
                       <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
                         Reorder

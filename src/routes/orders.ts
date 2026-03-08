@@ -11,6 +11,9 @@ router.post('/verify-payment', orderController.verifyPayment);
 // Get all orders (optionalAuth: customer sees own, admin/shop_manager see all)
 router.get('/', optionalAuth, orderController.getAllOrders);
 
+// Get order tracking info (must be before /:id to avoid conflict)
+router.get('/:id/tracking', optionalAuth, orderController.getOrderTracking);
+
 // Get single order (optionalAuth: customer only own, admin/shop_manager any)
 router.get('/:id', optionalAuth, orderController.getOrderById);
 

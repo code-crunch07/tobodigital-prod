@@ -30,6 +30,12 @@ export interface IOrder extends Document {
   gstNumber?: string;
   paymentMethod: string;
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+  trackingNumber?: string;
+  awbNumber?: string;
+  shipmentId?: string;
+  courierName?: string;
+  estimatedDelivery?: Date;
+  trackingUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -106,6 +112,12 @@ const OrderSchema: Schema = new Schema(
       enum: ['pending', 'paid', 'failed', 'refunded'],
       default: 'pending',
     },
+    trackingNumber: { type: String, trim: true },
+    awbNumber: { type: String, trim: true },
+    shipmentId: { type: String, trim: true },
+    courierName: { type: String, trim: true },
+    estimatedDelivery: { type: Date },
+    trackingUrl: { type: String, trim: true },
   },
   {
     timestamps: true,

@@ -439,6 +439,98 @@ export const verifyPayment = async (req: Request, res: Response) => {
   }
 };
 
+const getOrderTracking = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const reqUser = (req as any).user;
+
+    const order = await Order.findById(id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    if (reqUser?.role === 'customer' && order.customer.toString() !== reqUser._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Unauthorized' });
+    }
+
+    if (!order.awbNumber) {
+      return res.json({
+        success: true,
+        tracking: null,
+        message: 'Tracking information not yet available. Your order is being prepared.',
+        order: {
+          orderNumber: order.orderNumber,
+          status: order.status,
+          trackingNumber: order.trackingNumber,
+          courierName: order.courierName,
+          estimatedDelivery: order.estimatedDelivery,
+          trackingUrl: order.trackingUrl,
+        },
+      });
+    }
+
+    const axios = (await import('axios')).default;
+    const SHIPROCKET_BASE_URL = 'https://apiv2.shiprocket.in/v1/external';
+
+    const email = process.env.SHIPROCKET_EMAIL;
+    const password = process.env.SHIPROCKET_PASSWORD;
+    if (!email || !password) {
+      return res.json({
+        success: true,
+        tracking: null,
+        message: 'Tracking service unavailable',
+        order: {
+          orderNumber: order.orderNumber,
+          status: order.status,
+          trackingNumber: order.trackingNumber,
+          courierName: order.courierName,
+          estimatedDelivery: order.estimatedDelivery,
+          trackingUrl: order.trackingUrl,
+        },
+      });
+    }
+
+    const { getAuthToken } = await import('./shiprocket');
+    const token = await getAuthToken();
+
+    const trackingResponse = await axios.get(
+      `${SHIPROCKET_BASE_URL}/courier/track/awb/${order.awbNumber}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    const trackingData = trackingResponse.data?.tracking_data;
+
+    return res.json({
+      success: true,
+      tracking: {
+        current_status: trackingData?.shipment_track?.[0]?.current_status || 'Unknown',
+        delivered_date: trackingData?.shipment_track?.[0]?.delivered_date || null,
+        origin: trackingData?.shipment_track?.[0]?.origin || '',
+        destination: trackingData?.shipment_track?.[0]?.destination || '',
+        courier_name: trackingData?.shipment_track?.[0]?.courier_name || order.courierName || '',
+        edd: trackingData?.shipment_track?.[0]?.edd || null,
+        awb: order.awbNumber,
+        track_url: trackingData?.track_url || order.trackingUrl || '',
+        activities: trackingData?.shipment_track_activities || [],
+      },
+      order: {
+        orderNumber: order.orderNumber,
+        status: order.status,
+        trackingNumber: order.trackingNumber,
+        courierName: order.courierName,
+        estimatedDelivery: order.estimatedDelivery,
+        trackingUrl: order.trackingUrl,
+      },
+    });
+  } catch (error: any) {
+    console.error('Order tracking error:', error.response?.data || error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch tracking information',
+    });
+  }
+};
+
 export default {
   getAllOrders,
   getOrderById,
@@ -447,6 +539,7 @@ export default {
   deleteOrder,
   createRazorpayOrder,
   verifyPayment,
+  getOrderTracking,
 };
 
 

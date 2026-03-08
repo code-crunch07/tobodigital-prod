@@ -73,7 +73,7 @@ export default function HomeSlider() {
     return (
       <section className="relative h-[55vh] md:h-[65vh] w-full overflow-hidden bg-gray-950">
         <div className="relative h-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center text-center text-white">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">Welcome to Tobo Digital</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">Welcome to Tobo Digital</h2>
           <p className="text-lg md:text-xl mb-8 text-gray-300">Discover amazing products</p>
           <Link
             href="/shop"
@@ -127,7 +127,7 @@ export default function HomeSlider() {
 
           {currentBanner.title && (
             <h1
-              className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-white leading-[0.95] mb-6"
+              className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[0.95] mb-6"
               style={{ color: currentBanner.titleColor || '#ffffff' }}
             >
               {currentBanner.title}

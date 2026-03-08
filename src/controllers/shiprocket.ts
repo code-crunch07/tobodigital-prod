@@ -6,7 +6,7 @@ let authToken: string | null = null;
 let tokenExpiry: number = 0;
 
 // Get authentication token from Shiprocket
-async function getAuthToken(): Promise<string> {
+export async function getAuthToken(): Promise<string> {
   // Check if token is still valid (tokens typically expire after some time)
   if (authToken && Date.now() < tokenExpiry) {
     return authToken;
@@ -114,6 +114,70 @@ export const checkPincode = async (req: Request, res: Response): Promise<Respons
     return res.status(500).json({
       success: false,
       message: error.response?.data?.message || 'Failed to check pincode serviceability',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
+// Track shipment by AWB number
+export const trackShipment = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const { awb } = req.params;
+
+    if (!awb) {
+      return res.status(400).json({
+        success: false,
+        message: 'AWB number is required',
+      });
+    }
+
+    const token = await getAuthToken();
+
+    const trackingResponse = await axios.get(
+      `${SHIPROCKET_BASE_URL}/courier/track/awb/${awb}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    const trackingData = trackingResponse.data?.tracking_data;
+
+    return res.json({
+      success: true,
+      tracking: {
+        current_status: trackingData?.shipment_track?.[0]?.current_status || 'Unknown',
+        delivered_date: trackingData?.shipment_track?.[0]?.delivered_date || null,
+        origin: trackingData?.shipment_track?.[0]?.origin || '',
+        destination: trackingData?.shipment_track?.[0]?.destination || '',
+        courier_name: trackingData?.shipment_track?.[0]?.courier_name || '',
+        edd: trackingData?.shipment_track?.[0]?.edd || null,
+        awb: awb,
+        track_url: trackingData?.track_url || '',
+        activities: trackingData?.shipment_track_activities || [],
+      },
+    });
+  } catch (error: any) {
+    console.error('Shiprocket tracking error:', error.response?.data || error.message);
+
+    if (error.response?.status === 401) {
+      authToken = null;
+      tokenExpiry = 0;
+      try {
+        return trackShipment(req, res);
+      } catch (retryError) {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to authenticate with Shiprocket',
+        });
+      }
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: error.response?.data?.message || 'Failed to fetch tracking information',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }

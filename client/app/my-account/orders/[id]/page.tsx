@@ -20,8 +20,11 @@ import {
   Calendar,
   FileText,
   Printer,
+  ExternalLink,
+  Loader2,
 } from 'lucide-react';
 import { downloadInvoice, printInvoice } from '@/utils/invoice';
+import { getOrderTracking } from '@/lib/api';
 
 export default function OrderDetailsPage() {
   const router = useRouter();
@@ -29,6 +32,8 @@ export default function OrderDetailsPage() {
   const orderId = params.id as string;
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [tracking, setTracking] = useState<any>(null);
+  const [trackingLoading, setTrackingLoading] = useState(false);
 
   useEffect(() => {
     loadOrderDetails();
@@ -83,6 +88,18 @@ export default function OrderDetailsPage() {
       setOrder(null);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadTracking = async () => {
+    try {
+      setTrackingLoading(true);
+      const data = await getOrderTracking(orderId);
+      setTracking(data);
+    } catch (error) {
+      console.error('Error loading tracking:', error);
+    } finally {
+      setTrackingLoading(false);
     }
   };
 
@@ -220,23 +237,152 @@ export default function OrderDetailsPage() {
                 </div>
               </div>
 
-              {order.trackingNumber && (
-                <div className="pt-4 border-t border-gray-200">
+              {(order.trackingNumber || order.awbNumber) && (
+                <div className="pt-4 border-t border-gray-200 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600">Tracking Number</p>
-                      <p className="font-semibold">{order.trackingNumber}</p>
+                      <p className="font-semibold">{order.trackingNumber || order.awbNumber}</p>
                     </div>
-                    {order.estimatedDelivery && (
+                    {order.courierName && (
                       <div className="text-right">
-                        <p className="text-sm text-gray-600">Estimated Delivery</p>
-                        <p className="font-semibold">{formatDate(order.estimatedDelivery)}</p>
+                        <p className="text-sm text-gray-600">Courier</p>
+                        <p className="font-semibold">{order.courierName}</p>
                       </div>
                     )}
                   </div>
+                  {order.estimatedDelivery && (
+                    <div>
+                      <p className="text-sm text-gray-600">Estimated Delivery</p>
+                      <p className="font-semibold">{formatDate(order.estimatedDelivery)}</p>
+                    </div>
+                  )}
+                  <button
+                    onClick={loadTracking}
+                    disabled={trackingLoading}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-white transition-colors"
+                    style={{ backgroundColor: 'rgb(22, 176, 238)' }}
+                  >
+                    {trackingLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Truck className="h-4 w-4" />
+                    )}
+                    {trackingLoading ? 'Loading...' : 'Track Order'}
+                  </button>
+                </div>
+              )}
+
+              {(order.status === 'shipped' || order.status === 'delivered') && !order.trackingNumber && !order.awbNumber && (
+                <div className="pt-4 border-t border-gray-200">
+                  <button
+                    onClick={loadTracking}
+                    disabled={trackingLoading}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-white transition-colors"
+                    style={{ backgroundColor: 'rgb(22, 176, 238)' }}
+                  >
+                    {trackingLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Truck className="h-4 w-4" />
+                    )}
+                    {trackingLoading ? 'Loading...' : 'Track Order'}
+                  </button>
                 </div>
               )}
             </div>
+
+            {/* Tracking Timeline */}
+            {tracking && tracking.success && tracking.tracking && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <Truck className="h-5 w-5" style={{ color: 'rgb(22, 176, 238)' }} />
+                    <h2 className="text-xl font-bold">Shipment Tracking</h2>
+                  </div>
+                  {tracking.tracking.track_url && (
+                    <a
+                      href={tracking.tracking.track_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-sm font-semibold transition-colors"
+                      style={{ color: 'rgb(22, 176, 238)' }}
+                    >
+                      Track on courier site <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="text-xs text-gray-500">Status</p>
+                    <p className="text-sm font-semibold">{tracking.tracking.current_status}</p>
+                  </div>
+                  {tracking.tracking.courier_name && (
+                    <div>
+                      <p className="text-xs text-gray-500">Courier</p>
+                      <p className="text-sm font-semibold">{tracking.tracking.courier_name}</p>
+                    </div>
+                  )}
+                  {tracking.tracking.awb && (
+                    <div>
+                      <p className="text-xs text-gray-500">AWB</p>
+                      <p className="text-sm font-semibold">{tracking.tracking.awb}</p>
+                    </div>
+                  )}
+                  {tracking.tracking.edd && (
+                    <div>
+                      <p className="text-xs text-gray-500">Expected Delivery</p>
+                      <p className="text-sm font-semibold">{formatDate(tracking.tracking.edd)}</p>
+                    </div>
+                  )}
+                </div>
+
+                {tracking.tracking.activities && tracking.tracking.activities.length > 0 && (
+                  <div className="relative pl-6">
+                    <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gray-200" />
+                    <div className="space-y-4">
+                      {tracking.tracking.activities.map((activity: any, index: number) => (
+                        <div key={index} className="relative flex gap-4">
+                          <div
+                            className={`absolute -left-6 top-1 h-[18px] w-[18px] rounded-full border-2 flex items-center justify-center ${
+                              index === 0
+                                ? 'border-green-500 bg-green-500'
+                                : 'border-gray-300 bg-white'
+                            }`}
+                          >
+                            {index === 0 && (
+                              <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                            )}
+                          </div>
+                          <div className="flex-1 pb-1">
+                            <p className={`text-sm font-medium ${index === 0 ? 'text-gray-900' : 'text-gray-600'}`}>
+                              {activity['sr-status-label'] || activity.activity || activity.status}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {activity.location && `${activity.location} · `}
+                              {activity.date}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {tracking && tracking.success && !tracking.tracking && (
+              <div className="bg-blue-50 rounded-lg border border-blue-200 p-6">
+                <div className="flex items-center gap-3">
+                  <Package className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <p className="font-semibold text-blue-900">Tracking not yet available</p>
+                    <p className="text-sm text-blue-700 mt-1">{tracking.message || 'Your order is being prepared for shipment.'}</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Order Items */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
