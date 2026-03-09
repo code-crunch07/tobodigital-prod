@@ -248,7 +248,7 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
                           {discount > 0 && maxRetailPrice ? (
                             <span className="text-[11px] text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
                           ) : null}
-                          <span className="text-[15px] font-bold text-[rgb(22,176,238)]">{formatPrice(currentPrice)}</span>
+                          <span className="text-[15px] font-semibold text-[rgb(22,176,238)]">{formatPrice(currentPrice)}</span>
                         </div>
                         <button type="button" onClick={(e) => handleAddToCart(e, product)} disabled={!inStock} className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
                           {isAdded ? <><Check className="h-3 w-3" /> Added</> : !inStock ? <>Out of Stock</> : <><ShoppingCart className="h-3 w-3" /> Add to cart</>}

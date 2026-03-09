@@ -166,7 +166,7 @@ button,
 /* Product card price - consistent across all product listings */
 .product-price {
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 600;
   color: rgb(22, 176, 238);
   letter-spacing: -0.03em;
 }

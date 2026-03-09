@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Minus, Plus, Trash2, Gift, Truck, Home } from 'lucide-react';
+import { Minus, Plus, Trash2, Gift, Truck, Home, Loader2, ChevronLeft } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useRouter } from 'next/navigation';
 import { getProductUrl } from '@/lib/product-url';
+import { calculateShippingRate } from '@/lib/api';
 
 export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
@@ -16,6 +17,9 @@ export default function CartPage() {
   const [shippingState, setShippingState] = useState('');
   const [shippingZip, setShippingZip] = useState('');
   const [couponCode, setCouponCode] = useState('');
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [shippingResult, setShippingResult] = useState<{ rate: number; etd: string } | null>(null);
+  const [shippingError, setShippingError] = useState('');
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -37,6 +41,40 @@ export default function CartPage() {
 
   const handleCheckout = () => {
     router.push('/checkout');
+  };
+
+  const handleCalculateShipping = async () => {
+    if (!shippingZip || shippingZip.length < 5) {
+      setShippingError('Please enter a valid pincode');
+      return;
+    }
+    setShippingLoading(true);
+    setShippingError('');
+    setShippingResult(null);
+    try {
+      const totalWeight = cartItems.reduce((sum, item) => sum + (item.quantity * 0.5), 0);
+      const response = await calculateShippingRate({
+        pickup_pincode: '400001',
+        delivery_pincode: shippingZip,
+        weight: Math.max(totalWeight, 0.5),
+      });
+      if (response?.data?.available_courier_companies?.length > 0) {
+        const cheapest = response.data.available_courier_companies.reduce(
+          (min: any, c: any) => (c.rate < min.rate ? c : min),
+          response.data.available_courier_companies[0]
+        );
+        setShippingResult({
+          rate: cheapest.rate,
+          etd: cheapest.etd || cheapest.estimated_delivery_days || '3-5 days',
+        });
+      } else {
+        setShippingError('No shipping available to this pincode');
+      }
+    } catch {
+      setShippingError('Unable to calculate shipping. Try again.');
+    } finally {
+      setShippingLoading(false);
+    }
   };
 
   return (
@@ -260,51 +298,33 @@ export default function CartPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="flex items-center gap-3">
                 <Link
                   href="/shop"
-                  className="flex-1 text-white px-6 py-3 rounded-lg font-semibold text-center transition-colors"
-                  style={{ backgroundColor: 'rgb(22, 176, 238)' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgb(18, 150, 200)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgb(22, 176, 238)'}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-700 border border-gray-300 px-4 py-2 rounded hover:bg-gray-50 transition-colors"
                 >
-                  CONTINUE SHOPPING
+                  <ChevronLeft className="h-4 w-4" />
+                  Continue Shopping
                 </Link>
                 <button
                   onClick={handleDeleteAll}
-                  className="flex-1 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-                  style={{ backgroundColor: 'rgb(237, 130, 79)' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgb(220, 110, 60)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgb(237, 130, 79)'}
+                  className="text-sm font-medium text-red-500 hover:text-red-600 transition-colors px-3 py-2"
                 >
-                  DELETE ALL
+                  Clear Cart
                 </button>
               </div>
 
               {/* Gift Wrap Option */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 min-w-0">
-                <div className="flex items-center gap-3 mb-4">
-                  <Gift className="h-5 w-5" style={{ color: 'rgb(237, 130, 79)' }} />
-                  <h3 className="font-semibold text-gray-900">Do you want a gift wrap? Only ₹2.00</h3>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3 sm:px-5 sm:py-3.5 min-w-0 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2.5">
+                  <Gift className="h-4 w-4 flex-shrink-0" style={{ color: 'rgb(22, 176, 238)' }} />
+                  <span className="text-sm text-gray-700">Add gift wrap for <strong className="text-gray-900">₹2</strong></span>
                 </div>
                 <button
                   onClick={() => setGiftWrap(!giftWrap)}
-                  className={`w-full py-3 rounded-lg font-semibold transition-colors ${
-                    giftWrap
-                      ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      : 'text-white'
-                  }`}
-                  style={giftWrap ? {} : { backgroundColor: 'rgb(22, 176, 238)' }}
-                  onMouseEnter={(e) => {
-                    if (giftWrap) return;
-                    e.currentTarget.style.backgroundColor = 'rgb(18, 150, 200)';
-                  }}
-                  onMouseLeave={(e) => {
-                    if (giftWrap) return;
-                    e.currentTarget.style.backgroundColor = 'rgb(22, 176, 238)';
-                  }}
+                  className={`relative w-10 h-5 rounded-full transition-colors flex-shrink-0 ${giftWrap ? 'bg-[rgb(22,176,238)]' : 'bg-gray-300'}`}
                 >
-                  {giftWrap ? 'REMOVE GIFT WRAP' : 'ADD A GIFT WRAP'}
+                  <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${giftWrap ? 'translate-x-5' : 'translate-x-0'}`} />
                 </button>
               </div>
 
@@ -339,95 +359,85 @@ export default function CartPage() {
 
                 {/* Estimate Shipping */}
                 <div className="mb-6 pb-6 border-b border-gray-200">
-                  <h3 className="font-semibold text-gray-900 mb-4">ESTIMATE SHIPPING RATES</h3>
-                  <div className="space-y-3">
+                  <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wide mb-3">Estimate Shipping</h3>
+                  <div className="space-y-2.5">
                     <select
                       value={shippingCountry}
                       onChange={(e) => setShippingCountry(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
-                      style={{ '--tw-ring-color': 'rgb(237, 130, 79)' } as React.CSSProperties}
-                      onFocus={(e) => e.currentTarget.style.borderColor = 'rgb(237, 130, 79)'}
-                      onBlur={(e) => e.currentTarget.style.borderColor = ''}
+                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-[rgb(22,176,238)] focus:border-[rgb(22,176,238)] outline-none"
                     >
                       <option value="India">India</option>
-                      <option value="United States">United States</option>
-                      <option value="United Kingdom">United Kingdom</option>
-                    </select>
-                    <select
-                      value={shippingState}
-                      onChange={(e) => setShippingState(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
-                      style={{ '--tw-ring-color': 'rgb(237, 130, 79)' } as React.CSSProperties}
-                      onFocus={(e) => e.currentTarget.style.borderColor = 'rgb(237, 130, 79)'}
-                      onBlur={(e) => e.currentTarget.style.borderColor = ''}
-                    >
-                      <option value="">Select State</option>
-                      <option value="Maharashtra">Maharashtra</option>
-                      <option value="Delhi">Delhi</option>
-                      <option value="Karnataka">Karnataka</option>
-                      <option value="Gujarat">Gujarat</option>
                     </select>
                     <input
                       type="text"
                       value={shippingZip}
-                      onChange={(e) => setShippingZip(e.target.value)}
-                      placeholder="Zip/Postal Code"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
-                      style={{ '--tw-ring-color': 'rgb(237, 130, 79)' } as React.CSSProperties}
-                      onFocus={(e) => e.currentTarget.style.borderColor = 'rgb(237, 130, 79)'}
-                      onBlur={(e) => e.currentTarget.style.borderColor = ''}
+                      onChange={(e) => { setShippingZip(e.target.value); setShippingError(''); setShippingResult(null); }}
+                      placeholder="Enter delivery pincode"
+                      maxLength={6}
+                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-[rgb(22,176,238)] focus:border-[rgb(22,176,238)] outline-none"
                     />
-                    <button 
-                      className="w-full text-white py-2 rounded-lg font-semibold transition-colors"
-                      style={{ backgroundColor: 'rgb(22, 176, 238)' }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgb(18, 150, 200)'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgb(22, 176, 238)'}
+                    <button
+                      onClick={handleCalculateShipping}
+                      disabled={shippingLoading}
+                      className="w-full text-white py-2 rounded text-sm font-semibold transition-colors disabled:opacity-60 bg-[rgb(22,176,238)] hover:bg-[rgb(18,150,200)]"
                     >
-                      CALCULATE SHIPPING RATES
+                      {shippingLoading ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : 'Calculate Shipping'}
                     </button>
+                    {shippingResult && (
+                      <div className="bg-green-50 border border-green-200 rounded p-2.5 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-green-700">Shipping</span>
+                          <span className="font-semibold text-green-800">{formatPrice(shippingResult.rate)}</span>
+                        </div>
+                        <p className="text-xs text-green-600 mt-1">Est. delivery: {shippingResult.etd}</p>
+                      </div>
+                    )}
+                    {shippingError && (
+                      <p className="text-xs text-red-500">{shippingError}</p>
+                    )}
                   </div>
                 </div>
 
                 {/* Coupon */}
                 <div className="mb-6 pb-6 border-b border-gray-200">
-                  <h3 className="font-semibold text-gray-900 mb-2">COUPON</h3>
-                  <p className="text-sm text-gray-600 mb-3">Coupon code will work on checkout page.</p>
+                  <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wide mb-1">Coupon</h3>
+                  <p className="text-xs text-gray-500 mb-2.5">Coupon code will work on checkout page.</p>
                   <input
                     type="text"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
                     placeholder="Coupon code"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
-                    style={{ '--tw-ring-color': 'rgb(237, 130, 79)' } as React.CSSProperties}
-                    onFocus={(e) => e.currentTarget.style.borderColor = 'rgb(237, 130, 79)'}
-                    onBlur={(e) => e.currentTarget.style.borderColor = ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-[rgb(22,176,238)] focus:border-[rgb(22,176,238)] outline-none"
                   />
                 </div>
 
                 {/* Order Totals */}
-                <div className="mb-6">
+                <div className="mb-5">
                   {giftWrap && (
                     <div className="flex justify-between items-center mb-2 text-sm">
-                      <span className="text-gray-600">Gift Wrap</span>
+                      <span className="text-gray-500">Gift Wrap</span>
                       <span className="text-gray-900">{formatPrice(giftWrapPrice)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-                    <span className="text-lg font-bold" style={{ color: 'rgb(237, 130, 79)' }}>Order Totals</span>
-                    <span className="text-xl font-bold" style={{ color: 'rgb(237, 130, 79)' }}>{formatPrice(total)}</span>
+                  {shippingResult && (
+                    <div className="flex justify-between items-center mb-2 text-sm">
+                      <span className="text-gray-500">Shipping</span>
+                      <span className="text-gray-900">{formatPrice(shippingResult.rate)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center pt-3 border-t border-gray-200">
+                    <span className="text-sm font-bold text-gray-900">Order Total</span>
+                    <span className="text-lg font-bold text-[rgb(22,176,238)]">{formatPrice(total + (shippingResult?.rate || 0))}</span>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">Taxes and shipping calculated at checkout</p>
+                  <p className="text-[11px] text-gray-400 mt-1.5">Taxes and shipping calculated at checkout</p>
                 </div>
 
                 {/* Checkout Button */}
                 <button
                   onClick={handleCheckout}
-                  className="w-full text-white py-4 rounded-lg font-bold text-lg transition-colors"
-                  style={{ backgroundColor: 'rgb(22, 176, 238)' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgb(18, 150, 200)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgb(22, 176, 238)'}
+                  className="w-full text-white py-3 rounded font-semibold text-sm transition-colors bg-[rgb(22,176,238)] hover:bg-[rgb(18,150,200)]"
                 >
-                  CHECK OUT
+                  Proceed to Checkout
                 </button>
               </div>
             </div>

@@ -436,28 +436,31 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Page Header */}
-      <div 
-        className="relative h-[220px] sm:h-[300px] flex items-center justify-center"
-        style={{
-          background: `linear-gradient(135deg, rgba(237, 130, 79, 0.95) 0%, rgba(22, 176, 238, 0.95) 100%), url("https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1920&q=80")`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundBlendMode: 'overlay',
-        }}
-      >
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-3xl md:text-5xl font-bold mb-3">Checkout</h1>
-          <nav className="flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base text-white/90 mb-3">
-            <Link href="/" className="hover:text-white transition-colors flex items-center gap-1">
-              <Home className="h-4 w-4" />
-              Home
+      <div className="border-b border-gray-100 bg-white">
+        <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-10 flex items-center justify-between gap-6 w-full min-w-0">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.3em] text-gray-500">
+              <span className="text-[#f97316] text-xs">⚡</span>
+              <span>Secure checkout</span>
+            </div>
+            <div className="leading-none">
+              <div className="font-[var(--heading-font-family)] text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-gray-900">
+                CHECK
+              </div>
+              <div className="font-[var(--heading-font-family)] text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-gray-300">
+                OUT<span className="text-gray-300">.</span>
+              </div>
+            </div>
+          </div>
+          <div className="hidden sm:flex items-center">
+            <Link
+              href="/cart"
+              className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors uppercase tracking-[0.25em]"
+            >
+              <span className="text-base">←</span>
+              <span>Back to Cart</span>
             </Link>
-            <span>/</span>
-            <Link href="/cart" className="hover:text-white transition-colors">Cart</Link>
-            <span>/</span>
-            <span className="text-white">Checkout</span>
-          </nav>
+          </div>
         </div>
       </div>
 

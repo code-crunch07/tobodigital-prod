@@ -183,6 +183,9 @@ const ProductCard = ({
         )}
         <div className="mt-auto pt-3 flex items-center justify-between gap-2">
           <div className="flex items-baseline gap-1.5">
+            {discount > 0 && maxRetailPrice ? (
+              <span className="text-[11px] text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
+            ) : null}
             <span className="product-price">{formatPrice(currentPrice)}</span>
           </div>
           <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
