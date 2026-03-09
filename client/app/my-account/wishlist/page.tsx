@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, ShoppingCart, Eye, Trash2 } from 'lucide-react';
+import { Heart, ShoppingCart, Eye, Trash2, Package, Truck } from 'lucide-react';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { getProducts } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
@@ -118,79 +118,55 @@ export default function WishlistPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-            {products.map((product) => (
-              <div
-                key={product._id}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden group flex flex-col"
-              >
-                {/* Product Image */}
-                <Link href={getProductUrl(product)}>
-                  <div className="relative aspect-square bg-gray-100 overflow-hidden">
-                    {(product.mainImage || (product.images && product.images.length > 0)) ? (
-                      <Image
-                        src={product.mainImage || product.images![0]}
-                        alt={product.itemName}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        No Image
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+            {products.map((product) => {
+              const maxRetailPrice = product.maximumRetailPrice || product.maxRetailPrice;
+              let discount = 0;
+              if (maxRetailPrice && maxRetailPrice > product.yourPrice) {
+                discount = Math.round(((maxRetailPrice - product.yourPrice) / maxRetailPrice) * 100);
+              }
+              return (
+                <div key={product._id} className="group relative bg-white rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] h-full flex flex-col border border-gray-100">
+                  <div className="relative aspect-square overflow-hidden bg-gray-50">
+                    <Link href={getProductUrl(product)} className="block w-full h-full">
+                      {(product.mainImage || (product.images && product.images.length > 0)) ? (
+                        <img src={product.mainImage || product.images![0]} alt={product.itemName} className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50"><Package className="h-10 w-10" /></div>
+                      )}
+                    </Link>
+                    {discount > 0 && (
+                      <span className="absolute top-3 left-3 z-20 inline-flex items-center rounded-full border border-blue-200 bg-blue-50 text-blue-600 text-[10px] font-semibold px-2.5 py-1">Up to {discount}% off</span>
+                    )}
+                    <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5">
+                      <Link href={getProductUrl(product)} className="w-8 h-8 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors" title="View"><Eye className="h-3.5 w-3.5" /></Link>
+                      <button onClick={(e) => { e.preventDefault(); handleRemoveFromWishlist(product._id); }} className="w-8 h-8 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-rose-500 hover:bg-rose-50 transition-colors" title="Remove"><Trash2 className="h-3.5 w-3.5" /></button>
+                    </div>
+                  </div>
+                  <div className="p-4 flex-1 flex flex-col">
+                    <Link href={getProductUrl(product)}>
+                      <h3 className="product-title line-clamp-2 min-h-[38px] hover:text-blue-600 transition-colors">{product.itemName}</h3>
+                    </Link>
+                    {product.freeShipping && (
+                      <div className="flex items-center gap-3 mt-2 text-[10px] text-gray-400 font-medium">
+                        <span className="flex items-center gap-1"><Truck className="h-3 w-3" /> Fast Delivery</span>
                       </div>
                     )}
-                    {/* Remove from Wishlist Button */}
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleRemoveFromWishlist(product._id);
-                      }}
-                      className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-red-50 transition-colors z-10"
-                      aria-label="Remove from wishlist"
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </button>
-                  </div>
-                </Link>
-
-                {/* Product Info */}
-                <div className="p-4 flex-1 flex flex-col">
-                  <Link href={getProductUrl(product)}>
-                    <h3 className="product-title mb-1.5 line-clamp-2 hover:text-[#ff006e] transition-colors">
-                      {product.itemName}
-                    </h3>
-                  </Link>
-                  <div className="flex items-baseline justify-between mb-3 gap-2">
-                    <span className="product-price">
-                      {formatPrice(product.yourPrice)}
-                    </span>
-                    {product.originalPrice && product.originalPrice > product.yourPrice && (
-                      <span className="text-xs sm:text-sm text-gray-500 line-through">
-                        {formatPrice(product.originalPrice)}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Action area */}
-                  <div className="mt-auto space-y-2">
-                    <Link
-                      href={getProductUrl(product)}
-                      className="inline-flex items-center gap-1 text-xs sm:text-sm text-gray-600 hover:text-[#ff006e] transition-colors"
-                    >
-                      <Eye className="h-4 w-4" />
-                      <span>View details</span>
-                    </Link>
-                    <button
-                      onClick={() => handleAddToCart(product)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#ff006e] text-white rounded-lg hover:bg-[#d4005a] transition-colors text-sm font-semibold"
-                    >
-                      <ShoppingCart className="h-4 w-4" />
-                      Add to Cart
-                    </button>
+                    <div className="mt-auto pt-3 flex items-center justify-between gap-2">
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="product-price">{formatPrice(product.yourPrice)}</span>
+                        {maxRetailPrice && maxRetailPrice > product.yourPrice && (
+                          <span className="text-[11px] text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
+                        )}
+                      </div>
+                      <button onClick={() => handleAddToCart(product)} className="flex-shrink-0 flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97] transition-all duration-200">
+                        <ShoppingCart className="h-3.5 w-3.5" /> Add to cart
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

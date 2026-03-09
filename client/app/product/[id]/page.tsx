@@ -387,67 +387,50 @@ export default function ProductDetailPage() {
           <Link href={getProductUrl(product)} className="block w-full h-full">
             {product.mainImage ? (
               <>
-                <img src={product.mainImage} alt={product.itemName} className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110" />
+                <img src={product.mainImage} alt={product.itemName} className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105" />
                 {hasHoverImage && (
                   <img src={hoverImage} alt={product.itemName} className="absolute inset-0 w-full h-full object-cover object-center opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 )}
               </>
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">
-                <Package className="h-10 w-10" />
-              </div>
+              <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50"><Package className="h-10 w-10" /></div>
             )}
           </Link>
-          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-20">
-            {discount > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-rose-500 text-white text-[10px] font-bold px-2.5 py-1 shadow-sm">
-                -{discount}%
-              </span>
-            )}
-            {product.isFeatured && (
-              <span className="inline-flex items-center rounded-lg bg-amber-500 text-white text-[10px] font-bold px-2.5 py-1 shadow-sm">
-                Hot
-              </span>
-            )}
-          </div>
-          <button type="button" onClick={handleWishlist} className={`absolute top-3 right-3 z-20 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${isWishlisted ? 'bg-rose-50 text-rose-500 shadow-sm' : 'bg-white/80 backdrop-blur-sm text-gray-400 hover:text-rose-500 hover:bg-white shadow-sm'}`} title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}>
-            <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-rose-500' : ''}`} />
-          </button>
-          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-2 p-3 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-20 bg-gradient-to-t from-black/20 to-transparent">
-            <Link href={getProductUrl(product)} className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:text-gray-900 hover:scale-110 transition-all duration-200" title="View Product" onClick={(e) => e.stopPropagation()}>
-              <Eye className="h-4 w-4" />
+          {discount > 0 && (
+            <span className="absolute top-3 left-3 z-20 inline-flex items-center rounded-full border border-blue-200 bg-blue-50 text-blue-600 text-[10px] font-semibold px-2.5 py-1">Up to {discount}% off</span>
+          )}
+          <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5">
+            <Link href={getProductUrl(product)} className="w-8 h-8 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors" title="View Product" onClick={(e) => e.stopPropagation()}>
+              <Eye className="h-3.5 w-3.5" />
             </Link>
-            <button type="button" className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:text-gray-900 hover:scale-110 transition-all duration-200" title="Compare" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-              <Layers className="h-4 w-4" />
+            <button type="button" onClick={handleWishlist} className={`w-8 h-8 rounded-full bg-white/90 shadow-sm flex items-center justify-center transition-colors ${isWishlisted ? 'text-rose-500' : 'text-gray-400 hover:text-rose-500'}`} title="Wishlist">
+              <Heart className={`h-3.5 w-3.5 ${isWishlisted ? 'fill-rose-500' : ''}`} />
             </button>
           </div>
         </div>
         <div className="p-4 flex-1 flex flex-col">
           {product.productCategory?.name && (
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 mb-1.5">
-              {product.productCategory.name}
-            </span>
+            <span className="text-[10px] font-medium uppercase tracking-wider text-gray-400 mb-1">{product.productCategory.name}</span>
           )}
           <Link href={getProductUrl(product)}>
-            <h3 className="product-title line-clamp-2 min-h-[36px] hover:text-[#ff006e] transition-colors">
-              {product.itemName}
-            </h3>
+            <h3 className="product-title line-clamp-2 min-h-[38px] hover:text-blue-600 transition-colors">{product.itemName}</h3>
           </Link>
-          <div className="mt-auto pt-3 flex items-baseline gap-2">
-            <span className="product-price">{formatPrice(currentPrice)}</span>
-            {maxRetailPrice && maxRetailPrice > currentPrice && (
-              <span className="text-xs text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
-            )}
+          {product.freeShipping && (
+            <div className="flex items-center gap-3 mt-2 text-[10px] text-gray-400 font-medium">
+              <span className="flex items-center gap-1"><Truck className="h-3 w-3" /> Fast Delivery</span>
+            </div>
+          )}
+          <div className="mt-auto pt-3 flex items-center justify-between gap-2">
+            <div className="flex items-baseline gap-1.5">
+              <span className="product-price">{formatPrice(currentPrice)}</span>
+              {maxRetailPrice && maxRetailPrice > currentPrice && (
+                <span className="text-[11px] text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
+              )}
+            </div>
+            <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
+              {isAdded ? <><Check className="h-3.5 w-3.5" /> Added</> : !inStock ? <>Out of Stock</> : <><ShoppingCart className="h-3.5 w-3.5" /> Add to cart</>}
+            </button>
           </div>
-          <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`mt-3 w-full rounded-xl text-sm font-semibold py-2.5 transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-gray-900 text-white hover:bg-gray-800 active:scale-[0.98]'}`}>
-            {isAdded ? (
-              <span className="flex items-center justify-center gap-2"><span>✓</span><span>Added</span></span>
-            ) : !inStock ? (
-              <span>Out of Stock</span>
-            ) : (
-              <span className="flex items-center justify-center gap-2"><ShoppingCart className="h-4 w-4" /><span>Add to Cart</span></span>
-            )}
-          </button>
         </div>
       </div>
     );
@@ -573,12 +556,12 @@ export default function ProductDetailPage() {
         const estimatedDays = response.data?.estimated_days || '3-5';
         setPincodeCheckResult({
           available: true,
-          message: `✓ Delivery available to ${pincode}. Estimated delivery: ${estimatedDays} business days.`
+          message: `Delivery available to ${pincode}. Estimated delivery: ${estimatedDays} business days.`
         });
       } else {
         setPincodeCheckResult({
           available: false,
-          message: `✗ Delivery not available to pincode ${pincode}. ${response.message || 'Please try another pincode.'}`
+          message: `Delivery not available to pincode ${pincode}. ${response.message || 'Please try another pincode.'}`
         });
       }
     } catch (error: any) {

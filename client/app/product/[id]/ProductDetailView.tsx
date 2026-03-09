@@ -207,14 +207,14 @@ export function ProductDetailView(props: ProductDetailViewProps) {
     >
       <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 mb-6 w-full min-w-0">
         <nav
-          className="flex items-center gap-1 sm:gap-2 text-xs sm:text-[0.9rem] text-[#718096] mb-4 sm:mb-6 overflow-x-auto whitespace-nowrap"
+          className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-400 mb-4 sm:mb-6 overflow-x-auto whitespace-nowrap"
           aria-label="Breadcrumb"
         >
-          <Link href="/" className="text-[#4299e1] hover:underline flex-shrink-0">
+          <Link href="/" className="hover:text-gray-600 transition-colors flex-shrink-0">
             Home
           </Link>
           <span className="flex-shrink-0">/</span>
-          <Link href="/shop" className="text-[#4299e1] hover:underline flex-shrink-0">
+          <Link href="/shop" className="hover:text-gray-600 transition-colors flex-shrink-0">
             Products
           </Link>
           {product?.productCategory && (
@@ -222,19 +222,19 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               <span>/</span>
               <Link
                 href={`/product-category/${product.productCategory.slug || product.productCategory._id}`}
-                className="text-[#4299e1] hover:underline flex-shrink-0"
+                className="hover:text-gray-600 transition-colors flex-shrink-0"
               >
                 {product.productCategory.name}
               </Link>
             </>
           )}
           <span className="flex-shrink-0">/</span>
-          <span className="truncate max-w-[180px] sm:max-w-[260px]">{product.itemName}</span>
+          <span className="text-gray-600 truncate max-w-[180px] sm:max-w-[260px]">{product.itemName}</span>
         </nav>
 
-        {/* Layout: left = full-width main image + thumbnails; right = product info. Zoom panel overlaps right on hover. */}
-        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-10 bg-white/95 backdrop-blur-sm p-3 sm:p-6 lg:p-8 rounded-[2rem] shadow-[0_18px_55px_rgba(15,23,42,0.12)] border border-gray-100 mb-8 min-w-0 relative">
-          <div className="min-w-0 relative">
+        {/* Layout: left = images (sticky on desktop); right = product info */}
+        <div className="grid lg:grid-cols-[1fr_1fr] gap-4 sm:gap-6 lg:gap-12 mb-8 min-w-0 relative">
+          <div className="min-w-0 relative lg:sticky lg:top-4 lg:self-start">
             {/* Mobile: image carousel with dots + wishlist/share below image */}
             <div className="lg:hidden flex flex-col gap-3">
               <div
@@ -605,14 +605,13 @@ export function ProductDetailView(props: ProductDetailViewProps) {
           )}
           </div>
 
-          <div className="flex flex-col gap-4 sm:gap-6 min-w-0">
-            {/* Category above title */}
+          <div className="flex flex-col gap-0 min-w-0">
+            {/* Category */}
             {product.productCategory && (
-              <div className="text-xs sm:text-sm text-[#6b7280]">
-                <span className="mr-1">Category</span>
+              <div className="mb-3">
                 <Link
                   href={`/product-category/${product.productCategory.slug || product.productCategory._id}`}
-                  className="font-medium text-[#1d4ed8] hover:underline"
+                  className="text-xs font-semibold uppercase tracking-wider text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {product.productCategory.name}
                 </Link>
@@ -620,12 +619,12 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             )}
 
             {/* Title */}
-            <h1 className="font-[var(--heading-font-family)] text-2xl sm:text-3xl lg:text-[2.1rem] font-black text-gray-900 leading-tight break-words tracking-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-[2rem] font-bold text-gray-900 leading-snug break-words tracking-tight">
               {product.itemName}
             </h1>
 
             {/* Rating / reviews */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#4b5563]">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#4b5563] mt-3">
               {reviewCount > 0 && averageRating != null && Number.isFinite(averageRating) ? (
                 <>
                   <div className="flex items-center gap-1.5">
@@ -646,6 +645,8 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 <Link href="#reviews" className="text-[#4299e1] hover:underline font-medium">Be the first to review</Link>
               )}
             </div>
+
+            <hr className="my-5 border-gray-100" />
 
             {/* Variant selectors */}
             {variantAttributesMap && Object.keys(variantAttributesMap).length > 0 && (
@@ -742,84 +743,63 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               </p>
             )}
 
-            {/* Pincode + primary CTAs card */}
-            <div className="mt-4 space-y-4 p-4 sm:p-5 rounded-2xl bg-[#f9fafb] border border-gray-100">
-              <form onSubmit={handlePincodeCheck} className="space-y-3">
-                <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#2d3748]">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-[#ff6b35]" />
-                    <span>Enter pincode for delivery estimate</span>
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="flex-1 relative">
-                    <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#a0aec0]">
-                      <MapPin className="h-4 w-4" />
-                    </span>
-                    <input
-                      type="text"
-                      value={pincode}
-                      onChange={(e) => onPincodeChange(e.target.value)}
-                      placeholder="Enter pincode for delivery estimate"
-                      className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-white text-sm border border-[#e2e8f0] focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-[#ff6b35]"
-                      maxLength={6}
-                    />
-                  </div>
+            <hr className="my-5 border-gray-100" />
+
+            {/* Quantity + CTA buttons */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-white">
                   <button
-                    type="submit"
-                    className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white text-xs sm:text-sm font-semibold text-gray-800 hover:border-[#f97316] hover:text-[#f97316] transition-colors whitespace-nowrap"
+                    type="button"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1}
+                    className="w-10 h-11 flex items-center justify-center text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   >
-                    Check
+                    <Minus className="h-4 w-4" />
+                  </button>
+                  <span className="w-12 text-center text-sm font-semibold text-gray-900 border-x border-gray-200">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="w-10 h-11 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
+                  >
+                    <Plus className="h-4 w-4" />
                   </button>
                 </div>
-                {pincodeCheckResult && (
-                  <div
-                    className={`mt-2 p-3 rounded-lg text-xs sm:text-sm font-medium ${
-                      pincodeCheckResult.available ? 'bg-[#c6f6d5] text-[#22543d]' : 'bg-[#fed7d7] text-[#742a2a]'
-                    }`}
-                  >
-                    {pincodeCheckResult.available ? '✓' : '✗'} {pincodeCheckResult.message}
-                  </div>
-                )}
-              </form>
 
-              {/* Main CTA buttons: Add to Cart / Buy Now / Amazon */}
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <button
                   onClick={handleAddToCart}
                   disabled={product.stockQuantity === 0}
-                  className={`w-full sm:flex-1 py-3 sm:py-3.5 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-sm transition-all ${
+                  className={`flex-1 h-11 px-6 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all ${
                     addedToCart
-                      ? 'bg-[#22c55e] text-white'
+                      ? 'bg-emerald-500 text-white'
                       : product.stockQuantity === 0
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-[#ff6b35] text-white hover:bg-[#e85a28] hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(255,107,53,0.45)]'
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-gray-900 text-white hover:bg-gray-800 active:scale-[0.98]'
                   }`}
                 >
                   {addedToCart ? (
-                    <>
-                      <Check className="h-5 w-5" />
-                      Added to Cart
-                    </>
+                    <><Check className="h-4 w-4" /> Added to Cart</>
                   ) : (
-                    <>
-                      <ShoppingCart className="h-5 w-5" />
-                      Add to Cart
-                    </>
+                    <><ShoppingCart className="h-4 w-4" /> Add to Cart</>
                   )}
                 </button>
+              </div>
 
+              <div className="flex gap-3">
                 <button
                   onClick={handleBuyNow}
                   disabled={product.stockQuantity === 0}
-                  className={`w-full sm:w-auto py-3 sm:py-3.5 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base flex items-center justify-center gap-2 border transition-all ${
+                  className={`flex-1 h-11 px-6 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border transition-all ${
                     product.stockQuantity === 0
-                      ? 'border-gray-300 text-gray-400 cursor-not-allowed opacity-60'
-                      : 'border-gray-300 text-gray-900 bg-white hover:border-[#111827] hover:text-[#111827]'
+                      ? 'border-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'border-[#ff6b35] text-[#ff6b35] bg-white hover:bg-[#ff6b35] hover:text-white'
                   }`}
                 >
-                  <Zap className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span>Buy Now</span>
+                  <Zap className="h-4 w-4" />
+                  Buy Now
                 </button>
 
                 {product.amazonLink && product.amazonLink.trim() && (
@@ -827,79 +807,79 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                     href={product.amazonLink.trim()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full sm:w-auto py-3 sm:py-3.5 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base border border-gray-300 bg-white text-gray-900 hover:border-[#f97316] hover:text-[#f97316] transition-all flex items-center justify-center gap-2"
+                    className="flex-1 h-11 px-6 rounded-xl font-semibold text-sm border border-gray-200 bg-white text-gray-700 hover:border-gray-900 hover:text-gray-900 transition-all flex items-center justify-center gap-2"
                   >
-                    <ExternalLink className="h-5 w-5" />
+                    <ExternalLink className="h-4 w-4" />
                     Amazon
                   </a>
                 )}
               </div>
-
-              {/* Secondary row: quantity */}
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1">
-                <div>
-                  <div className="font-semibold text-[0.75rem] sm:text-xs text-[#4b5563] mb-1.5">Quantity</div>
-                  <div className="flex border border-[#e2e8f0] rounded-md overflow-hidden bg-white">
-                    <button
-                      type="button"
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      disabled={quantity <= 1}
-                      className="px-3 py-2 text-[#4a5568] text-base hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      −
-                    </button>
-                    <span className="w-[52px] text-center py-2 border-x border-[#e2e8f0] text-sm font-semibold bg-white">
-                      {quantity}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="px-3 py-2 text-[#4a5568] text-base hover:bg-gray-50"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
             </div>
 
-            {/* Benefits: reassurance icons row */}
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 rounded-2xl border border-[#e5e7eb] bg-white p-4 sm:p-6 shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#ecfdf3] text-[#16a34a]">
+            <hr className="my-5 border-gray-100" />
+
+            {/* Pincode check */}
+            <form onSubmit={handlePincodeCheck} className="space-y-2">
+              <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <Truck className="h-4 w-4 text-[#ff6b35]" />
+                <span>Delivery</span>
+              </div>
+              <div className="flex gap-2">
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    value={pincode}
+                    onChange={(e) => onPincodeChange(e.target.value)}
+                    placeholder="Enter pincode"
+                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50 text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#ff6b35]/20 focus:border-[#ff6b35] transition-all"
+                    maxLength={6}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold text-[#ff6b35] border border-[#ff6b35]/30 hover:bg-[#ff6b35] hover:text-white transition-all whitespace-nowrap"
+                >
+                  Check
+                </button>
+              </div>
+              {pincodeCheckResult && (
+                <div
+                  className={`p-3 rounded-xl text-xs sm:text-sm font-medium ${
+                    pincodeCheckResult.available ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+                  }`}
+                >
+                  {pincodeCheckResult.available ? '✓' : '✗'} {pincodeCheckResult.message}
+                </div>
+              )}
+            </form>
+
+            <hr className="my-5 border-gray-100" />
+
+            {/* Benefits strip */}
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 flex-shrink-0">
                   <Truck className="h-4 w-4" />
                 </div>
-                <div>
-                  <div className="text-sm sm:text-base font-semibold text-[#111827]">Free Shipping</div>
-                  <div className="text-xs sm:text-sm text-[#6b7280]">On orders over ₹999</div>
-                </div>
+                <div className="text-xs"><span className="font-semibold text-gray-900 block">Free Shipping</span><span className="text-gray-500">Over ₹999</span></div>
               </div>
-              <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#ecfdf3] text-[#16a34a]">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 flex-shrink-0">
                   <RotateCcw className="h-4 w-4" />
                 </div>
-                <div>
-                  <div className="text-sm sm:text-base font-semibold text-[#111827]">30 Day Returns</div>
-                  <div className="text-xs sm:text-sm text-[#6b7280]">Money back guarantee</div>
-                </div>
+                <div className="text-xs"><span className="font-semibold text-gray-900 block">30 Day Returns</span><span className="text-gray-500">Money back</span></div>
               </div>
-              <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#ecfdf3] text-[#16a34a]">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 flex-shrink-0">
                   <ShieldCheck className="h-4 w-4" />
                 </div>
-                <div>
-                  <div className="text-sm sm:text-base font-semibold text-[#111827]">2 Year Warranty</div>
-                  <div className="text-xs sm:text-sm text-[#6b7280]">Manufacturer warranty</div>
-                </div>
+                <div className="text-xs"><span className="font-semibold text-gray-900 block">2 Year Warranty</span><span className="text-gray-500">Manufacturer</span></div>
               </div>
-              <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#ecfdf3] text-[#16a34a]">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 flex-shrink-0">
                   <Lock className="h-4 w-4" />
                 </div>
-                <div>
-                  <div className="text-sm sm:text-base font-semibold text-[#111827]">Secure Checkout</div>
-                  <div className="text-xs sm:text-sm text-[#6b7280]">Safe & encrypted payment</div>
-                </div>
+                <div className="text-xs"><span className="font-semibold text-gray-900 block">Secure Checkout</span><span className="text-gray-500">Encrypted</span></div>
               </div>
             </div>
           </div>
@@ -1194,11 +1174,11 @@ export function ProductDetailView(props: ProductDetailViewProps) {
 
           {/* Desktop: horizontal tabs */}
           <nav
-            className="hidden sm:flex gap-2 border-b-2 border-[#e2e8f0] mb-6 sm:mb-8 overflow-x-auto overflow-y-hidden -mx-3 px-3 sm:mx-0 sm:px-0"
+            className="hidden sm:flex gap-0 border-b border-gray-200 mb-8 overflow-x-auto overflow-y-hidden"
             aria-label="Product details tabs"
           >
             {[
-              { id: 'description' as const, label: 'Product Description' },
+              { id: 'description' as const, label: 'Description' },
               { id: 'specifications' as const, label: 'Specifications' },
               { id: 'reviews' as const, label: `Reviews (${reviewCount})` },
               { id: 'shipping' as const, label: 'Shipping & Returns' },
@@ -1206,10 +1186,10 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               <button
                 key={id}
                 onClick={() => setActiveTab(id)}
-                className={`py-4 px-6 sm:px-8 text-sm sm:text-base font-semibold whitespace-nowrap border-b-[3px] -mb-0.5 transition-colors flex-shrink-0 ${
+                className={`py-3.5 px-6 text-sm font-semibold whitespace-nowrap border-b-2 -mb-px transition-colors flex-shrink-0 ${
                   activeTab === id
-                    ? 'border-[#ff6b35] text-[#ff6b35]'
-                    : 'border-transparent text-[#718096] hover:text-[#2d3748]'
+                    ? 'border-gray-900 text-gray-900'
+                    : 'border-transparent text-gray-400 hover:text-gray-600'
                 }`}
               >
                 {label}
@@ -1217,8 +1197,8 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             ))}
           </nav>
 
-          {/* Desktop content card */}
-          <div className="hidden sm:block bg-white p-4 sm:p-6 lg:p-8 rounded-lg shadow-sm">
+          {/* Desktop content */}
+          <div className="hidden sm:block bg-white p-6 lg:p-8 rounded-2xl border border-gray-100">
             {activeTab === 'description' && (
               <div className="space-y-6 sm:space-y-8 text-gray-800">
                 <h2 className="text-lg sm:text-xl font-bold text-gray-900">Product Description</h2>
@@ -1414,7 +1394,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
         {recentlyViewed.length > 0 && (
           <div className="mt-16">
             <h2 className="text-[1.75rem] font-bold text-[#1a202c] mb-6">Recently Viewed</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {recentlyViewed.map((item) => (
                 <React.Fragment key={item._id}>{renderProductCard(item)}</React.Fragment>
               ))}
@@ -1426,10 +1406,10 @@ export function ProductDetailView(props: ProductDetailViewProps) {
           <div className="mt-16">
             <h2 className="text-[1.75rem] font-bold text-[#1a202c] mb-6">You May Also Like</h2>
             {loadingSimilar ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="animate-pulse bg-[rgb(249,250,251)] rounded-lg overflow-hidden">
-                    <div className="aspect-[4/3] bg-gray-200"></div>
+                  <div key={i} className="animate-pulse bg-gray-50 rounded-2xl overflow-hidden">
+                    <div className="aspect-square bg-gray-200"></div>
                     <div className="p-4 space-y-2">
                       <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                       <div className="h-3 bg-gray-200 rounded w-1/2"></div>
@@ -1439,7 +1419,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {similarProducts.map((item) => (
                   <React.Fragment key={item._id}>{renderProductCard(item)}</React.Fragment>
                 ))}
