@@ -383,7 +383,7 @@ export default function ProductDetailPage() {
     const inStock = product.stockQuantity !== undefined ? product.stockQuantity > 0 : true;
 
     return (
-      <div className="group relative bg-white rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] h-full flex flex-col border border-gray-100">
+      <div className="group relative bg-white rounded-[5px] overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] h-full flex flex-col border border-gray-100">
         <div className="relative aspect-square overflow-hidden bg-gray-50">
           <Link href={getProductUrl(product)} className="block w-full h-full">
             {product.mainImage ? (
@@ -424,9 +424,6 @@ export default function ProductDetailPage() {
           <div className="mt-auto pt-3 flex items-center justify-between gap-2">
             <div className="flex items-baseline gap-1.5">
               <span className="product-price">{formatPrice(currentPrice)}</span>
-              {maxRetailPrice && maxRetailPrice > currentPrice && (
-                <span className="text-[11px] text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
-              )}
             </div>
             <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
               {isAdded ? <><Check className="h-3.5 w-3.5" /> Added</> : !inStock ? <>Out of Stock</> : <><ShoppingCart className="h-3.5 w-3.5" /> Add to cart</>}

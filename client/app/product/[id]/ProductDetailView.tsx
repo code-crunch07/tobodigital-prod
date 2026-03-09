@@ -203,9 +203,9 @@ export function ProductDetailView(props: ProductDetailViewProps) {
   return (
     <>
     <div
-      className="min-h-screen text-[#2d3748] overflow-x-hidden bg-[#f9fafb]"
+      className="min-h-screen text-[#2d3748] bg-[#f9fafb]"
     >
-      <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 mb-6 w-full min-w-0">
+      <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 pt-8 sm:pt-10 pb-4 sm:pb-6 mb-6 w-full min-w-0">
         <nav
           className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-400 mb-4 sm:mb-6 overflow-x-auto whitespace-nowrap"
           aria-label="Breadcrumb"
@@ -234,7 +234,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
 
         {/* Layout: left = images (sticky on desktop); right = product info */}
         <div className="grid lg:grid-cols-[1fr_1fr] gap-4 sm:gap-6 lg:gap-12 mb-8 min-w-0 relative">
-          <div className="min-w-0 relative lg:sticky lg:top-4 lg:self-start">
+          <div className="min-w-0 relative lg:sticky lg:top-24 lg:self-start">
             {/* Mobile: image carousel with dots + wishlist/share below image */}
             <div className="lg:hidden flex flex-col gap-3">
               <div
@@ -853,33 +853,23 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               )}
             </form>
 
-            <hr className="my-5 border-gray-100" />
-
             {/* Benefits strip */}
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 flex-shrink-0">
-                  <Truck className="h-4 w-4" />
-                </div>
-                <div className="text-xs"><span className="font-semibold text-gray-900 block">Free Shipping</span><span className="text-gray-500">Over ₹999</span></div>
+            <div className="mt-5 flex items-center justify-between rounded-xl bg-gray-100 px-5 py-4">
+              <div className="flex flex-col items-center gap-1.5 text-center">
+                <ShieldCheck className="h-5 w-5 text-gray-500" />
+                <span className="text-[11px] font-medium text-gray-600">1 Year Warranty</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 flex-shrink-0">
-                  <RotateCcw className="h-4 w-4" />
-                </div>
-                <div className="text-xs"><span className="font-semibold text-gray-900 block">30 Day Returns</span><span className="text-gray-500">Money back</span></div>
+              <div className="flex flex-col items-center gap-1.5 text-center">
+                <RotateCcw className="h-5 w-5 text-gray-500" />
+                <span className="text-[11px] font-medium text-gray-600">10 days Replacement</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 flex-shrink-0">
-                  <ShieldCheck className="h-4 w-4" />
-                </div>
-                <div className="text-xs"><span className="font-semibold text-gray-900 block">2 Year Warranty</span><span className="text-gray-500">Manufacturer</span></div>
+              <div className="flex flex-col items-center gap-1.5 text-center">
+                <Truck className="h-5 w-5 text-gray-500" />
+                <span className="text-[11px] font-medium text-gray-600">Standard Delivery</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 flex-shrink-0">
-                  <Lock className="h-4 w-4" />
-                </div>
-                <div className="text-xs"><span className="font-semibold text-gray-900 block">Secure Checkout</span><span className="text-gray-500">Encrypted</span></div>
+              <div className="flex flex-col items-center gap-1.5 text-center">
+                <Lock className="h-5 w-5 text-gray-500" />
+                <span className="text-[11px] font-medium text-gray-600">Secure Pay</span>
               </div>
             </div>
           </div>

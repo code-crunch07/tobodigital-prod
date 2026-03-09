@@ -126,7 +126,7 @@ export default function WishlistPage() {
                 discount = Math.round(((maxRetailPrice - product.yourPrice) / maxRetailPrice) * 100);
               }
               return (
-                <div key={product._id} className="group relative bg-white rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] h-full flex flex-col border border-gray-100">
+                <div key={product._id} className="group relative bg-white rounded-[5px] overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] h-full flex flex-col border border-gray-100">
                   <div className="relative aspect-square overflow-hidden bg-gray-50">
                     <Link href={getProductUrl(product)} className="block w-full h-full">
                       {(product.mainImage || (product.images && product.images.length > 0)) ? (
@@ -155,9 +155,6 @@ export default function WishlistPage() {
                     <div className="mt-auto pt-3 flex items-center justify-between gap-2">
                       <div className="flex items-baseline gap-1.5">
                         <span className="product-price">{formatPrice(product.yourPrice)}</span>
-                        {maxRetailPrice && maxRetailPrice > product.yourPrice && (
-                          <span className="text-[11px] text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
-                        )}
                       </div>
                       <button onClick={() => handleAddToCart(product)} className="flex-shrink-0 flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97] transition-all duration-200">
                         <ShoppingCart className="h-3.5 w-3.5" /> Add to cart

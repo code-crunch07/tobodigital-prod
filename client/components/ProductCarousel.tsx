@@ -202,7 +202,7 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
 
               return (
                 <div key={product._id} className="flex-shrink-0 w-[calc(50%-6px)] min-w-[calc(50%-6px)] sm:min-w-0 sm:w-[185px] md:w-[200px] lg:w-[215px] xl:w-[230px] group">
-                  <div className="group relative bg-white rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] h-full flex flex-col border border-gray-100">
+                  <div className="group relative bg-white rounded-[5px] overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] h-full flex flex-col border border-gray-100">
                     <div className="relative aspect-square overflow-hidden bg-gray-50">
                       <Link href={getProductUrl(product)} className="block w-full h-full">
                         {product.mainImage ? (
@@ -243,9 +243,6 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
                       <div className="mt-auto pt-3 flex items-center justify-between gap-2">
                         <div className="flex items-baseline gap-1.5">
                           <span className="text-[15px] font-bold text-gray-900">{formatPrice(currentPrice)}</span>
-                          {maxRetailPrice && maxRetailPrice > currentPrice && (
-                            <span className="text-[10px] text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
-                          )}
                         </div>
                         <button type="button" onClick={(e) => handleAddToCart(e, product)} disabled={!inStock} className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
                           {isAdded ? <><Check className="h-3 w-3" /> Added</> : !inStock ? <>Out of Stock</> : <><ShoppingCart className="h-3 w-3" /> Add to cart</>}

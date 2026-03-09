@@ -3,7 +3,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ShoppingCart, Star, Heart, Eye, Layers, ChevronLeft, ChevronRight, Home, Filter, X, ChevronDown, Tag, Package, Truck, Check } from 'lucide-react';
+import { ShoppingCart, Star, Heart, Eye, Layers, ChevronLeft, ChevronRight, Home, Filter, X, ChevronDown, Tag, Package, Truck, Check, LayoutGrid, List } from 'lucide-react';
 import { getProducts, getCategories, getSubCategories } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
@@ -129,7 +129,7 @@ const ProductCard = ({
   const inStock = product.stockQuantity !== undefined ? product.stockQuantity > 0 : true;
 
   return (
-    <div className="group relative bg-white rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] h-full flex flex-col border border-gray-100">
+    <div className="group relative bg-white rounded-[5px] overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] h-full flex flex-col border border-gray-100">
       <div className="relative aspect-square overflow-hidden bg-gray-50">
         <Link href={getProductUrl(product)} className="block w-full h-full">
           {product.mainImage ? (
@@ -177,9 +177,6 @@ const ProductCard = ({
         <div className="mt-auto pt-3 flex items-center justify-between gap-2">
           <div className="flex items-baseline gap-1.5">
             <span className="product-price">{formatPrice(currentPrice)}</span>
-            {maxRetailPrice && maxRetailPrice > currentPrice && (
-              <span className="text-[11px] text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
-            )}
           </div>
           <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
             {isAdded ? <><Check className="h-3.5 w-3.5" /> Added</> : !inStock ? <>Out of Stock</> : <><ShoppingCart className="h-3.5 w-3.5" /> Add to cart</>}
@@ -212,6 +209,7 @@ function ShopPageContent() {
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [availableBrands, setAvailableBrands] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [expandedFilter, setExpandedFilter] = useState<string | null>('PRICE');
 
   useEffect(() => {
@@ -356,7 +354,7 @@ function ShopPageContent() {
         <div className="absolute inset-0 opacity-30">
           <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(45deg, #059669 0%, transparent 50%), linear-gradient(-45deg, #2563eb 0%, transparent 50%)' }} />
         </div>
-        <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
+        <div className="relative max-w-[1920px] mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 py-10 text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Shop</h1>
           <nav className="flex items-center justify-center gap-2 text-sm text-white/90">
             <Link href="/" className="hover:text-white transition-colors flex items-center gap-1">
@@ -369,7 +367,7 @@ function ShopPageContent() {
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-[1920px] mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 py-6">
         {/* Toolbar: Filter button (left) + product count & sort (right) */}
         <div className="flex items-center justify-between gap-4 mb-6">
           {(() => {
@@ -386,22 +384,19 @@ function ShopPageContent() {
               </button>
             );
           })()}
-          <div className="flex items-center gap-4 ml-auto">
-            <span className="text-sm text-gray-600">{totalProducts} products</span>
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-700 whitespace-nowrap">Sort by:</label>
-              <select
-                value={sortBy}
-                onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
-                className="px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#ff006e] focus:border-[#ff006e] bg-white"
-              >
-                <option value="popularity">Best selling</option>
-                <option value="newest">Newest</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="oldest">Oldest</option>
-              </select>
+          <div className="flex items-center gap-3 ml-auto">
+            <span className="text-sm text-gray-500">{totalProducts} products</span>
+            <div className="hidden sm:flex items-center border border-gray-200 rounded-lg overflow-hidden">
+              <button type="button" onClick={() => setViewMode('grid')} className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-gray-900 text-white' : 'text-gray-400 hover:text-gray-600'}`} title="Grid view"><LayoutGrid className="h-4 w-4" /></button>
+              <button type="button" onClick={() => setViewMode('list')} className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-gray-900 text-white' : 'text-gray-400 hover:text-gray-600'}`} title="List view"><List className="h-4 w-4" /></button>
             </div>
+            <select value={sortBy} onChange={(e) => { setSortBy(e.target.value); setPage(1); }} className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="popularity">Best selling</option>
+              <option value="newest">Newest</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="oldest">Oldest</option>
+            </select>
           </div>
         </div>
 
@@ -439,7 +434,7 @@ function ShopPageContent() {
                       onClick={() => setPage(pageNum)}
                       className={`px-3 py-1 rounded text-sm font-medium ${
                         page === pageNum
-                          ? 'bg-purple-600 text-white'
+                          ? 'bg-blue-600 text-white'
                           : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
@@ -463,26 +458,70 @@ function ShopPageContent() {
 
             {/* Products Grid */}
             {loading && products.length === 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="h-96 bg-gray-200 animate-pulse"></div>
                 ))}
               </div>
             ) : products.length > 0 ? (
               <>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4">
-                  {products.map((product) => (
-                    <ProductCard 
-                      key={product._id}
-                      product={product}
-                      addedItems={addedItems}
-                      setAddedItems={setAddedItems}
-                      addToCart={addToCart}
-                      formatPrice={formatPrice}
-                      onQuickView={setQuickViewProduct}
-                    />
-                  ))}
-                </div>
+                {viewMode === 'grid' ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+                    {products.map((product) => (
+                      <ProductCard 
+                        key={product._id}
+                        product={product}
+                        addedItems={addedItems}
+                        setAddedItems={setAddedItems}
+                        addToCart={addToCart}
+                        formatPrice={formatPrice}
+                        onQuickView={setQuickViewProduct}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {products.map((product) => {
+                      const maxRetailPrice = product.maximumRetailPrice || product.maxRetailPrice;
+                      const salePrice = product.salePrice;
+                      const now = new Date();
+                      const saleStartDate = product.saleStartDate ? new Date(product.saleStartDate) : null;
+                      const saleEndDate = product.saleEndDate ? new Date(product.saleEndDate) : null;
+                      const isSaleActive = salePrice && (!saleStartDate || saleStartDate <= now) && (!saleEndDate || saleEndDate >= now);
+                      const currentPrice = isSaleActive && salePrice && salePrice < product.yourPrice ? salePrice : product.yourPrice;
+                      let discount = 0;
+                      if (maxRetailPrice && maxRetailPrice > currentPrice) {
+                        discount = Math.round(((maxRetailPrice - currentPrice) / maxRetailPrice) * 100);
+                      } else if (isSaleActive && salePrice && salePrice < product.yourPrice && maxRetailPrice) {
+                        discount = Math.round(((maxRetailPrice - salePrice) / maxRetailPrice) * 100);
+                      }
+                      const inStock = product.stockQuantity !== undefined ? product.stockQuantity > 0 : true;
+                      return (
+                        <div key={product._id} className="group flex bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+                          <Link href={getProductUrl(product)} className="relative w-40 sm:w-48 flex-shrink-0 bg-gray-50">
+                            {product.mainImage ? <img src={product.mainImage} alt={product.itemName} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-300"><Package className="h-8 w-8" /></div>}
+                            {discount > 0 && <span className="absolute top-2 left-2 rounded-full border border-blue-200 bg-blue-50 text-blue-600 text-[10px] font-semibold px-2 py-0.5">-{discount}%</span>}
+                          </Link>
+                          <div className="flex-1 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                            <div className="flex-1 min-w-0">
+                              {product.productCategory?.name && <span className="text-[10px] font-medium uppercase tracking-wider text-gray-400">{product.productCategory.name}</span>}
+                              <Link href={getProductUrl(product)}><h3 className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2 mt-0.5">{product.itemName}</h3></Link>
+                              {product.brandName && <p className="text-xs text-gray-400 mt-1">{product.brandName}</p>}
+                            </div>
+                            <div className="flex items-center gap-4 sm:flex-col sm:items-end sm:gap-2">
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-lg font-bold text-gray-900">{formatPrice(currentPrice)}</span>
+                              </div>
+                              <button type="button" onClick={(e) => { e.preventDefault(); addToCart({ _id: product._id, itemName: product.itemName, mainImage: product.mainImage, yourPrice: product.yourPrice, freeShipping: product.freeShipping ?? false }); }} disabled={!inStock} className="flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                                <ShoppingCart className="h-3.5 w-3.5" /> {inStock ? 'Add to cart' : 'Out of Stock'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {/* Pagination Bottom */}
               {totalPages > 1 && (
@@ -515,7 +554,7 @@ function ShopPageContent() {
                         onClick={() => setPage(pageNum)}
                           className={`px-4 py-2 rounded font-medium ${
                           page === pageNum
-                              ? 'bg-purple-600 text-white'
+                              ? 'bg-blue-600 text-white'
                               : 'text-gray-700 hover:bg-gray-100'
                         }`}
                       >
