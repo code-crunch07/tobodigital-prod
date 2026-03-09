@@ -410,13 +410,20 @@ function ShopPageContent() {
               <button type="button" onClick={() => { setViewMode('grid'); setGridCols(5); }} className={`p-1.5 transition-colors ${viewMode === 'grid' && gridCols === 5 ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`} title="5 columns"><Grid3X3 className="h-5 w-5" /></button>
               <button type="button" onClick={() => setViewMode('list')} className={`p-1.5 transition-colors ${viewMode === 'list' ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`} title="List view"><List className="h-5 w-5" /></button>
             </div>
-            <select value={sortBy} onChange={(e) => { setSortBy(e.target.value); setPage(1); }} className="px-3 py-2 border border-gray-200 rounded text-sm bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[160px]">
-              <option value="popularity">Default sorting</option>
-              <option value="newest">Sort by latest</option>
-              <option value="price-low">Sort by price: low to high</option>
-              <option value="price-high">Sort by price: high to low</option>
-              <option value="oldest">Sort by oldest</option>
-            </select>
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
+                className="appearance-none pl-0 pr-6 py-1.5 text-sm text-gray-600 bg-transparent border-0 cursor-pointer focus:ring-0 focus:outline-none min-w-[140px]"
+              >
+                <option value="popularity">Default sorting</option>
+                <option value="newest">Sort by latest</option>
+                <option value="price-low">Sort by price: low to high</option>
+                <option value="price-high">Sort by price: high to low</option>
+                <option value="oldest">Sort by oldest</option>
+              </select>
+              <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            </div>
           </div>
         </div>
 
