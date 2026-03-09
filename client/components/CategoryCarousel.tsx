@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getCategories } from '@/lib/api';
 
 interface Category {
@@ -61,8 +61,8 @@ export default function CategoryCarousel() {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    const cardWidth = 150;
-    const gap = 16;
+    const cardWidth = 200;
+    const gap = 20;
     const scrollAmount = (cardWidth + gap) * 2;
 
     if (direction === 'left') {
@@ -74,7 +74,7 @@ export default function CategoryCarousel() {
 
   if (loading) {
     return (
-      <section className="bg-white py-10 sm:py-12">
+      <section className="bg-gray-50 py-10 sm:py-12">
         <div className="max-w-[1920px] mx-auto px-6 sm:px-8 lg:px-12 xl:px-16">
           <div className="flex items-center justify-center h-32">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -89,7 +89,7 @@ export default function CategoryCarousel() {
   }
 
   return (
-    <section className="bg-white py-10 sm:py-12">
+    <section className="bg-gray-50 py-10 sm:py-12">
       <div className="max-w-[1920px] mx-auto px-6 sm:px-8 lg:px-12 xl:px-16">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Popular Categories</h2>
@@ -116,22 +116,22 @@ export default function CategoryCarousel() {
         <div className="relative">
           <div
             ref={scrollContainerRef}
-            className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-2"
+            className="flex gap-4 sm:gap-5 overflow-x-auto scrollbar-hide scroll-smooth pb-2"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {categories.map((category) => (
               <Link
                 key={category._id}
                 href={`/product-category/${category.slug || category._id}`}
-                className="flex-shrink-0 w-[120px] sm:w-[135px] md:w-[150px] lg:w-[160px] group"
+                className="flex-shrink-0 w-[160px] sm:w-[180px] md:w-[200px] lg:w-[220px] group"
               >
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-full aspect-square rounded-2xl bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center mb-2.5 group-hover:border-gray-200 group-hover:shadow-md transition-all duration-300">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:border-gray-200 transition-all duration-300">
+                  <div className="aspect-[4/3] overflow-hidden bg-gray-50">
                     {category.image ? (
                       <img
                         src={category.image}
                         alt={category.name}
-                        className="w-3/4 h-3/4 object-contain group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {
                           const target = e.currentTarget;
                           target.style.display = 'none';
@@ -141,14 +141,16 @@ export default function CategoryCarousel() {
                       />
                     ) : null}
                     <div className={`w-full h-full flex items-center justify-center ${category.image ? 'hidden placeholder' : ''}`}>
-                      <span className="text-2xl font-bold text-gray-300">
+                      <span className="text-3xl font-bold text-gray-300">
                         {category.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
                   </div>
-                  <span className="text-xs sm:text-[13px] font-medium text-gray-700 leading-tight line-clamp-2 group-hover:text-blue-600 transition-colors">
-                    {category.name}
-                  </span>
+                  <div className="px-4 py-3 text-center">
+                    <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-[#333] group-hover:text-[rgb(22,176,238)] transition-colors line-clamp-2">
+                      {category.name}
+                    </span>
+                  </div>
                 </div>
               </Link>
             ))}
