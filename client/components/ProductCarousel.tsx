@@ -104,6 +104,7 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
+      maximumFractionDigits: 0,
     }).format(price);
   };
 
@@ -200,7 +201,7 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
               const inStock = product.stockQuantity !== undefined ? product.stockQuantity > 0 : true;
 
               return (
-                <div key={product._id} className="flex-shrink-0 w-[calc(50%-6px)] min-w-[calc(50%-6px)] sm:min-w-0 sm:w-[220px] md:w-[240px] lg:w-[260px] xl:w-[280px] group">
+                <div key={product._id} className="flex-shrink-0 w-[calc(50%-6px)] min-w-[calc(50%-6px)] sm:min-w-0 sm:w-[185px] md:w-[200px] lg:w-[215px] xl:w-[230px] group">
                   <div className="group relative bg-white rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] h-full flex flex-col border border-gray-100">
                     <div className="relative aspect-square overflow-hidden bg-gray-50">
                       <Link href={getProductUrl(product)} className="block w-full h-full">
