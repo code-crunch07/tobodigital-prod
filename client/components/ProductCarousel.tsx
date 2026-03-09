@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Star, Heart, Layers, Eye, ShoppingCart, Tag, Package, Truck, Check } from 'lucide-react';
-import { getProducts, getNewArrivals } from '@/lib/api';
+import { getProducts, getNewArrivals, getSaleProducts } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
 import { getProductUrl } from '@/lib/product-url';
 
@@ -27,7 +27,7 @@ interface Product {
   freeShipping?: boolean;
 }
 
-type DataSource = 'popular' | 'newest';
+type DataSource = 'popular' | 'newest' | 'deals';
 
 interface ProductCarouselProps {
   title?: string;
@@ -73,6 +73,9 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
     try {
       if (dataSource === 'newest') {
         const response = await getNewArrivals(20);
+        setProducts(response.data?.products || []);
+      } else if (dataSource === 'deals') {
+        const response = await getSaleProducts(20);
         setProducts(response.data?.products || []);
       } else {
         const response = await getProducts({ limit: 20, sort: 'popular' });
@@ -217,7 +220,7 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
                         )}
                       </Link>
                       {discount > 0 && (
-                        <span className="absolute top-3 left-3 z-20 inline-flex items-center rounded-full border border-blue-200 bg-blue-50 text-blue-600 text-[10px] font-semibold px-2.5 py-1">Up to {discount}% off</span>
+                        <span className="absolute top-3 left-3 z-20 inline-flex items-center rounded-sm bg-[rgb(22,176,238)] text-white text-[10px] font-semibold px-2 py-0.5">-{discount}%</span>
                       )}
                       <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5">
                         <Link href={getProductUrl(product)} className="w-8 h-8 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors" title="Quick View" onClick={(e) => e.stopPropagation()}>
@@ -242,7 +245,10 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
                       )}
                       <div className="mt-auto pt-3 flex items-center justify-between gap-2">
                         <div className="flex items-baseline gap-1.5">
-                          <span className="text-[15px] font-bold text-gray-900">{formatPrice(currentPrice)}</span>
+                          {discount > 0 && maxRetailPrice ? (
+                            <span className="text-[11px] text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
+                          ) : null}
+                          <span className="text-[15px] font-bold text-[rgb(22,176,238)]">{formatPrice(currentPrice)}</span>
                         </div>
                         <button type="button" onClick={(e) => handleAddToCart(e, product)} disabled={!inStock} className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
                           {isAdded ? <><Check className="h-3 w-3" /> Added</> : !inStock ? <>Out of Stock</> : <><ShoppingCart className="h-3 w-3" /> Add to cart</>}

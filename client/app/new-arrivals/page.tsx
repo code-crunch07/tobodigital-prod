@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ShoppingCart, Star, Heart, Eye, Layers, ChevronLeft, ChevronRight, Home, Filter, X, ChevronDown, Tag, Package, Truck, Check, LayoutGrid, List } from 'lucide-react';
+import { ShoppingCart, Star, Heart, Eye, Layers, ChevronLeft, ChevronRight, Home, Filter, X, ChevronDown, Tag, Package, Truck, Check, LayoutGrid, List, Grid2X2, Grid3X3 } from 'lucide-react';
 import { getProducts, getCategories } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
@@ -125,9 +125,9 @@ const ProductCard = ({
         </Link>
         <div className="absolute top-3 left-3 z-20 flex flex-col gap-1.5">
           {discount > 0 ? (
-            <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 text-blue-600 text-[10px] font-semibold px-2.5 py-1">Up to {discount}% off</span>
+            <span className="inline-flex items-center rounded-sm bg-[rgb(22,176,238)] text-white text-[10px] font-semibold px-2 py-0.5">-{discount}%</span>
           ) : (
-            <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-600 text-[10px] font-semibold px-2.5 py-1">New</span>
+            <span className="inline-flex items-center rounded-sm bg-[rgb(22,176,238)] text-white text-[10px] font-semibold px-2 py-0.5">New</span>
           )}
         </div>
         <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5">
@@ -179,6 +179,8 @@ export default function NewArrivalsPage() {
   const [availableBrands, setAvailableBrands] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [gridCols, setGridCols] = useState(5);
+  const [perPage, setPerPage] = useState(24);
   const [expandedFilter, setExpandedFilter] = useState<string | null>('PRICE');
 
   useEffect(() => {
@@ -187,7 +189,7 @@ export default function NewArrivalsPage() {
 
   useEffect(() => {
     loadProducts();
-  }, [page, selectedCategory, selectedBrands, priceRange, sortBy, selectedRating]);
+  }, [page, perPage, selectedCategory, selectedBrands, priceRange, sortBy, selectedRating]);
 
   const loadCategories = async () => {
     try {
@@ -203,7 +205,7 @@ export default function NewArrivalsPage() {
       setLoading(true);
       const params: any = {
         page,
-        limit: 20,
+        limit: perPage,
         sort: 'newest',
       };
 
@@ -299,34 +301,49 @@ export default function NewArrivalsPage() {
         </div>
 
         <div className="max-w-[1920px] mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 py-6">
-          {/* Toolbar: Filter button + product count & sort */}
-          <div className="flex items-center justify-between gap-4 mb-6">
-            {(() => {
-              const hasActiveFilters = selectedCategory !== 'all' || selectedBrands.length > 0 || priceRange[0] !== 1000 || priceRange[1] !== 5000 || selectedRating !== null;
-              return (
-                <button
-                  type="button"
-                  onClick={() => setFilterOpen(true)}
-                  className="flex items-center gap-2 bg-[#ff006e] text-white px-4 py-2.5 rounded font-semibold text-sm hover:bg-[#d4005a] transition-colors"
-                >
-                  {hasActiveFilters && <span className="text-white">✓</span>}
-                  <Filter className="h-4 w-4" />
-                  FILTER
-                </button>
-              );
-            })()}
-            <div className="flex items-center gap-3 ml-auto">
-              <span className="text-sm text-gray-500">{totalProducts} products</span>
-              <div className="hidden sm:flex items-center border border-gray-200 rounded-lg overflow-hidden">
-                <button type="button" onClick={() => setViewMode('grid')} className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-gray-900 text-white' : 'text-gray-400 hover:text-gray-600'}`} title="Grid view"><LayoutGrid className="h-4 w-4" /></button>
-                <button type="button" onClick={() => setViewMode('list')} className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-gray-900 text-white' : 'text-gray-400 hover:text-gray-600'}`} title="List view"><List className="h-4 w-4" /></button>
+          {/* Toolbar */}
+          <div className="flex items-center justify-between gap-4 mb-6 border-b border-gray-200 pb-4">
+            <div className="flex items-center gap-5">
+              {(() => {
+                const hasActiveFilters = selectedCategory !== 'all' || selectedBrands.length > 0 || priceRange[0] !== 1000 || priceRange[1] !== 5000 || selectedRating !== null;
+                return (
+                  <button
+                    type="button"
+                    onClick={() => setFilterOpen(true)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors border ${hasActiveFilters ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-300 text-gray-700 hover:border-gray-400'}`}
+                  >
+                    <Filter className="h-4 w-4" />
+                    Filter
+                  </button>
+                );
+              })()}
+              <div className="hidden sm:flex items-center gap-1.5 text-sm text-gray-500">
+                <span>Show :</span>
+                {[9, 24, 36].map((count) => (
+                  <button
+                    key={count}
+                    type="button"
+                    onClick={() => { setPerPage(count); setPage(1); }}
+                    className={`px-1 font-medium transition-colors ${perPage === count ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
+                  >
+                    {count}
+                  </button>
+                ))}
               </div>
-              <select value={sortBy} onChange={(e) => { setSortBy(e.target.value); setPage(1); }} className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <option value="newest">Newest</option>
-                <option value="popularity">Best selling</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="oldest">Oldest</option>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="hidden md:flex items-center gap-1">
+                <button type="button" onClick={() => { setViewMode('grid'); setGridCols(3); }} className={`p-1.5 transition-colors ${viewMode === 'grid' && gridCols === 3 ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`} title="3 columns"><Grid2X2 className="h-5 w-5" /></button>
+                <button type="button" onClick={() => { setViewMode('grid'); setGridCols(4); }} className={`p-1.5 transition-colors ${viewMode === 'grid' && gridCols === 4 ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`} title="4 columns"><LayoutGrid className="h-5 w-5" /></button>
+                <button type="button" onClick={() => { setViewMode('grid'); setGridCols(5); }} className={`p-1.5 transition-colors ${viewMode === 'grid' && gridCols === 5 ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`} title="5 columns"><Grid3X3 className="h-5 w-5" /></button>
+                <button type="button" onClick={() => setViewMode('list')} className={`p-1.5 transition-colors ${viewMode === 'list' ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`} title="List view"><List className="h-5 w-5" /></button>
+              </div>
+              <select value={sortBy} onChange={(e) => { setSortBy(e.target.value); setPage(1); }} className="px-3 py-2 border border-gray-200 rounded text-sm bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[160px]">
+                <option value="newest">Sort by latest</option>
+                <option value="popularity">Default sorting</option>
+                <option value="price-low">Sort by price: low to high</option>
+                <option value="price-high">Sort by price: high to low</option>
+                <option value="oldest">Sort by oldest</option>
               </select>
             </div>
           </div>
@@ -370,15 +387,15 @@ export default function NewArrivalsPage() {
 
             {/* Products Grid */}
             {loading && products.length === 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="h-96 bg-gray-200 animate-pulse rounded-lg" />
+              <div className={`grid grid-cols-2 gap-3 sm:gap-4 ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
+                {Array.from({ length: perPage > 12 ? 12 : perPage }).map((_, i) => (
+                  <div key={i} className="aspect-[3/4] bg-gray-100 animate-pulse rounded-[5px]" />
                 ))}
               </div>
             ) : products.length > 0 ? (
               <>
                 {viewMode === 'grid' ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+                  <div className={`grid grid-cols-2 gap-3 sm:gap-4 ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
                     {products.map((product) => (
                       <ProductCard key={product._id} product={product} addedItems={addedItems} setAddedItems={setAddedItems} addToCart={addToCart} formatPrice={formatPrice} onQuickView={setQuickViewProduct} />
                     ))}
@@ -400,7 +417,7 @@ export default function NewArrivalsPage() {
                         <div key={product._id} className="group flex bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                           <Link href={getProductUrl(product)} className="relative w-40 sm:w-48 flex-shrink-0 bg-gray-50">
                             {product.mainImage ? <img src={product.mainImage} alt={product.itemName} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-300"><Package className="h-8 w-8" /></div>}
-                            {discount > 0 && <span className="absolute top-2 left-2 rounded-full border border-blue-200 bg-blue-50 text-blue-600 text-[10px] font-semibold px-2 py-0.5">-{discount}%</span>}
+                            {discount > 0 && <span className="absolute top-2 left-2 rounded-sm bg-[rgb(22,176,238)] text-white text-[10px] font-semibold px-2 py-0.5">-{discount}%</span>}
                           </Link>
                           <div className="flex-1 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
                             <div className="flex-1 min-w-0">

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Sen, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -8,9 +8,9 @@ import DynamicMeta from "@/components/DynamicMeta";
 import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 
-const inter = Inter({
+const sen = Sen({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-sen",
   display: "swap",
 });
 
@@ -36,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
+    <html lang="en" className={`${sen.variable} ${spaceGrotesk.variable}`}>
       <body>
         <Favicon />
         <DynamicMeta />

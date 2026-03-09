@@ -13,7 +13,7 @@ const config: Config = {
         foreground: "var(--foreground)",
       },
       fontFamily: {
-        sans: ['var(--font-dm-sans)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-sen)', '"Sen"', 'system-ui', 'sans-serif'],
       },
     },
   },

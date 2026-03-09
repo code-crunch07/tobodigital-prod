@@ -31,6 +31,12 @@ export default function Home() {
         title="New Arrivals"
         dataSource="newest"
       />
+
+      {/* Top Deals */}
+      <ProductCarousel
+        title="Top Deals"
+        dataSource="deals"
+      />
     </div>
   );
 }

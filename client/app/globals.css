@@ -7,7 +7,7 @@
   --background: #ffffff;
   --foreground: #171717;
 
-  /* Typography system – Inter + Space Grotesk */
+  /* Typography system – Sen + Space Grotesk */
   --heading-font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
   --heading-font-style: normal;
   --heading-font-weight: 600;
@@ -18,18 +18,18 @@
   --subheading-base-size: 14px;
   --rating-star-size: 0.945rem;
 
-  --menu-font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+  --menu-font-family: var(--font-sen), "Sen", system-ui, -apple-system, sans-serif;
   --menu-font-style: normal;
   --menu-font-weight: 500;
   --menu-letter-spacing: 0px;
 
   --body-font-scale: 1.0;
   --body-base-size: 0.875rem;
-  --body-font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+  --body-font-family: var(--font-sen), "Sen", system-ui, -apple-system, sans-serif;
   --body-font-style: normal;
   --body-font-weight: 400;
 
-  --button-font: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+  --button-font: var(--font-sen), "Sen", system-ui, -apple-system, sans-serif;
   --button-font-style: normal;
   --button-font-weight: 500;
   --button-font-size: 0.72rem;
@@ -126,7 +126,7 @@ body {
   min-width: 0;
 }
 
-/* Headings and navigation use Inter */
+/* Headings use Space Grotesk; body, menus, buttons use Google Sans Flex */
 h1,
 h2,
 h3,
@@ -145,7 +145,7 @@ header nav,
   font-weight: var(--menu-font-weight);
 }
 
-/* Buttons use DM Sans */
+/* Buttons use Google Sans Flex */
 button,
 .btn,
 .button {
@@ -167,7 +167,7 @@ button,
 .product-price {
   font-size: 18px;
   font-weight: 800;
-  color: #111827;
+  color: rgb(22, 176, 238);
   letter-spacing: -0.03em;
 }
 

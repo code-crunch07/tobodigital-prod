@@ -398,7 +398,7 @@ export default function ProductDetailPage() {
             )}
           </Link>
           {discount > 0 && (
-            <span className="absolute top-3 left-3 z-20 inline-flex items-center rounded-full border border-blue-200 bg-blue-50 text-blue-600 text-[10px] font-semibold px-2.5 py-1">Up to {discount}% off</span>
+            <span className="absolute top-3 left-3 z-20 inline-flex items-center rounded-sm bg-[rgb(22,176,238)] text-white text-[10px] font-semibold px-2 py-0.5">-{discount}%</span>
           )}
           <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5">
             <Link href={getProductUrl(product)} className="w-8 h-8 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors" title="View Product" onClick={(e) => e.stopPropagation()}>
