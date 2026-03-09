@@ -43,7 +43,7 @@ export default function RootLayout({
         <CartProvider>
           <WishlistProvider>
             <Header />
-            <main className="min-w-0 overflow-x-hidden">{children}</main>
+            <main className="min-w-0 overflow-x-clip">{children}</main>
             <Footer />
           </WishlistProvider>
         </CartProvider>
