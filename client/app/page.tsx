@@ -5,6 +5,7 @@ import CategoryCarousel from '@/components/CategoryCarousel';
 import PromotionBanner from '@/components/PromotionBanner';
 import ProductCarousel from '@/components/ProductCarousel';
 import PromoBannersRow from '@/components/PromoBannersRow';
+import SaleProductsSection from '@/components/SaleProductsSection';
 
 export default function Home() {
   return (
@@ -31,6 +32,9 @@ export default function Home() {
         title="New Arrivals"
         dataSource="newest"
       />
+
+      {/* Sale Products - 2-column grid with blue border */}
+      <SaleProductsSection />
 
       {/* Top Deals */}
       <ProductCarousel
