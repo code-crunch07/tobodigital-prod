@@ -155,7 +155,7 @@ const ProductCard = ({
             <span className="product-price">{formatPrice(currentPrice)}</span>
           </div>
           <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
-            {isAdded ? <><Check className="h-3.5 w-3.5" /> Added</> : !inStock ? <>Out of Stock</> : <><ShoppingCart className="h-3.5 w-3.5" /> Add to cart</>}
+            {isAdded ? <><Check className="h-3.5 w-3.5" /> Added</> : !inStock ? <>Out of Stock</> : <ShoppingCart className="h-3.5 w-3.5" />}
           </button>
         </div>
       </div>
@@ -248,7 +248,7 @@ export default function NewArrivalsPage() {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0,
+      minimumFractionDigits: 2,
     }).format(price);
   };
 
@@ -440,7 +440,7 @@ export default function NewArrivalsPage() {
                                 <span className="text-lg font-bold text-gray-900">{formatPrice(currentPrice)}</span>
                               </div>
                               <button type="button" onClick={(e) => { e.preventDefault(); addToCart({ _id: product._id, itemName: product.itemName, mainImage: product.mainImage, yourPrice: product.yourPrice, freeShipping: product.freeShipping ?? false }); }} disabled={!inStock} className="flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">
-                                <ShoppingCart className="h-3.5 w-3.5" /> {inStock ? 'Add to cart' : 'Out of Stock'}
+                                {inStock ? <ShoppingCart className="h-3.5 w-3.5" /> : <>Out of Stock</>}
                               </button>
                             </div>
                           </div>

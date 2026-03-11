@@ -171,7 +171,6 @@ export default function QuickViewDialog({
                 ) : (
                   <>
                     <ShoppingCart className="h-5 w-5" />
-                    Add to Cart
                   </>
                 )}
               </button>

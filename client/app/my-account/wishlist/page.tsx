@@ -76,7 +76,7 @@ export default function WishlistPage() {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0,
+      minimumFractionDigits: 2,
     }).format(price);
   };
 
@@ -160,7 +160,7 @@ export default function WishlistPage() {
                         <span className="product-price">{formatPrice(product.yourPrice)}</span>
                       </div>
                       <button onClick={() => handleAddToCart(product)} className="flex-shrink-0 flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97] transition-all duration-200">
-                        <ShoppingCart className="h-3.5 w-3.5" /> Add to cart
+                        <ShoppingCart className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </div>
