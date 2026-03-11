@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import {
   ShoppingCart,
@@ -150,6 +151,8 @@ export function ProductDetailView(props: ProductDetailViewProps) {
   const thumbStripRef = useRef<HTMLDivElement | null>(null);
   const [mobileOpenSection, setMobileOpenSection] = useState<'description' | 'reviews' | 'specifications' | 'shipping' | null>(null);
   const [thumbScroll, setThumbScroll] = useState({ canScrollLeft: false, canScrollRight: false });
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   const updateThumbScroll = useCallback(() => {
     const el = thumbStripRef.current;
@@ -460,90 +463,6 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             )}
             </div>
 
-          {lightboxOpen && (
-            <>
-              <div className="fixed inset-0 z-40 bg-black/60" onClick={handleCloseLightbox} />
-              <div className="fixed left-4 right-4 top-4 bottom-4 sm:left-8 sm:right-8 sm:top-8 sm:bottom-8 lg:left-16 lg:right-16 lg:top-12 lg:bottom-12 z-[45] flex flex-col sm:flex-row bg-white rounded-lg shadow-2xl overflow-hidden">
-                {/* Left: image area */}
-                <div className="flex-1 flex flex-col relative bg-white min-h-0">
-                  <div className="hidden sm:flex items-center justify-between px-5 h-11 border-b border-gray-200 flex-shrink-0">
-                    <div className="flex items-center gap-0">
-                      <span className="text-[11px] font-medium text-gray-400 uppercase tracking-wider px-3 py-3 cursor-default">Videos</span>
-                      <span className="text-[11px] font-semibold text-gray-900 uppercase tracking-wider px-3 py-3 border-b-2 border-gray-900 cursor-default">Images</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <button onClick={handleLightboxZoomIn} className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors" title="Zoom In"><ZoomIn className="h-4 w-4" /></button>
-                      <button onClick={handleLightboxZoomOut} disabled={lightboxZoom <= 1} className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-30" title="Zoom Out"><ZoomOut className="h-4 w-4" /></button>
-                    </div>
-                  </div>
-                  <div className="flex-1 relative min-h-0 overflow-hidden">
-                    {images.length > 1 && (
-                      <>
-                        <button onClick={handleLightboxPrev} className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white border border-gray-300 flex items-center justify-center text-gray-500 hover:text-gray-700 shadow-sm transition-colors"><ChevronLeft className="h-5 w-5" /></button>
-                        <button onClick={handleLightboxNext} className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white border border-gray-300 flex items-center justify-center text-gray-500 hover:text-gray-700 shadow-sm transition-colors"><ChevronRight className="h-5 w-5" /></button>
-                      </>
-                    )}
-                    <div
-                      ref={setLightboxImageRef}
-                      className={`w-full h-full flex items-center justify-center p-6 sm:p-10 ${lightboxZoom > 1 ? 'cursor-move' : 'cursor-zoom-in'}`}
-                      onMouseMove={lightboxZoom > 1 ? handleLightboxMouseMove : undefined}
-                      onMouseEnter={() => lightboxZoom > 1 && setLightboxShowZoom(true)}
-                      onMouseLeave={() => setLightboxShowZoom(false)}
-                    >
-                      <img
-                        src={images[lightboxImageIndex] || product.mainImage}
-                        alt={`${product.itemName} ${lightboxImageIndex + 1}`}
-                        className="max-w-full max-h-full object-contain transition-transform duration-200 select-none"
-                        style={{
-                          transform: lightboxZoom > 1
-                            ? `scale(${lightboxZoom}) translate(${(lightboxPosition.x - 50) * (lightboxZoom - 1)}%, ${(lightboxPosition.y - 50) * (lightboxZoom - 1)}%)`
-                            : 'scale(1)',
-                        }}
-                        draggable={false}
-                      />
-                    </div>
-                    <div className="sm:hidden absolute top-3 right-3 z-50">
-                      <button onClick={handleCloseLightbox} className="w-9 h-9 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center text-gray-600"><X className="h-5 w-5" /></button>
-                    </div>
-                    {images.length > 1 && (
-                      <div className="sm:hidden absolute bottom-3 left-0 right-0 px-4">
-                        <div className="flex justify-center gap-1.5">
-                          {images.map((img, index) => (
-                            <button key={index} onClick={() => handleLightboxImageChange(index)} className={`w-11 h-11 rounded border-2 overflow-hidden transition-all ${lightboxImageIndex === index ? 'border-blue-500' : 'border-white/80'}`}>
-                              <img src={img} alt={`${product.itemName} ${index + 1}`} className="w-full h-full object-cover" />
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                {/* Right: info panel (desktop) */}
-                <div className="hidden sm:flex w-[260px] lg:w-[290px] xl:w-[320px] bg-white border-l border-gray-200 flex-col flex-shrink-0">
-                  <div className="flex items-center justify-end px-4 h-11 border-b border-gray-200 flex-shrink-0">
-                    <button onClick={handleCloseLightbox} className="w-7 h-7 rounded border border-gray-300 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors" aria-label="Close"><X className="h-4 w-4" /></button>
-                  </div>
-                  <div className="flex-1 overflow-y-auto p-4">
-                    <h2 className="text-[13px] font-semibold text-gray-900 leading-snug mb-2">{product.itemName}</h2>
-                    {activeVariant && (
-                      <p className="text-[11px] text-gray-500 mb-4">
-                        {Object.entries(activeVariant.attributes || {}).map(([k, v]) => `${k}:${v}`).join(', ')}
-                      </p>
-                    )}
-                    {images.length > 1 && (
-                      <div className="grid grid-cols-4 gap-1.5">
-                        {images.map((img, index) => (
-                          <button key={index} onClick={() => handleLightboxImageChange(index)} className={`aspect-square overflow-hidden border-2 transition-all ${lightboxImageIndex === index ? 'border-blue-500 ring-1 ring-blue-100' : 'border-gray-200 hover:border-gray-400'}`}>
-                            <img src={img} alt={`${product.itemName} ${index + 1}`} className="w-full h-full object-cover" />
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
           </div>
 
           <div className="flex flex-col gap-0 min-w-0">
@@ -1360,6 +1279,91 @@ export function ProductDetailView(props: ProductDetailViewProps) {
         )}
       </div>
     </div>
+    {mounted && lightboxOpen && createPortal(
+      <>
+        <div className="fixed inset-0 z-[9998] bg-black/60" onClick={handleCloseLightbox} />
+        <div className="fixed left-4 right-4 top-4 bottom-4 sm:left-8 sm:right-8 sm:top-8 sm:bottom-8 lg:left-16 lg:right-16 lg:top-12 lg:bottom-12 z-[9999] flex flex-col sm:flex-row bg-white rounded-lg shadow-2xl overflow-hidden">
+          {/* Left: image area */}
+          <div className="flex-1 flex flex-col relative bg-white min-h-0">
+            <div className="hidden sm:flex items-center justify-between px-5 h-11 border-b border-gray-200 flex-shrink-0">
+              <div className="flex items-center gap-0">
+                <span className="text-[11px] font-medium text-gray-400 uppercase tracking-wider px-3 py-3 cursor-default">Videos</span>
+                <span className="text-[11px] font-semibold text-gray-900 uppercase tracking-wider px-3 py-3 border-b-2 border-gray-900 cursor-default">Images</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <button onClick={handleLightboxZoomIn} className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors" title="Zoom In"><ZoomIn className="h-4 w-4" /></button>
+                <button onClick={handleLightboxZoomOut} disabled={lightboxZoom <= 1} className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-30" title="Zoom Out"><ZoomOut className="h-4 w-4" /></button>
+              </div>
+            </div>
+            <div className="flex-1 relative min-h-0 overflow-hidden">
+              {images.length > 1 && (
+                <>
+                  <button onClick={handleLightboxPrev} className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white border border-gray-300 flex items-center justify-center text-gray-500 hover:text-gray-700 shadow-sm transition-colors"><ChevronLeft className="h-5 w-5" /></button>
+                  <button onClick={handleLightboxNext} className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-white border border-gray-300 flex items-center justify-center text-gray-500 hover:text-gray-700 shadow-sm transition-colors"><ChevronRight className="h-5 w-5" /></button>
+                </>
+              )}
+              <div
+                ref={setLightboxImageRef}
+                className={`w-full h-full flex items-center justify-center p-6 sm:p-10 ${lightboxZoom > 1 ? 'cursor-move' : 'cursor-zoom-in'}`}
+                onMouseMove={lightboxZoom > 1 ? handleLightboxMouseMove : undefined}
+                onMouseEnter={() => lightboxZoom > 1 && setLightboxShowZoom(true)}
+                onMouseLeave={() => setLightboxShowZoom(false)}
+              >
+                <img
+                  src={images[lightboxImageIndex] || product.mainImage}
+                  alt={`${product.itemName} ${lightboxImageIndex + 1}`}
+                  className="max-w-full max-h-full object-contain transition-transform duration-200 select-none"
+                  style={{
+                    transform: lightboxZoom > 1
+                      ? `scale(${lightboxZoom}) translate(${(lightboxPosition.x - 50) * (lightboxZoom - 1)}%, ${(lightboxPosition.y - 50) * (lightboxZoom - 1)}%)`
+                      : 'scale(1)',
+                  }}
+                  draggable={false}
+                />
+              </div>
+              <div className="sm:hidden absolute top-3 right-3 z-50">
+                <button onClick={handleCloseLightbox} className="w-9 h-9 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center text-gray-600"><X className="h-5 w-5" /></button>
+              </div>
+              {images.length > 1 && (
+                <div className="sm:hidden absolute bottom-3 left-0 right-0 px-4">
+                  <div className="flex justify-center gap-1.5">
+                    {images.map((img, index) => (
+                      <button key={index} onClick={() => handleLightboxImageChange(index)} className={`w-11 h-11 rounded border-2 overflow-hidden transition-all ${lightboxImageIndex === index ? 'border-blue-500' : 'border-white/80'}`}>
+                        <img src={img} alt={`${product.itemName} ${index + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Right: info panel (desktop) */}
+          <div className="hidden sm:flex w-[260px] lg:w-[290px] xl:w-[320px] bg-white border-l border-gray-200 flex-col flex-shrink-0">
+            <div className="flex items-center justify-end px-4 h-11 border-b border-gray-200 flex-shrink-0">
+              <button onClick={handleCloseLightbox} className="w-7 h-7 rounded border border-gray-300 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors" aria-label="Close"><X className="h-4 w-4" /></button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+              <h2 className="text-[13px] font-semibold text-gray-900 leading-snug mb-2">{product.itemName}</h2>
+              {activeVariant && (
+                <p className="text-[11px] text-gray-500 mb-4">
+                  {Object.entries(activeVariant.attributes || {}).map(([k, v]) => `${k}:${v}`).join(', ')}
+                </p>
+              )}
+              {images.length > 1 && (
+                <div className="grid grid-cols-4 gap-1.5">
+                  {images.map((img, index) => (
+                    <button key={index} onClick={() => handleLightboxImageChange(index)} className={`aspect-square overflow-hidden border-2 transition-all ${lightboxImageIndex === index ? 'border-blue-500 ring-1 ring-blue-100' : 'border-gray-200 hover:border-gray-400'}`}>
+                      <img src={img} alt={`${product.itemName} ${index + 1}`} className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </>,
+      document.body
+    )}
     </>
   );
 }
