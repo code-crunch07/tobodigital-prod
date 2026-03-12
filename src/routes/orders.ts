@@ -7,6 +7,7 @@ const router = express.Router();
 // Razorpay (must be before /:id)
 router.post('/create-razorpay-order', orderController.createRazorpayOrder);
 router.post('/verify-payment', orderController.verifyPayment);
+router.post('/notify-payment-failed', orderController.notifyPaymentFailed);
 
 // Get all orders (optionalAuth: customer sees own, admin/shop_manager see all)
 router.get('/', optionalAuth, orderController.getAllOrders);

@@ -523,7 +523,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             )}
 
             {/* Title */}
-            <h1 className="text-2xl sm:text-3xl lg:text-[2rem] font-bold text-gray-900 leading-snug break-words tracking-tight">
+            <h1 className="text-[17px] font-medium text-gray-900 leading-snug break-words tracking-tight">
               {product.itemName}
             </h1>
 

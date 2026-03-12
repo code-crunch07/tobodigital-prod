@@ -353,6 +353,19 @@ export default function CheckoutPage() {
       
       razorpay.on('payment.failed', function (response: any) {
         console.error('Payment failed:', response.error);
+        // Notify customer + admin via backend (best-effort, don't await)
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        fetch(`${API_URL}/orders/notify-payment-failed`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: shippingAddress.email,
+            name: `${shippingAddress.firstName} ${shippingAddress.lastName}`.trim(),
+            errorDescription: response.error?.description || response.error?.reason || '',
+            errorCode: response.error?.code || '',
+            razorpayOrderId: response.error?.metadata?.order_id || razorpayOrder?.id || '',
+          }),
+        }).catch(() => {});
         alert(`Payment failed: ${response.error.description || response.error.reason || 'Please try again'}`);
         setLoading(false);
       });

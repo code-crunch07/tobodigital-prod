@@ -9,6 +9,44 @@ import { sendEmail } from '../services/email';
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 
+// ─── Email helpers ────────────────────────────────────────────────────────────
+
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
+}
+
+function buildItemsTable(items: any[]) {
+  return items
+    .map((i: any) => {
+      const name = i.product?.itemName || i.product?.name || 'Product';
+      return `  • ${name} × ${i.quantity}  —  ${formatCurrency(i.price * i.quantity)}`;
+    })
+    .join('\n');
+}
+
+function buildItemsHtml(items: any[]) {
+  const rows = items
+    .map((i: any) => {
+      const name = i.product?.itemName || i.product?.name || 'Product';
+      return `<tr>
+        <td style="padding:6px 12px;border-bottom:1px solid #f0f0f0">${name}</td>
+        <td style="padding:6px 12px;border-bottom:1px solid #f0f0f0;text-align:center">${i.quantity}</td>
+        <td style="padding:6px 12px;border-bottom:1px solid #f0f0f0;text-align:right">${formatCurrency(i.price * i.quantity)}</td>
+      </tr>`;
+    })
+    .join('');
+  return `<table style="width:100%;border-collapse:collapse;font-size:14px">
+    <thead><tr style="background:#f9f9f9">
+      <th style="padding:8px 12px;text-align:left">Item</th>
+      <th style="padding:8px 12px;text-align:center">Qty</th>
+      <th style="padding:8px 12px;text-align:right">Amount</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 const generateOrderNumber = (): string => {
   return 'ORD-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
 };
@@ -217,34 +255,92 @@ const createOrder = async (req: Request, res: Response) => {
     try {
       const customerDoc = populatedOrder?.customer as any;
       const toEmail = customerDoc?.email;
-      if (toEmail) {
-        const siteName = process.env.SITE_NAME || 'Tobo Digital';
-        const orderNumber = populatedOrder?.orderNumber || populatedOrder?._id;
-        const total = populatedOrder?.totalAmount ?? totalAmount;
-        const shipping = populatedOrder?.shippingAddress;
-        const lines: string[] = [];
-        if (shipping) {
-          lines.push(
-            [shipping.street, shipping.city, shipping.state, shipping.zipCode, shipping.country]
-              .filter(Boolean)
-              .join(', ')
-          );
-        }
+      const siteName = process.env.SITE_NAME || 'Tobo Digital';
+      const orderNumber = populatedOrder?.orderNumber || String(populatedOrder?._id);
+      const total = populatedOrder?.totalAmount ?? totalAmount;
+      const shipping = populatedOrder?.shippingAddress as any;
+      const shippingLine = shipping
+        ? [shipping.street, shipping.city, shipping.state, shipping.zipCode, shipping.country]
+            .filter(Boolean)
+            .join(', ')
+        : '';
+      const orderItems = (populatedOrder?.items as any[]) || [];
 
+      // ── Customer confirmation ──────────────────────────────────────────────
+      if (toEmail) {
         await sendEmail({
           to: toEmail,
-          subject: `Your ${siteName} order ${orderNumber}`,
+          subject: `Order Confirmed — ${orderNumber} | ${siteName}`,
           text: [
-            `Thank you for your order at ${siteName}.`,
+            `Hi ${customerDoc?.name || 'there'},`,
             '',
-            `Order number: ${orderNumber}`,
-            `Total amount: ${total}`,
-            lines.length ? `Shipping to: ${lines[0]}` : '',
+            `Thank you for your order at ${siteName}!`,
             '',
-            'We will send you another update when your order ships.',
+            `Order number : ${orderNumber}`,
+            `Total        : ${formatCurrency(total)}`,
+            shippingLine ? `Ship to      : ${shippingLine}` : '',
+            '',
+            orderItems.length ? 'Items:\n' + buildItemsTable(orderItems) : '',
+            '',
+            'We will email you again once your order ships.',
+            '',
+            `— ${siteName} team`,
           ]
-            .filter(Boolean)
+            .filter((l) => l !== undefined)
             .join('\n'),
+          html: `
+<div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#333">
+  <div style="background:rgb(22,176,238);padding:24px 32px;border-radius:8px 8px 0 0">
+    <h1 style="margin:0;color:#fff;font-size:22px">${siteName}</h1>
+  </div>
+  <div style="padding:28px 32px;background:#fff;border:1px solid #e8e8e8;border-top:none;border-radius:0 0 8px 8px">
+    <h2 style="margin-top:0;font-size:18px;color:#111">Order Confirmed ✓</h2>
+    <p>Hi <strong>${customerDoc?.name || 'there'}</strong>, thanks for shopping with us!</p>
+    <table style="width:100%;margin:16px 0;font-size:14px">
+      <tr><td style="color:#666;padding:4px 0">Order Number</td><td style="font-weight:600">${orderNumber}</td></tr>
+      <tr><td style="color:#666;padding:4px 0">Total</td><td style="font-weight:600;color:rgb(22,176,238)">${formatCurrency(total)}</td></tr>
+      ${shippingLine ? `<tr><td style="color:#666;padding:4px 0">Ship To</td><td>${shippingLine}</td></tr>` : ''}
+    </table>
+    ${orderItems.length ? `<h3 style="font-size:14px;color:#444;margin-bottom:8px">Items Ordered</h3>${buildItemsHtml(orderItems)}` : ''}
+    <p style="margin-top:20px;font-size:13px;color:#888">We will send you another email once your order ships. If you have questions, just reply to this email.</p>
+  </div>
+</div>`,
+        });
+      }
+
+      // ── Admin notification ─────────────────────────────────────────────────
+      const adminEmail = process.env.ADMIN_EMAIL;
+      if (adminEmail) {
+        await sendEmail({
+          to: adminEmail,
+          subject: `🛒 New Order ${orderNumber} — ${formatCurrency(total)}`,
+          text: [
+            `New order received on ${siteName}.`,
+            '',
+            `Order   : ${orderNumber}`,
+            `Customer: ${customerDoc?.name || 'Guest'} <${toEmail || 'N/A'}>`,
+            `Total   : ${formatCurrency(total)}`,
+            shippingLine ? `Ship to : ${shippingLine}` : '',
+            '',
+            orderItems.length ? 'Items:\n' + buildItemsTable(orderItems) : '',
+          ]
+            .filter((l) => l !== undefined)
+            .join('\n'),
+          html: `
+<div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#333">
+  <div style="background:#1a1a2e;padding:20px 28px;border-radius:8px 8px 0 0">
+    <h1 style="margin:0;color:#fff;font-size:18px">New Order — ${siteName} Dashboard</h1>
+  </div>
+  <div style="padding:24px 28px;background:#fff;border:1px solid #e8e8e8;border-top:none;border-radius:0 0 8px 8px">
+    <table style="width:100%;font-size:14px;margin-bottom:16px">
+      <tr><td style="color:#666;padding:4px 0;width:120px">Order</td><td style="font-weight:700">${orderNumber}</td></tr>
+      <tr><td style="color:#666;padding:4px 0">Customer</td><td>${customerDoc?.name || 'Guest'}${toEmail ? ` &lt;${toEmail}&gt;` : ''}</td></tr>
+      <tr><td style="color:#666;padding:4px 0">Total</td><td style="font-weight:700;color:rgb(22,176,238)">${formatCurrency(total)}</td></tr>
+      ${shippingLine ? `<tr><td style="color:#666;padding:4px 0">Ship To</td><td>${shippingLine}</td></tr>` : ''}
+    </table>
+    ${orderItems.length ? buildItemsHtml(orderItems) : ''}
+  </div>
+</div>`,
         });
       }
     } catch (err) {
@@ -298,6 +394,88 @@ const updateOrder = async (req: Request, res: Response) => {
     // Create notification if payment status changed to 'paid'
     if (oldOrder && oldOrder.paymentStatus !== 'paid' && order.paymentStatus === 'paid') {
       await createPaymentNotification(orderId);
+    }
+
+    // ── Status-change emails ────────────────────────────────────────────────
+    if (oldOrder && oldOrder.status !== order.status) {
+      try {
+        const customerDoc = order.customer as any;
+        const toEmail = customerDoc?.email;
+        if (toEmail) {
+          const siteName = process.env.SITE_NAME || 'Tobo Digital';
+          const orderNumber = order.orderNumber || String(order._id);
+          const total = order.totalAmount;
+          const orderItems = (order.items as any[]) || [];
+          const newStatus = order.status;
+
+          const statusMessages: Record<string, { subject: string; heading: string; body: string; emoji: string }> = {
+            processing: {
+              emoji: '⚙️',
+              subject: `Your order ${orderNumber} is being processed`,
+              heading: 'We\'re processing your order',
+              body: 'Good news! Your order has been confirmed and is now being prepared.',
+            },
+            shipped: {
+              emoji: '🚚',
+              subject: `Your order ${orderNumber} has shipped!`,
+              heading: 'Your order is on its way',
+              body: `Your order has been shipped${order.courierName ? ` via <strong>${order.courierName}</strong>` : ''}.${order.trackingNumber ? ` Tracking ID: <strong>${order.trackingNumber}</strong>` : ''}`,
+            },
+            delivered: {
+              emoji: '📦',
+              subject: `Your order ${orderNumber} has been delivered`,
+              heading: 'Order Delivered!',
+              body: 'Your order has been successfully delivered. We hope you enjoy your purchase!',
+            },
+            cancelled: {
+              emoji: '❌',
+              subject: `Your order ${orderNumber} has been cancelled`,
+              heading: 'Order Cancelled',
+              body: 'Your order has been cancelled. If you have any questions, please contact our support team.',
+            },
+          };
+
+          const msg = statusMessages[newStatus];
+          if (msg) {
+            await sendEmail({
+              to: toEmail,
+              subject: `${msg.emoji} ${msg.subject} | ${siteName}`,
+              text: [
+                `Hi ${customerDoc?.name || 'there'},`,
+                '',
+                msg.body.replace(/<[^>]*>/g, ''),
+                '',
+                `Order number : ${orderNumber}`,
+                `Total        : ${formatCurrency(total)}`,
+                order.trackingUrl ? `Track order  : ${order.trackingUrl}` : '',
+                '',
+                `— ${siteName} team`,
+              ].filter(Boolean).join('\n'),
+              html: `
+<div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#333">
+  <div style="background:rgb(22,176,238);padding:24px 32px;border-radius:8px 8px 0 0">
+    <h1 style="margin:0;color:#fff;font-size:20px">${siteName}</h1>
+  </div>
+  <div style="padding:28px 32px;background:#fff;border:1px solid #e8e8e8;border-top:none;border-radius:0 0 8px 8px">
+    <h2 style="margin-top:0;font-size:18px">${msg.emoji} ${msg.heading}</h2>
+    <p>Hi <strong>${customerDoc?.name || 'there'}</strong>,</p>
+    <p>${msg.body}</p>
+    <table style="width:100%;font-size:14px;margin:16px 0">
+      <tr><td style="color:#666;padding:4px 0;width:140px">Order Number</td><td style="font-weight:600">${orderNumber}</td></tr>
+      <tr><td style="color:#666;padding:4px 0">Total</td><td style="font-weight:600;color:rgb(22,176,238)">${formatCurrency(total)}</td></tr>
+      ${order.trackingNumber ? `<tr><td style="color:#666;padding:4px 0">Tracking ID</td><td>${order.trackingNumber}</td></tr>` : ''}
+    </table>
+    ${orderItems.length ? buildItemsHtml(orderItems) : ''}
+    ${order.trackingUrl ? `<p style="margin-top:20px"><a href="${order.trackingUrl}" style="background:rgb(22,176,238);color:#fff;text-decoration:none;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600">Track Your Order</a></p>` : ''}
+    <p style="font-size:13px;color:#888;margin-top:20px">If you have questions, just reply to this email.</p>
+  </div>
+</div>`,
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Status change email error:', (err as any)?.message || err);
+      }
     }
 
     res.json({
@@ -531,6 +709,91 @@ const getOrderTracking = async (req: Request, res: Response) => {
   }
 };
 
+// Notify customer + admin about a failed payment
+export const notifyPaymentFailed = async (req: Request, res: Response) => {
+  try {
+    const { email, name, errorDescription, errorCode, razorpayOrderId } = req.body;
+    const siteName = process.env.SITE_NAME || 'Tobo Digital';
+
+    const promises: Promise<any>[] = [];
+
+    // Customer email
+    if (email) {
+      promises.push(
+        sendEmail({
+          to: email,
+          subject: `Payment Failed for your ${siteName} order`,
+          text: [
+            `Hi ${name || 'there'},`,
+            '',
+            'Unfortunately your payment could not be processed.',
+            errorDescription ? `Reason: ${errorDescription}` : '',
+            errorCode ? `Error code: ${errorCode}` : '',
+            '',
+            'Please try again or use a different payment method.',
+            `Your cart has been saved — simply visit the site to retry.`,
+            '',
+            `— ${siteName} team`,
+          ].filter(Boolean).join('\n'),
+          html: `
+<div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#333">
+  <div style="background:#e53e3e;padding:24px 32px;border-radius:8px 8px 0 0">
+    <h1 style="margin:0;color:#fff;font-size:20px">${siteName}</h1>
+  </div>
+  <div style="padding:28px 32px;background:#fff;border:1px solid #e8e8e8;border-top:none;border-radius:0 0 8px 8px">
+    <h2 style="margin-top:0;font-size:18px;color:#e53e3e">❌ Payment Failed</h2>
+    <p>Hi <strong>${name || 'there'}</strong>,</p>
+    <p>Unfortunately we were unable to process your payment.</p>
+    ${errorDescription ? `<p style="background:#fff5f5;border-left:4px solid #e53e3e;padding:10px 14px;font-size:13px;color:#c53030">${errorDescription}</p>` : ''}
+    <p>Your cart is still saved. Please <a href="${process.env.NEXT_PUBLIC_CLIENT_URL || '#'}/checkout" style="color:rgb(22,176,238)">try again</a> or use a different payment method.</p>
+    <p style="font-size:13px;color:#888">If the issue persists, please contact our support team.</p>
+  </div>
+</div>`,
+        })
+      );
+    }
+
+    // Admin alert
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (adminEmail) {
+      promises.push(
+        sendEmail({
+          to: adminEmail,
+          subject: `⚠️ Payment Failed — ${name || email || 'Unknown customer'}`,
+          text: [
+            `A payment failure occurred on ${siteName}.`,
+            '',
+            `Customer : ${name || 'N/A'} <${email || 'N/A'}>`,
+            razorpayOrderId ? `Razorpay Order ID : ${razorpayOrderId}` : '',
+            errorCode ? `Error Code        : ${errorCode}` : '',
+            errorDescription ? `Description       : ${errorDescription}` : '',
+          ].filter(Boolean).join('\n'),
+          html: `
+<div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#333">
+  <div style="background:#1a1a2e;padding:20px 28px;border-radius:8px 8px 0 0">
+    <h1 style="margin:0;color:#fff;font-size:18px">⚠️ Payment Failure Alert — ${siteName}</h1>
+  </div>
+  <div style="padding:24px 28px;background:#fff;border:1px solid #e8e8e8;border-top:none;border-radius:0 0 8px 8px">
+    <table style="width:100%;font-size:14px">
+      <tr><td style="color:#666;padding:4px 0;width:180px">Customer</td><td>${name || 'N/A'}${email ? ` &lt;${email}&gt;` : ''}</td></tr>
+      ${razorpayOrderId ? `<tr><td style="color:#666;padding:4px 0">Razorpay Order ID</td><td>${razorpayOrderId}</td></tr>` : ''}
+      ${errorCode ? `<tr><td style="color:#666;padding:4px 0">Error Code</td><td>${errorCode}</td></tr>` : ''}
+      ${errorDescription ? `<tr><td style="color:#666;padding:4px 0">Description</td><td style="color:#c53030">${errorDescription}</td></tr>` : ''}
+    </table>
+  </div>
+</div>`,
+        })
+      );
+    }
+
+    await Promise.allSettled(promises);
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error('notifyPaymentFailed error:', err?.message || err);
+    res.status(500).json({ success: false });
+  }
+};
+
 export default {
   getAllOrders,
   getOrderById,
@@ -539,6 +802,7 @@ export default {
   deleteOrder,
   createRazorpayOrder,
   verifyPayment,
+  notifyPaymentFailed,
   getOrderTracking,
 };
 
