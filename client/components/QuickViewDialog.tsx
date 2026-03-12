@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import { createPortal } from 'react-dom';
 import { X, ShoppingCart, Star, Heart, Check, Tag } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
@@ -24,6 +24,9 @@ export default function QuickViewDialog({
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const [addedToCart, setAddedToCart] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -36,7 +39,7 @@ export default function QuickViewDialog({
     };
   }, [isOpen]);
 
-  if (!isOpen || !product) return null;
+  if (!isOpen || !product || !mounted) return null;
 
   const discount =
     product.maximumRetailPrice && product.maximumRetailPrice > product.yourPrice
@@ -59,8 +62,8 @@ export default function QuickViewDialog({
 
   const isWishlisted = isInWishlist(product._id);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -171,6 +174,7 @@ export default function QuickViewDialog({
                 ) : (
                   <>
                     <ShoppingCart className="h-5 w-5" />
+                    Add to Cart
                   </>
                 )}
               </button>
@@ -200,7 +204,8 @@ export default function QuickViewDialog({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

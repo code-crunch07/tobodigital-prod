@@ -2,9 +2,11 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, Star, Heart, Layers, Eye, ShoppingCart, Tag, Package, Truck, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, Heart, Layers, Eye, ShoppingCart, Tag, Package, Truck, Check, X } from 'lucide-react';
 import { getProducts, getNewArrivals, getSaleProducts } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
+import QuickViewDialog from '@/components/QuickViewDialog';
 import { getProductUrl } from '@/lib/product-url';
 
 interface Product {
@@ -37,12 +39,14 @@ interface ProductCarouselProps {
 
 export default function ProductCarousel({ title = "Today's Popular Picks", description, dataSource = 'popular' }: ProductCarouselProps = {}) {
   const { addToCart } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     loadProducts();
@@ -147,6 +151,7 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
   }
 
   return (
+    <>
     <section className="bg-white py-12">
       <div className="max-w-[1920px] mx-auto px-6 sm:px-8 lg:px-12 xl:px-16">
         {/* Header with Title and Navigation */}
@@ -181,7 +186,7 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
         <div className="relative">
           <div 
             ref={scrollContainerRef}
-            className="flex gap-3 sm:gap-4 lg:gap-5 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+            className="flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {products.map((product) => {
@@ -223,11 +228,11 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
                         <span className="absolute top-3 left-3 z-20 inline-flex items-center rounded-sm bg-[rgb(22,176,238)] text-white text-[10px] font-semibold px-2 py-0.5">-{discount}%</span>
                       )}
                       <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5">
-                        <Link href={getProductUrl(product)} className="w-8 h-8 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors" title="Quick View" onClick={(e) => e.stopPropagation()}>
+                        <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuickViewProduct(product); }} className="w-8 h-8 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors" title="Quick View">
                           <Eye className="h-3.5 w-3.5" />
-                        </Link>
-                        <button type="button" className="w-8 h-8 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-gray-400 hover:text-rose-500 transition-colors" title="Wishlist" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-                          <Heart className="h-3.5 w-3.5" />
+                        </button>
+                        <button type="button" className={`w-8 h-8 rounded-full bg-white/90 shadow-sm flex items-center justify-center transition-colors ${isInWishlist(product._id) ? 'text-rose-500' : 'text-gray-400 hover:text-rose-500'}`} title="Wishlist" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product._id); }}>
+                          <Heart className={`h-3.5 w-3.5 ${isInWishlist(product._id) ? 'fill-rose-500' : ''}`} />
                         </button>
                       </div>
                     </div>
@@ -244,14 +249,14 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
                         </div>
                       )}
                       <div className="mt-auto pt-3 flex items-center justify-between gap-2">
-                        <div className="flex items-baseline gap-1.5">
+                        <div className="flex items-baseline gap-1.5 min-w-0 overflow-hidden">
+                          <span className="text-[15px] font-semibold text-[rgb(22,176,238)] leading-none flex-shrink-0">{formatPrice(currentPrice)}</span>
                           {discount > 0 && maxRetailPrice ? (
-                            <span className="text-[11px] text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
+                            <span className="text-[11px] text-gray-400 line-through truncate">{formatPrice(maxRetailPrice)}</span>
                           ) : null}
-                          <span className="text-[15px] font-semibold text-[rgb(22,176,238)]">{formatPrice(currentPrice)}</span>
                         </div>
-                        <button type="button" onClick={(e) => handleAddToCart(e, product)} disabled={!inStock} className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
-                          {isAdded ? <><Check className="h-3 w-3" /> Added</> : !inStock ? <>Out of Stock</> : <ShoppingCart className="h-3 w-3" />}
+                        <button type="button" onClick={(e) => handleAddToCart(e, product)} disabled={!inStock} className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
+                          {isAdded ? <Check className="h-3.5 w-3.5" /> : !inStock ? <X className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}
                         </button>
                       </div>
                     </div>
@@ -263,6 +268,15 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
         </div>
       </div>
     </section>
+    {quickViewProduct && (
+      <QuickViewDialog
+        product={quickViewProduct}
+        isOpen={!!quickViewProduct}
+        onClose={() => setQuickViewProduct(null)}
+        formatPrice={formatPrice}
+      />
+    )}
+  </>
   );
 }
 

@@ -182,14 +182,14 @@ const ProductCard = ({
           </div>
         )}
         <div className="mt-auto pt-3 flex items-center justify-between gap-2">
-          <div className="flex items-baseline gap-1.5">
+          <div className="flex items-baseline gap-1.5 min-w-0 overflow-hidden">
+            <span className="product-price leading-none flex-shrink-0">{formatPrice(currentPrice)}</span>
             {discount > 0 && maxRetailPrice ? (
-              <span className="text-[11px] text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
+              <span className="text-[11px] text-gray-400 line-through truncate">{formatPrice(maxRetailPrice)}</span>
             ) : null}
-            <span className="product-price">{formatPrice(currentPrice)}</span>
           </div>
-          <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
-            {isAdded ? <><Check className="h-3.5 w-3.5" /> Added</> : !inStock ? <>Out of Stock</> : <ShoppingCart className="h-3.5 w-3.5" />}
+          <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
+            {isAdded ? <Check className="h-4 w-4" /> : !inStock ? <X className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
           </button>
         </div>
       </div>
@@ -549,7 +549,7 @@ export default function CategoryPage() {
 
             {/* Products Grid */}
           {loading && products.length === 0 ? (
-            <div className={`grid grid-cols-2 gap-3 sm:gap-4 ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
+            <div className={`grid grid-cols-2 gap-2 sm:gap-3 ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
                 {Array.from({ length: perPage > 12 ? 12 : perPage }).map((_, i) => (
                   <div key={i} className="aspect-[3/4] bg-gray-100 animate-pulse rounded-[5px]"></div>
               ))}
@@ -557,7 +557,7 @@ export default function CategoryPage() {
           ) : products.length > 0 ? (
             <>
                 {viewMode === 'grid' ? (
-              <div className={`grid grid-cols-2 gap-3 sm:gap-4 ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
+              <div className={`grid grid-cols-2 gap-2 sm:gap-3 ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
                 {products.map((product) => (
                   <ProductCard key={product._id} product={product} addedItems={addedItems} setAddedItems={setAddedItems} addToCart={addToCart} formatPrice={formatPrice} onQuickView={setQuickViewProduct} />
                 ))}

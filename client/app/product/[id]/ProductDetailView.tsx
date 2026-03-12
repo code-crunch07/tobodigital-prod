@@ -12,6 +12,7 @@ import {
   ZoomOut,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   MapPin,
   Zap,
   Star,
@@ -22,6 +23,8 @@ import {
   Lock,
   Plus,
   Minus,
+  FileText,
+  List,
 } from 'lucide-react';
 import type { Product, ProductVariant } from './types';
 
@@ -736,30 +739,27 @@ export function ProductDetailView(props: ProductDetailViewProps) {
         </div>
 
         <div className="mt-12">
-          {/* Mobile: accordion layout – clean list, + / − on right, thin dividers */}
-          <div className="sm:hidden mb-6 bg-white overflow-hidden">
+          {/* Mobile: accordion layout */}
+          <div className="sm:hidden mb-6 space-y-2">
             {/* Description */}
-            <div className="border-b border-gray-200">
+            <div className={`rounded-xl border overflow-hidden bg-white ${mobileOpenSection === 'description' ? 'border-gray-300' : 'border-transparent'}`}>
               <button
                 type="button"
                 onClick={() =>
                   setMobileOpenSection(mobileOpenSection === 'description' ? null : 'description')
                 }
-                className="w-full flex items-center justify-between py-4 px-4 text-left transition-colors active:bg-gray-50"
+                className={`w-full flex items-center gap-3 py-4 px-4 text-left transition-colors ${mobileOpenSection === 'description' ? 'bg-[rgb(22,176,238)]/5' : 'bg-white active:bg-gray-50'}`}
               >
-                <span className="text-[15px] font-semibold text-gray-900">
+                <span className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${mobileOpenSection === 'description' ? 'bg-[rgb(22,176,238)] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                  <FileText className="h-4 w-4" />
+                </span>
+                <span className="flex-1 text-[14px] font-semibold text-gray-900">
                   Product Description
                 </span>
-                <span className="flex-shrink-0 text-gray-600">
-                  {mobileOpenSection === 'description' ? (
-                    <Minus className="h-5 w-5" />
-                  ) : (
-                    <Plus className="h-5 w-5" />
-                  )}
-                </span>
+                <ChevronDown className={`flex-shrink-0 h-4 w-4 text-gray-400 transition-transform duration-200 ${mobileOpenSection === 'description' ? 'rotate-180 text-[rgb(22,176,238)]' : ''}`} />
               </button>
               {mobileOpenSection === 'description' && (
-                <div className="border-t border-gray-100 px-4 py-4 pb-5 space-y-4 text-sm text-gray-700 bg-white">
+                <div className="px-4 py-4 pb-5 space-y-4 text-sm text-gray-700 bg-white border-t border-gray-100">
                   {product.productDescription && (
                     <div
                       className="product-description-content"
@@ -805,7 +805,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </div>
 
             {/* Specifications */}
-            <div className="border-b border-gray-200">
+            <div className={`rounded-xl border overflow-hidden bg-white ${mobileOpenSection === 'specifications' ? 'border-gray-300' : 'border-transparent'}`}>
               <button
                 type="button"
                 onClick={() =>
@@ -813,18 +813,15 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                     mobileOpenSection === 'specifications' ? null : 'specifications'
                   )
                 }
-                className="w-full flex items-center justify-between py-4 px-4 text-left transition-colors active:bg-gray-50"
+                className={`w-full flex items-center gap-3 py-4 px-4 text-left transition-colors ${mobileOpenSection === 'specifications' ? 'bg-[rgb(22,176,238)]/5' : 'bg-white active:bg-gray-50'}`}
               >
-                <span className="text-[15px] font-semibold text-gray-900">
+                <span className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${mobileOpenSection === 'specifications' ? 'bg-[rgb(22,176,238)] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                  <List className="h-4 w-4" />
+                </span>
+                <span className="flex-1 text-[14px] font-semibold text-gray-900">
                   Specifications
                 </span>
-                <span className="flex-shrink-0 text-gray-600">
-                  {mobileOpenSection === 'specifications' ? (
-                    <Minus className="h-5 w-5" />
-                  ) : (
-                    <Plus className="h-5 w-5" />
-                  )}
-                </span>
+                <ChevronDown className={`flex-shrink-0 h-4 w-4 text-gray-400 transition-transform duration-200 ${mobileOpenSection === 'specifications' ? 'rotate-180 text-[rgb(22,176,238)]' : ''}`} />
               </button>
               {mobileOpenSection === 'specifications' &&
                 (() => {
@@ -892,11 +889,11 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   }
                   return (
                     <div className="border-t border-gray-100 px-4 py-4 pb-5 bg-white">
-                      <dl className="divide-y divide-[#e5e7eb]">
+                      <dl className="divide-y divide-gray-100">
                         {specRows.map((row, index) => (
-                          <div key={index} className="flex items-center py-3 text-sm">
-                            <dt className="text-[#4a4a4a] font-semibold pr-4 flex-shrink-0">{row.label}</dt>
-                            <dd className="text-[#333] font-normal text-right flex-1 ml-auto">{row.value}</dd>
+                          <div key={index} className={`flex items-center py-2.5 text-sm ${index % 2 === 0 ? '' : 'bg-gray-50/50 -mx-4 px-4'}`}>
+                            <dt className="text-gray-500 font-medium pr-4 flex-shrink-0 w-[45%]">{row.label}</dt>
+                            <dd className="text-gray-900 font-medium text-right flex-1 ml-auto">{row.value}</dd>
                           </div>
                         ))}
                       </dl>
@@ -906,24 +903,21 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </div>
 
             {/* Shipping & Returns */}
-            <div className="border-b border-gray-200">
+            <div className={`rounded-xl border overflow-hidden bg-white ${mobileOpenSection === 'shipping' ? 'border-gray-300' : 'border-transparent'}`}>
               <button
                 type="button"
                 onClick={() =>
                   setMobileOpenSection(mobileOpenSection === 'shipping' ? null : 'shipping')
                 }
-                className="w-full flex items-center justify-between py-4 px-4 text-left transition-colors active:bg-gray-50"
+                className={`w-full flex items-center gap-3 py-4 px-4 text-left transition-colors ${mobileOpenSection === 'shipping' ? 'bg-[rgb(22,176,238)]/5' : 'bg-white active:bg-gray-50'}`}
               >
-                <span className="text-[15px] font-semibold text-gray-900">
+                <span className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${mobileOpenSection === 'shipping' ? 'bg-[rgb(22,176,238)] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                  <Truck className="h-4 w-4" />
+                </span>
+                <span className="flex-1 text-[14px] font-semibold text-gray-900">
                   Shipping & Returns
                 </span>
-                <span className="flex-shrink-0 text-gray-600">
-                  {mobileOpenSection === 'shipping' ? (
-                    <Minus className="h-5 w-5" />
-                  ) : (
-                    <Plus className="h-5 w-5" />
-                  )}
-                </span>
+                <ChevronDown className={`flex-shrink-0 h-4 w-4 text-gray-400 transition-transform duration-200 ${mobileOpenSection === 'shipping' ? 'rotate-180 text-[rgb(22,176,238)]' : ''}`} />
               </button>
               {mobileOpenSection === 'shipping' && (
                 <div className="border-t border-gray-100 px-4 py-4 pb-5 space-y-4 text-sm text-gray-700 bg-white">
@@ -957,24 +951,26 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </div>
 
             {/* Reviews */}
-            <div className="border-b border-gray-200">
+            <div className={`rounded-xl border overflow-hidden bg-white ${mobileOpenSection === 'reviews' ? 'border-gray-300' : 'border-transparent'}`}>
               <button
                 type="button"
                 onClick={() =>
                   setMobileOpenSection(mobileOpenSection === 'reviews' ? null : 'reviews')
                 }
-                className="w-full flex items-center justify-between py-4 px-4 text-left transition-colors active:bg-gray-50"
+                className={`w-full flex items-center gap-3 py-4 px-4 text-left transition-colors ${mobileOpenSection === 'reviews' ? 'bg-[rgb(22,176,238)]/5' : 'bg-white active:bg-gray-50'}`}
               >
-                <span className="text-[15px] font-semibold text-gray-900">
+                <span className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${mobileOpenSection === 'reviews' ? 'bg-[rgb(22,176,238)] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                  <Star className="h-4 w-4" />
+                </span>
+                <span className="flex-1 text-[14px] font-semibold text-gray-900">
                   Customer Reviews
                 </span>
-                <span className="flex-shrink-0 text-gray-600">
-                  {mobileOpenSection === 'reviews' ? (
-                    <Minus className="h-5 w-5" />
-                  ) : (
-                    <Plus className="h-5 w-5" />
-                  )}
-                </span>
+                {reviewCount > 0 && (
+                  <span className="flex-shrink-0 text-[11px] font-semibold text-[rgb(22,176,238)] bg-[rgb(22,176,238)]/10 px-2 py-0.5 rounded-full mr-1">
+                    {reviewCount}
+                  </span>
+                )}
+                <ChevronDown className={`flex-shrink-0 h-4 w-4 text-gray-400 transition-transform duration-200 ${mobileOpenSection === 'reviews' ? 'rotate-180 text-[rgb(22,176,238)]' : ''}`} />
               </button>
               {mobileOpenSection === 'reviews' && (
                 <div className="border-t border-gray-100 px-4 py-4 pb-5 space-y-4 text-sm text-gray-700 bg-white" id="reviews">
@@ -1281,11 +1277,69 @@ export function ProductDetailView(props: ProductDetailViewProps) {
     </div>
     {mounted && lightboxOpen && createPortal(
       <>
-        <div className="fixed inset-0 z-[9998] bg-black/60" onClick={handleCloseLightbox} />
-        <div className="fixed left-4 right-4 top-4 bottom-4 sm:left-8 sm:right-8 sm:top-8 sm:bottom-8 lg:left-16 lg:right-16 lg:top-12 lg:bottom-12 z-[9999] flex flex-col sm:flex-row bg-white rounded-lg shadow-2xl overflow-hidden">
+        {/* ── Mobile full-screen gallery ── */}
+        <div className="sm:hidden fixed inset-0 z-[9999] bg-white flex flex-col">
+          {/* Back button */}
+          <div className="flex-shrink-0 flex items-center px-4 pt-4 pb-2">
+            <button
+              onClick={handleCloseLightbox}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-300 text-sm font-medium text-gray-700 active:bg-gray-100 transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back
+            </button>
+          </div>
+
+          {/* Main image */}
+          <div className="flex-1 relative overflow-hidden">
+            {images.length > 1 && (
+              <>
+                <button onClick={handleLightboxPrev} className="absolute left-2 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white/90 border border-gray-200 shadow flex items-center justify-center text-gray-500"><ChevronLeft className="h-5 w-5" /></button>
+                <button onClick={handleLightboxNext} className="absolute right-2 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-white/90 border border-gray-200 shadow flex items-center justify-center text-gray-500"><ChevronRight className="h-5 w-5" /></button>
+              </>
+            )}
+            <div className="w-full h-full flex items-center justify-center p-4">
+              <img
+                src={images[lightboxImageIndex] || product.mainImage}
+                alt={`${product.itemName} ${lightboxImageIndex + 1}`}
+                className="max-w-full max-h-full object-contain select-none"
+                draggable={false}
+              />
+            </div>
+            {/* dot indicator */}
+            {images.length > 1 && (
+              <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5">
+                {images.map((_, i) => (
+                  <button key={i} onClick={() => handleLightboxImageChange(i)} className={`w-1.5 h-1.5 rounded-full transition-all ${i === lightboxImageIndex ? 'bg-[rgb(22,176,238)] w-3' : 'bg-gray-300'}`} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Thumbnail strip */}
+          {images.length > 1 && (
+            <div className="flex-shrink-0 px-4 py-3 border-t border-gray-100">
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                {images.map((img, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleLightboxImageChange(index)}
+                    className={`flex-shrink-0 w-14 h-14 rounded-md overflow-hidden border-2 transition-all ${lightboxImageIndex === index ? 'border-[rgb(22,176,238)]' : 'border-gray-200'}`}
+                  >
+                    <img src={img} alt={`${product.itemName} ${index + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Desktop modal (unchanged) ── */}
+        <div className="hidden sm:block fixed inset-0 z-[9998] bg-black/60" onClick={handleCloseLightbox} />
+        <div className="hidden sm:flex fixed left-8 right-8 top-8 bottom-8 lg:left-16 lg:right-16 lg:top-12 lg:bottom-12 z-[9999] flex-row bg-white rounded-lg shadow-2xl overflow-hidden">
           {/* Left: image area */}
           <div className="flex-1 flex flex-col relative bg-white min-h-0">
-            <div className="hidden sm:flex items-center justify-between px-5 h-11 border-b border-gray-200 flex-shrink-0">
+            <div className="flex items-center justify-between px-5 h-11 border-b border-gray-200 flex-shrink-0">
               <div className="flex items-center gap-0">
                 <span className="text-[11px] font-medium text-gray-400 uppercase tracking-wider px-3 py-3 cursor-default">Videos</span>
                 <span className="text-[11px] font-semibold text-gray-900 uppercase tracking-wider px-3 py-3 border-b-2 border-gray-900 cursor-default">Images</span>
@@ -1304,7 +1358,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               )}
               <div
                 ref={setLightboxImageRef}
-                className={`w-full h-full flex items-center justify-center p-6 sm:p-10 ${lightboxZoom > 1 ? 'cursor-move' : 'cursor-zoom-in'}`}
+                className={`w-full h-full flex items-center justify-center p-10 ${lightboxZoom > 1 ? 'cursor-move' : 'cursor-zoom-in'}`}
                 onMouseMove={lightboxZoom > 1 ? handleLightboxMouseMove : undefined}
                 onMouseEnter={() => lightboxZoom > 1 && setLightboxShowZoom(true)}
                 onMouseLeave={() => setLightboxShowZoom(false)}
@@ -1321,24 +1375,10 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                   draggable={false}
                 />
               </div>
-              <div className="sm:hidden absolute top-3 right-3 z-50">
-                <button onClick={handleCloseLightbox} className="w-9 h-9 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center text-gray-600"><X className="h-5 w-5" /></button>
-              </div>
-              {images.length > 1 && (
-                <div className="sm:hidden absolute bottom-3 left-0 right-0 px-4">
-                  <div className="flex justify-center gap-1.5">
-                    {images.map((img, index) => (
-                      <button key={index} onClick={() => handleLightboxImageChange(index)} className={`w-11 h-11 rounded border-2 overflow-hidden transition-all ${lightboxImageIndex === index ? 'border-blue-500' : 'border-white/80'}`}>
-                        <img src={img} alt={`${product.itemName} ${index + 1}`} className="w-full h-full object-cover" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
-          {/* Right: info panel (desktop) */}
-          <div className="hidden sm:flex w-[260px] lg:w-[290px] xl:w-[320px] bg-white border-l border-gray-200 flex-col flex-shrink-0">
+          {/* Right: info panel */}
+          <div className="w-[260px] lg:w-[290px] xl:w-[320px] bg-white border-l border-gray-200 flex flex-col flex-shrink-0">
             <div className="flex items-center justify-end px-4 h-11 border-b border-gray-200 flex-shrink-0">
               <button onClick={handleCloseLightbox} className="w-7 h-7 rounded border border-gray-300 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors" aria-label="Close"><X className="h-4 w-4" /></button>
             </div>
@@ -1352,7 +1392,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               {images.length > 1 && (
                 <div className="grid grid-cols-4 gap-1.5">
                   {images.map((img, index) => (
-                    <button key={index} onClick={() => handleLightboxImageChange(index)} className={`aspect-square overflow-hidden border-2 transition-all ${lightboxImageIndex === index ? 'border-blue-500 ring-1 ring-blue-100' : 'border-gray-200 hover:border-gray-400'}`}>
+                    <button key={index} onClick={() => handleLightboxImageChange(index)} className={`aspect-square overflow-hidden border-2 transition-all ${lightboxImageIndex === index ? 'border-[rgb(22,176,238)] ring-1 ring-blue-100' : 'border-gray-200 hover:border-gray-400'}`}>
                       <img src={img} alt={`${product.itemName} ${index + 1}`} className="w-full h-full object-cover" />
                     </button>
                   ))}

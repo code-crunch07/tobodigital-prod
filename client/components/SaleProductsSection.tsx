@@ -6,6 +6,7 @@ import { ShoppingCart, Package, Truck, Check, Eye, Heart } from 'lucide-react';
 import { getSaleProducts } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
+import QuickViewDialog from '@/components/QuickViewDialog';
 import { getProductUrl } from '@/lib/product-url';
 
 interface Product {
@@ -30,6 +31,7 @@ export default function SaleProductsSection() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     loadProducts();
@@ -93,6 +95,7 @@ export default function SaleProductsSection() {
   if (products.length === 0) return null;
 
   return (
+    <>
     <section className="bg-white py-10 sm:py-12">
       <div className="max-w-[1920px] mx-auto px-6 sm:px-8 lg:px-12 xl:px-16">
         <div className="border-l-4 border-t border-b border-[rgb(22,176,238)] rounded-r-lg p-4 sm:p-6 max-w-[420px] sm:max-w-[460px]">
@@ -143,7 +146,7 @@ export default function SaleProductsSection() {
                       <div className="absolute top-2 right-2 z-10 flex flex-col gap-1">
                         <button
                           type="button"
-                          onClick={(e) => { e.preventDefault(); }}
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuickViewProduct(product); }}
                           className="w-7 h-7 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-gray-400 hover:text-gray-700"
                         >
                           <Eye className="h-3 w-3" />
@@ -167,15 +170,15 @@ export default function SaleProductsSection() {
                         {product.itemName}
                       </h3>
                       <div className="mt-auto pt-2 flex items-center justify-between gap-1.5">
-                        <div className="flex items-baseline gap-1 min-w-0">
+                        <div className="flex items-baseline gap-1 min-w-0 overflow-hidden">
+                          <span className="text-xs sm:text-sm font-semibold text-[rgb(22,176,238)] flex-shrink-0">
+                            {formatPrice(currentPrice)}
+                          </span>
                           {discount > 0 && maxRetailPrice && (
-                            <span className="text-[10px] text-gray-400 line-through flex-shrink-0">
+                            <span className="text-[10px] text-gray-400 line-through truncate">
                               {formatPrice(maxRetailPrice)}
                             </span>
                           )}
-                          <span className="text-xs sm:text-sm font-semibold text-[rgb(22,176,238)] truncate">
-                            {formatPrice(currentPrice)}
-                          </span>
                         </div>
                         <button
                           type="button"
@@ -197,5 +200,14 @@ export default function SaleProductsSection() {
         </div>
       </div>
     </section>
+    {quickViewProduct && (
+      <QuickViewDialog
+        product={quickViewProduct}
+        isOpen={!!quickViewProduct}
+        onClose={() => setQuickViewProduct(null)}
+        formatPrice={formatPrice}
+      />
+    )}
+    </>
   );
 }

@@ -153,14 +153,14 @@ export default function WishlistPage() {
                       </div>
                     )}
                     <div className="mt-auto pt-3 flex items-center justify-between gap-2">
-                      <div className="flex items-baseline gap-1.5">
+                      <div className="flex items-baseline gap-1.5 min-w-0 overflow-hidden">
+                        <span className="product-price leading-none flex-shrink-0">{formatPrice(product.yourPrice)}</span>
                         {discount > 0 && maxRetailPrice ? (
-                          <span className="text-[11px] text-gray-400 line-through">{formatPrice(maxRetailPrice)}</span>
+                          <span className="text-[11px] text-gray-400 line-through truncate">{formatPrice(maxRetailPrice)}</span>
                         ) : null}
-                        <span className="product-price">{formatPrice(product.yourPrice)}</span>
                       </div>
-                      <button onClick={() => handleAddToCart(product)} className="flex-shrink-0 flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97] transition-all duration-200">
-                        <ShoppingCart className="h-3.5 w-3.5" />
+                      <button onClick={() => handleAddToCart(product)} className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97] transition-all duration-200">
+                        <ShoppingCart className="h-4 w-4" />
                       </button>
                     </div>
                   </div>
