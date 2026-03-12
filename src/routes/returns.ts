@@ -6,7 +6,7 @@ import {
   getAllReturnRequests,
   updateReturnRequest,
 } from '../controllers/returns';
-import { authenticateToken } from '../middleware/auth';
+import { authenticateToken } from '../controllers/auth';
 
 const router = express.Router();
 
