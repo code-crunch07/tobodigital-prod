@@ -588,60 +588,77 @@ export function ProductDetailView(props: ProductDetailViewProps) {
               {saleEndDate && (
                 <SaleCountdown saleEndDate={saleEndDate} variant="detail" />
               )}
-              <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
-                <span className="text-2xl sm:text-3xl lg:text-[2.25rem] font-semibold text-[#111111]">
-                  {formatPrice(effectivePrice ?? product.yourPrice)}
-                </span>
-                {(() => {
-                  const baseMrp = product.maximumRetailPrice || product.maxRetailPrice;
-                  const mrpToUse =
-                    typeof effectiveMrp === 'number' ? effectiveMrp : baseMrp;
-                  const priceToUse = effectivePrice ?? product.yourPrice;
-                  if (!mrpToUse || mrpToUse <= priceToUse) return null;
-                  return (
-                  <>
-                    <span className="text-base sm:text-lg text-[#9ca3af] line-through">
-                      {formatPrice(mrpToUse)}
+
+              {/* Price row */}
+              {(() => {
+                const baseMrp = product.maximumRetailPrice || product.maxRetailPrice;
+                const mrpToUse = typeof effectiveMrp === 'number' ? effectiveMrp : baseMrp;
+                const priceToUse = effectivePrice ?? product.yourPrice;
+                const hasDiscount = !!mrpToUse && mrpToUse > priceToUse;
+                return (
+                  <div className="flex flex-wrap items-center gap-3">
+                    {/* Sale price */}
+                    <span className="text-[1.75rem] font-bold text-gray-900 leading-none">
+                      {formatPrice(priceToUse)}
                     </span>
-                    {discount > 0 && (
-                      <span className="text-xs sm:text-sm font-semibold text-[#16a34a]">
-                        Save {discount}%
-                      </span>
+
+                    {hasDiscount && (
+                      <div className="flex items-center gap-2">
+                        {/* MRP strikethrough */}
+                        <span className="text-[0.95rem] text-gray-400 line-through leading-none">
+                          {formatPrice(mrpToUse!)}
+                        </span>
+                        {/* Discount badge */}
+                        {discount > 0 && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-[11px] font-bold text-emerald-700 leading-none uppercase tracking-wide">
+                            {discount}% off
+                          </span>
+                        )}
+                      </div>
                     )}
-                  </>
-                  );
-                })()}
-              </div>
+                  </div>
+                );
+              })()}
+
+              {/* MRP label */}
+              {(() => {
+                const baseMrp = product.maximumRetailPrice || product.maxRetailPrice;
+                const mrpToUse = typeof effectiveMrp === 'number' ? effectiveMrp : baseMrp;
+                const priceToUse = effectivePrice ?? product.yourPrice;
+                if (!mrpToUse || mrpToUse <= priceToUse) return null;
+                return (
+                  <p className="text-[11px] text-gray-400">
+                    MRP: <span className="line-through">{formatPrice(mrpToUse)}</span>&nbsp;
+                    <span className="text-gray-500">(Inclusive of all taxes)</span>
+                  </p>
+                );
+              })()}
+
+              {/* Stock status */}
               {(effectiveStock ?? product.stockQuantity) !== undefined && (
-                <div className="flex items-center gap-2 text-sm">
-                  <span
-                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full border ${
-                      (effectiveStock ?? product.stockQuantity)! > 0
-                        ? 'border-[#16a34a] bg-[#dcfce7]'
-                        : 'border-[#f97316] bg-[#ffedd5]'
-                    }`}
-                  >
-                    <span
-                      className={`h-2.5 w-2.5 rounded-full ${
-                        (effectiveStock ?? product.stockQuantity)! > 0 ? 'bg-[#16a34a]' : 'bg-[#f97316]'
-                      }`}
-                    />
-                  </span>
-                  <span
-                    className={`font-medium ${
-                      (effectiveStock ?? product.stockQuantity)! > 0 ? 'text-[#166534]' : 'text-[#9a3412]'
-                    }`}
-                  >
-                    {(effectiveStock ?? product.stockQuantity)! > 0
-                      ? `Available in stock (${effectiveStock ?? product.stockQuantity})`
-                      : 'Out of stock'}
-                  </span>
+                <div className="flex items-center gap-2">
+                  {(effectiveStock ?? product.stockQuantity)! > 0 ? (
+                    <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                      In Stock
+                      {(effectiveStock ?? product.stockQuantity)! <= 10 && (
+                        <span className="text-orange-500 font-semibold">
+                          · Only {effectiveStock ?? product.stockQuantity} left
+                        </span>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-red-600 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full">
+                      <span className="h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                      Out of Stock
+                    </span>
+                  )}
                 </div>
               )}
             </div>
 
             {(product as any).shortDescription && (
-              <p className="text-[#4b5563] text-[0.95rem] sm:text-base leading-relaxed max-w-2xl">
+              <p className="text-[13px] text-gray-500 leading-relaxed border-l-2 border-gray-200 pl-3">
                 {(product as any).shortDescription}
               </p>
             )}

@@ -58,20 +58,34 @@ export default function CartPage() {
         delivery_pincode: shippingZip,
         weight: Math.max(totalWeight, 0.5),
       });
-      if (response?.data?.available_courier_companies?.length > 0) {
-        const cheapest = response.data.available_courier_companies.reduce(
-          (min: any, c: any) => (c.rate < min.rate ? c : min),
-          response.data.available_courier_companies[0]
+
+      // Backend returns: { success, available, rates: [...courier companies] }
+      const couriers: any[] =
+        response?.rates ||                                    // our backend shape
+        response?.data?.available_courier_companies ||        // raw Shiprocket shape
+        response?.available_courier_companies ||              // alternative
+        [];
+
+      if (couriers.length > 0) {
+        const cheapest = couriers.reduce(
+          (min: any, c: any) => (parseFloat(c.rate) < parseFloat(min.rate) ? c : min),
+          couriers[0]
         );
         setShippingResult({
-          rate: cheapest.rate,
-          etd: cheapest.etd || cheapest.estimated_delivery_days || '3-5 days',
+          rate: parseFloat(cheapest.rate) || 0,
+          etd: cheapest.etd || cheapest.estimated_delivery_days || '3–5 business days',
         });
+      } else if (response?.success === false) {
+        setShippingError(response?.message || 'Shipping unavailable to this pincode.');
       } else {
-        setShippingError('No shipping available to this pincode');
+        setShippingError('No shipping options available for this pincode.');
       }
-    } catch {
-      setShippingError('Unable to calculate shipping. Try again.');
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        'Unable to calculate shipping. Please try again.';
+      setShippingError(msg);
     } finally {
       setShippingLoading(false);
     }

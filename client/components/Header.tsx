@@ -253,8 +253,8 @@ export default function Header() {
           </div>
         </div>
       )}
-      <div className="w-full min-w-0 px-4 sm:px-6 lg:px-8 py-0">
-        <div className="flex items-center justify-between h-14 min-w-0 gap-2">
+      <div className="w-full min-w-0 px-3 sm:px-6 lg:px-8 py-0">
+        <div className="flex items-center justify-between h-14 min-w-0 gap-1 sm:gap-2">
           {/* Logo - high quality rendering */}
           <Link 
             href="/" 
@@ -465,7 +465,7 @@ export default function Header() {
           <div className="hidden md:block h-6 w-px bg-gray-300 mx-2 lg:mx-3"></div>
 
           {/* Right Side Actions - Icons */}
-          <div className="flex items-center space-x-1 md:space-x-1.5 flex-shrink-0">
+          <div className="flex items-center space-x-0 sm:space-x-1 md:space-x-1.5 flex-shrink-0">
             {/* Search Icon */}
             <div className="relative search-container">
               <button
@@ -631,8 +631,9 @@ export default function Header() {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-2 text-[rgb(16,15,15)]"
+              className="md:hidden p-1.5 ml-0.5 text-[rgb(16,15,15)] rounded-md"
               onClick={() => { const next = !mobileMenuOpen; setMobileMenuOpen(next); if (next) setMobileSubmenuNav(null); }}
+              aria-label="Menu"
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>

@@ -450,7 +450,7 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Page Header */}
       <div className="border-b border-gray-100 bg-white">
-        <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-10 flex items-center justify-between gap-6 w-full min-w-0">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 flex items-center justify-between gap-6 w-full min-w-0">
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.3em] text-gray-500">
               <span className="text-[#f97316] text-xs">⚡</span>
@@ -478,7 +478,7 @@ export default function CheckoutPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
         <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Left Column - Forms */}
           <div className="lg:col-span-2 space-y-6">
