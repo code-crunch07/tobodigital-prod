@@ -249,7 +249,9 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
                         )}
                       </Link>
                       {discount > 0 && (
-                        <span className="absolute top-3 left-3 z-20 inline-flex items-center rounded-sm bg-[rgb(22,176,238)] text-white text-[10px] font-semibold px-2 py-0.5">-{discount}%</span>
+                        <span className="absolute top-3 left-3 z-20 inline-flex items-center rounded-sm bg-[rgb(22,176,238)] text-white text-[10px] font-semibold px-2 py-0.5">
+                          -{discount}%
+                        </span>
                       )}
                       <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5">
                         <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuickViewProduct(product); }} className="w-8 h-8 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors" title="Quick View">
@@ -259,6 +261,11 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
                           <Heart className={`h-3.5 w-3.5 ${isInWishlist(product._id) ? 'fill-rose-500' : ''}`} />
                         </button>
                       </div>
+                      {!!isSaleActive && !!saleEndDate && (
+                        <div className="absolute bottom-3 right-3 z-20 rounded-full bg-white/95 px-2.5 py-1 shadow-sm">
+                          <SaleCountdown saleEndDate={saleEndDate} />
+                        </div>
+                      )}
                     </div>
                     <div className="p-3 sm:p-4 flex-1 flex flex-col">
                       {product.productCategory?.name && (
@@ -284,7 +291,6 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
                             {isAdded ? <Check className="h-3.5 w-3.5" /> : !inStock ? <X className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}
                           </button>
                         </div>
-                        {!!isSaleActive && !!saleEndDate && <SaleCountdown saleEndDate={saleEndDate} />}
                       </div>
                     </div>
                   </div>

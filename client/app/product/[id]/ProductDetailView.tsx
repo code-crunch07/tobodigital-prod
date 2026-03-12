@@ -550,13 +550,13 @@ export function ProductDetailView(props: ProductDetailViewProps) {
 
             {/* Variant selectors */}
             {variantAttributesMap && Object.keys(variantAttributesMap).length > 0 && (
-              <div className="space-y-3 pt-1">
+              <div className="space-y-4 pt-1 pb-2">
                 {Object.entries(variantAttributesMap).map(([name, values]) => (
-                  <div key={name} className="space-y-1">
-                    <div className="text-xs font-medium text-gray-600">
+                  <div key={name} className="space-y-2.5">
+                    <div className="text-[13px] font-semibold text-gray-700">
                       {name}
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2.5">
                       {values.map((val) => {
                         const isSelected =
                           selectedOptions && selectedOptions[name] === val;
@@ -567,10 +567,10 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                             onClick={() =>
                               onSelectOption && onSelectOption(name, val)
                             }
-                            className={`px-3 py-1.5 border text-xs sm:text-sm ${
+                            className={`min-w-[4rem] px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                               isSelected
-                                ? 'border-black bg-black text-white'
-                                : 'border-gray-300 text-gray-800 hover:border-black'
+                                ? 'border-2 border-gray-900 bg-gray-900 text-white shadow-sm ring-2 ring-gray-900/10'
+                                : 'border-2 border-gray-200 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50 active:scale-[0.98]'
                             }`}
                           >
                             {val}
@@ -636,7 +636,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
 
               {/* Stock status */}
               {(effectiveStock ?? product.stockQuantity) !== undefined && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 mb-5">
                   {(effectiveStock ?? product.stockQuantity)! > 0 ? (
                     <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
