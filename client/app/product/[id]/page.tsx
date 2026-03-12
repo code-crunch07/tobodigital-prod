@@ -732,6 +732,15 @@ export default function ProductDetailPage() {
 
   const plainDescription = product.productDescription ? stripHtmlToPlainText(product.productDescription) : '';
 
+  // Compute sale active state at outer scope for ProductDetailView
+  const productSalePrice = product.salePrice;
+  const productSaleStart = product.saleStartDate ? new Date(product.saleStartDate) : null;
+  const productSaleEnd = product.saleEndDate ? new Date(product.saleEndDate) : null;
+  const now = new Date();
+  const isProductSaleActive = !!productSalePrice &&
+    (!productSaleStart || productSaleStart <= now) &&
+    (!productSaleEnd || productSaleEnd >= now);
+
   return (
     <ProductDetailView
       product={product}
@@ -748,7 +757,7 @@ export default function ProductDetailPage() {
       effectivePrice={effectivePrice}
       effectiveMrp={effectiveMrp}
       effectiveStock={effectiveStock}
-      saleEndDate={!!isSaleActive ? product.saleEndDate : undefined}
+      saleEndDate={isProductSaleActive ? product.saleEndDate : undefined}
       selectedImage={selectedImage}
       setSelectedImage={setSelectedImage}
       setImageRef={setImageRef}
