@@ -7,6 +7,7 @@ import { getProducts, getCategories } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import QuickViewDialog from '@/components/QuickViewDialog';
+import SaleCountdown from '@/components/SaleCountdown';
 import { getProductUrl } from '@/lib/product-url';
 
 interface Product {
@@ -147,16 +148,19 @@ const ProductCard = ({
             <span className="flex items-center gap-1"><Truck className="h-3 w-3" /> Fast Delivery</span>
           </div>
         )}
-        <div className="mt-auto pt-3 flex items-center justify-between gap-2">
-          <div className="flex items-baseline gap-1.5 min-w-0 overflow-hidden">
-            <span className="product-price leading-none flex-shrink-0">{formatPrice(currentPrice)}</span>
-            {discount > 0 && maxRetailPrice ? (
-              <span className="text-[11px] text-gray-400 line-through truncate">{formatPrice(maxRetailPrice)}</span>
-            ) : null}
+        <div className="mt-auto pt-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-baseline gap-1.5 min-w-0 overflow-hidden">
+              <span className="product-price leading-none flex-shrink-0">{formatPrice(currentPrice)}</span>
+              {discount > 0 && maxRetailPrice ? (
+                <span className="text-[11px] text-gray-400 line-through truncate">{formatPrice(maxRetailPrice)}</span>
+              ) : null}
+            </div>
+            <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
+              {isAdded ? <Check className="h-4 w-4" /> : !inStock ? <X className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
+            </button>
           </div>
-          <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
-            {isAdded ? <Check className="h-4 w-4" /> : !inStock ? <X className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
-          </button>
+          {isSaleActive && saleEndDate && <SaleCountdown saleEndDate={saleEndDate} />}
         </div>
       </div>
     </div>
@@ -397,7 +401,7 @@ export default function NewArrivalsPage() {
 
             {/* Products Grid */}
             {loading && products.length === 0 ? (
-              <div className={`grid grid-cols-2 gap-2 sm:gap-3 ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
+              <div className={`grid grid-cols-2 gap-[0.2rem] ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
                 {Array.from({ length: perPage > 12 ? 12 : perPage }).map((_, i) => (
                   <div key={i} className="aspect-[3/4] bg-gray-100 animate-pulse rounded-[5px]" />
                 ))}
@@ -405,7 +409,7 @@ export default function NewArrivalsPage() {
             ) : products.length > 0 ? (
               <>
                 {viewMode === 'grid' ? (
-                  <div className={`grid grid-cols-2 gap-2 sm:gap-3 ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
+                  <div className={`grid grid-cols-2 gap-[0.2rem] ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
                     {products.map((product) => (
                       <ProductCard key={product._id} product={product} addedItems={addedItems} setAddedItems={setAddedItems} addToCart={addToCart} formatPrice={formatPrice} onQuickView={setQuickViewProduct} />
                     ))}

@@ -10,6 +10,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import type { Product, ProductVariant } from './types';
 import { ProductDetailView } from './ProductDetailView';
+import SaleCountdown from '@/components/SaleCountdown';
 
 /** Strip HTML tags and collapse whitespace (O(n), no regex DoS risk S5852) */
 function stripHtmlToPlainText(html: string): string {
@@ -747,6 +748,7 @@ export default function ProductDetailPage() {
       effectivePrice={effectivePrice}
       effectiveMrp={effectiveMrp}
       effectiveStock={effectiveStock}
+      saleEndDate={product.saleEndDate}
       selectedImage={selectedImage}
       setSelectedImage={setSelectedImage}
       setImageRef={setImageRef}

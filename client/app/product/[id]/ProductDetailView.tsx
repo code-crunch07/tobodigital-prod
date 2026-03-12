@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import SaleCountdown from '@/components/SaleCountdown';
 import Link from 'next/link';
 import {
   ShoppingCart,
@@ -90,6 +91,7 @@ export interface ProductDetailViewProps {
   effectivePrice?: number;
   effectiveMrp?: number;
   effectiveStock?: number | null;
+  saleEndDate?: string | Date;
 }
 
 export function ProductDetailView(props: ProductDetailViewProps) {
@@ -148,6 +150,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
     effectivePrice,
     effectiveMrp,
     effectiveStock,
+    saleEndDate,
   } = props;
 
   const touchStartX = useRef(0);
@@ -548,6 +551,9 @@ export function ProductDetailView(props: ProductDetailViewProps) {
 
             {/* Price + stock */}
             <div className="space-y-3">
+              {saleEndDate && (
+                <SaleCountdown saleEndDate={saleEndDate} variant="detail" />
+              )}
               <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
                 <span className="text-2xl sm:text-3xl lg:text-[2.25rem] font-semibold text-[#111111]">
                   {formatPrice(effectivePrice ?? product.yourPrice)}

@@ -47,6 +47,8 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const autoSlideRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     loadProducts();
@@ -72,6 +74,23 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
       window.removeEventListener('resize', checkScrollability);
     };
   }, [products]);
+
+  // Auto-slide: advance one card every 3s, loop back to start
+  useEffect(() => {
+    if (isPaused || products.length === 0) return;
+    autoSlideRef.current = setInterval(() => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
+      const atEnd = container.scrollLeft >= container.scrollWidth - container.clientWidth - 2;
+      if (atEnd) {
+        container.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        const cardWidth = container.querySelector('.flex-shrink-0')?.getBoundingClientRect().width ?? 200;
+        container.scrollBy({ left: cardWidth + 4, behavior: 'smooth' });
+      }
+    }, 3000);
+    return () => { if (autoSlideRef.current) clearInterval(autoSlideRef.current); };
+  }, [isPaused, products]);
 
   const loadProducts = async () => {
     try {
@@ -186,8 +205,12 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
         <div className="relative">
           <div 
             ref={scrollContainerRef}
-            className="flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+            className="flex gap-[0.2rem] overflow-x-auto scrollbar-hide scroll-smooth pb-4"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onTouchStart={() => setIsPaused(true)}
+            onTouchEnd={() => setTimeout(() => setIsPaused(false), 2000)}
           >
             {products.map((product) => {
               let discount = 0;

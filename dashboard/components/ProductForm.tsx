@@ -453,14 +453,16 @@ export default function ProductForm({ product, categories, subCategories = [], o
           {expandedSections.basic && (
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+                <div className="space-y-2 md:col-span-2">
                   <Label>Product Name *</Label>
-                  <Input
-            value={formData.itemName} 
+                  <textarea
+                    value={formData.itemName}
                     onChange={(e) => setFormData({ ...formData, itemName: e.target.value })}
-            required
+                    required
                     placeholder="Enter product name"
-          />
+                    rows={2}
+                    className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
                 </div>
           <div className="space-y-2">
                   <Label>Category *</Label>
@@ -510,10 +512,12 @@ export default function ProductForm({ product, categories, subCategories = [], o
               </div>
               <div className="space-y-2">
                 <Label>Short Description</Label>
-                <Input
+                <textarea
                   value={formData.shortDescription}
                   onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
                   placeholder="Brief description for product cards"
+                  rows={3}
+                  className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
