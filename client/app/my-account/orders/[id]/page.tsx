@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useCart } from '@/contexts/CartContext';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -22,12 +23,17 @@ import {
   Printer,
   ExternalLink,
   Loader2,
+  RotateCcw,
+  AlertTriangle,
+  X,
+  ChevronDown,
 } from 'lucide-react';
 import { downloadInvoice, printInvoice } from '@/utils/invoice';
 import { getOrderTracking } from '@/lib/api';
 
 export default function OrderDetailsPage() {
   const router = useRouter();
+  const { addToCart } = useCart();
   const params = useParams();
   const orderId = params.id as string;
   const [order, setOrder] = useState<any>(null);
@@ -35,9 +41,21 @@ export default function OrderDetailsPage() {
   const [tracking, setTracking] = useState<any>(null);
   const [trackingLoading, setTrackingLoading] = useState(false);
   const [trackingError, setTrackingError] = useState('');
+  const [returnRequest, setReturnRequest] = useState<any>(null);
+  const [showReturnModal, setShowReturnModal] = useState(false);
+  const [returnSubmitting, setReturnSubmitting] = useState(false);
+  const [returnForm, setReturnForm] = useState({
+    type: 'return' as 'return' | 'replacement',
+    reason: '',
+    description: '',
+  });
 
   useEffect(() => {
     loadOrderDetails();
+  }, [orderId]);
+
+  useEffect(() => {
+    if (orderId) loadReturnRequest();
   }, [orderId]);
 
   const loadOrderDetails = async () => {
@@ -151,14 +169,95 @@ export default function OrderDetailsPage() {
   };
 
   const handleReorder = () => {
-    // TODO: Implement reorder functionality
-    alert('Reorder functionality coming soon!');
+    if (!order?.items?.length) return;
+    let added = 0;
+    order.items.forEach((item: any) => {
+      if (!item._id) return;
+      addToCart({
+        _id: item._id,
+        itemName: item.itemName || 'Product',
+        mainImage: item.image || '',
+        yourPrice: item.yourPrice ?? item.price ?? 0,
+        variantId: item.variantId,
+        variantAttributes: item.variantAttributes,
+      });
+      added++;
+    });
+    if (added > 0) {
+      router.push('/cart');
+    }
   };
 
-  const handleCancelOrder = () => {
-    if (confirm('Are you sure you want to cancel this order?')) {
-      // TODO: Implement cancel order functionality
-      alert('Cancel order functionality coming soon!');
+  const loadReturnRequest = async () => {
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      if (!token) return;
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${API_URL}/returns/order/${orderId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setReturnRequest(json.data || null);
+      }
+    } catch {}
+  };
+
+  const handleReturnSubmit = async () => {
+    if (!returnForm.reason) return;
+    setReturnSubmitting(true);
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const items = (order?.items || []).map((item: any) => ({
+        productId: item._id,
+        productName: item.itemName || 'Product',
+        quantity: item.quantity,
+      }));
+      const res = await fetch(`${API_URL}/returns`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ orderId, ...returnForm, items }),
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setReturnRequest(json.data);
+        setShowReturnModal(false);
+      } else {
+        alert(json.message || 'Failed to submit request. Please try again.');
+      }
+    } catch {
+      alert('Network error. Please try again.');
+    } finally {
+      setReturnSubmitting(false);
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    if (!confirm('Are you sure you want to cancel this order? This cannot be undone.')) return;
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${API_URL}/orders/${orderId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ status: 'cancelled' }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setOrder((prev: any) => ({ ...prev, status: 'cancelled' }));
+        alert('Your order has been cancelled. You will receive a confirmation email shortly.');
+      } else {
+        alert(data.message || 'Failed to cancel order. Please contact support.');
+      }
+    } catch {
+      alert('Network error. Please try again or contact support.');
     }
   };
 
@@ -564,13 +663,53 @@ export default function OrderDetailsPage() {
 
               {/* Action Buttons */}
               <div className="mt-6 space-y-3">
-                {order.status !== 'cancelled' && order.status !== 'delivered' && (
+                {order.status === 'cancelled' && (
+                  <div className="w-full px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg text-center text-sm font-semibold">
+                    Order Cancelled
+                  </div>
+                )}
+                {(order.status === 'pending' || order.status === 'processing') && (
                   <button
                     onClick={handleCancelOrder}
                     className="w-full px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors font-semibold"
                   >
                     Cancel Order
                   </button>
+                )}
+                {order.status === 'shipped' && (
+                  <div className="w-full px-4 py-2 bg-gray-50 border border-gray-200 text-gray-400 rounded-lg text-center text-sm">
+                    Cannot cancel — order already shipped
+                  </div>
+                )}
+
+                {/* Return / Replace — only for delivered orders */}
+                {order.status === 'delivered' && (
+                  returnRequest ? (
+                    <div className={`w-full px-4 py-3 rounded-lg border text-sm ${
+                      returnRequest.status === 'pending'
+                        ? 'bg-yellow-50 border-yellow-200 text-yellow-800'
+                        : returnRequest.status === 'approved'
+                        ? 'bg-green-50 border-green-200 text-green-800'
+                        : returnRequest.status === 'rejected'
+                        ? 'bg-red-50 border-red-200 text-red-700'
+                        : 'bg-blue-50 border-blue-200 text-blue-800'
+                    }`}>
+                      <p className="font-semibold capitalize">
+                        {returnRequest.type} Request: {returnRequest.status}
+                      </p>
+                      {returnRequest.adminNote && (
+                        <p className="mt-1 text-xs">{returnRequest.adminNote}</p>
+                      )}
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowReturnModal(true)}
+                      className="w-full px-4 py-2 border border-orange-300 text-orange-600 rounded-lg hover:bg-orange-50 transition-colors font-semibold flex items-center justify-center gap-2"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      Return / Replace
+                    </button>
+                  )
                 )}
                 <button
                   onClick={handleDownloadInvoice}
@@ -620,6 +759,125 @@ export default function OrderDetailsPage() {
           </div>
         </div>
       </div>
+      {/* Return / Replace Modal */}
+      {showReturnModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-orange-50">
+                  <RotateCcw className="h-5 w-5 text-orange-500" />
+                </div>
+                <h2 className="text-lg font-bold text-gray-900">Return / Replacement Request</h2>
+              </div>
+              <button
+                onClick={() => setShowReturnModal(false)}
+                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="px-6 py-5 space-y-5">
+              {/* Type */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Request Type</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {(['return', 'replacement'] as const).map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setReturnForm((f) => ({ ...f, type: t }))}
+                      className={`py-2.5 px-4 rounded-lg border-2 text-sm font-semibold transition-all capitalize ${
+                        returnForm.type === t
+                          ? 'border-orange-400 bg-orange-50 text-orange-700'
+                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      }`}
+                    >
+                      {t === 'return' ? '↩ Return' : '🔄 Replacement'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Reason */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Reason <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <select
+                    value={returnForm.reason}
+                    onChange={(e) => setReturnForm((f) => ({ ...f, reason: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400 bg-white pr-8"
+                  >
+                    <option value="">Select a reason</option>
+                    <optgroup label="Product Issues">
+                      <option value="Defective / Faulty product">Defective / Faulty product</option>
+                      <option value="Product damaged in transit">Product damaged in transit</option>
+                      <option value="Wrong product delivered">Wrong product delivered</option>
+                      <option value="Missing parts / accessories">Missing parts / accessories</option>
+                    </optgroup>
+                    <optgroup label="Not as Expected">
+                      <option value="Product not as described">Product not as described</option>
+                      <option value="Quality not as expected">Quality not as expected</option>
+                      <option value="Size / fit issue">Size / fit issue</option>
+                    </optgroup>
+                    <optgroup label="Other">
+                      <option value="Changed my mind">Changed my mind</option>
+                      <option value="Ordered by mistake">Ordered by mistake</option>
+                      <option value="Other">Other</option>
+                    </optgroup>
+                  </select>
+                  <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Additional Details <span className="text-gray-400 font-normal">(optional)</span>
+                </label>
+                <textarea
+                  value={returnForm.description}
+                  onChange={(e) => setReturnForm((f) => ({ ...f, description: e.target.value }))}
+                  rows={3}
+                  placeholder="Describe the issue in detail…"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400"
+                />
+              </div>
+
+              {/* Info note */}
+              <div className="flex items-start gap-2 bg-blue-50 rounded-lg p-3 text-xs text-blue-700 border border-blue-100">
+                <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                <p>Our team will review your request within <strong>1–2 business days</strong>. You will receive a confirmation email immediately.</p>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 pb-5 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowReturnModal(false)}
+                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleReturnSubmit}
+                disabled={!returnForm.reason || returnSubmitting}
+                className="flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm text-white transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: 'rgb(237, 130, 79)' }}
+              >
+                {returnSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                {returnSubmitting ? 'Submitting…' : 'Submit Request'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

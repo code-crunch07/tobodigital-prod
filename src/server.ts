@@ -25,6 +25,7 @@ import settingsRoutes from './routes/settings';
 import reportsRoutes from './routes/reports';
 import shiprocketRoutes from './routes/shiprocket';
 import reviewRoutes from './routes/reviews';
+import returnRoutes from './routes/returns';
 
 // Load environment variables
 dotenv.config();
@@ -88,6 +89,9 @@ app.use('/api/shiprocket', shiprocketRoutes);
 // Public routes (for client frontend)
 app.use('/api/public', publicRoutes);
 app.use('/api/public/reviews', reviewRoutes);
+
+// Returns & Replacements
+app.use('/api/returns', returnRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
