@@ -19,11 +19,18 @@ function getTransporter() {
   });
 }
 
+export interface EmailAttachment {
+  filename: string;
+  content: Buffer;
+  contentType: string;
+}
+
 export interface SendMailOptions {
   to: string;
   subject: string;
   text?: string;
   html?: string;
+  attachments?: EmailAttachment[];
 }
 
 export async function sendEmail(options: SendMailOptions): Promise<boolean> {
@@ -39,6 +46,11 @@ export async function sendEmail(options: SendMailOptions): Promise<boolean> {
       subject: options.subject,
       text: options.text,
       html: options.html || options.text,
+      attachments: options.attachments?.map((a) => ({
+        filename: a.filename,
+        content: a.content,
+        contentType: a.contentType,
+      })),
     });
     return true;
   } catch (err: any) {

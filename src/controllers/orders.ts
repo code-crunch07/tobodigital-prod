@@ -5,6 +5,7 @@ import Order from '../models/Order';
 import User from '../models/User';
 import { createOrderNotification, createPaymentNotification } from './notifications';
 import { sendEmail } from '../services/email';
+import { generateInvoicePdf } from '../services/invoice';
 
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
@@ -266,8 +267,37 @@ const createOrder = async (req: Request, res: Response) => {
         : '';
       const orderItems = (populatedOrder?.items as any[]) || [];
 
+      // ── Generate PDF invoice ───────────────────────────────────────────────
+      let invoicePdf: Buffer | null = null;
+      try {
+        invoicePdf = await generateInvoicePdf({
+          orderNumber: String(orderNumber),
+          orderDate: populatedOrder?.createdAt ? new Date(populatedOrder.createdAt as any) : new Date(),
+          customerName: customerDoc?.name || 'Customer',
+          customerEmail: toEmail || '',
+          shippingAddress: shipping || { street: '', city: '', state: '', zipCode: '', country: '' },
+          billingAddress: (populatedOrder as any)?.billingAddress || undefined,
+          companyName: (populatedOrder as any)?.companyName || undefined,
+          gstNumber: (populatedOrder as any)?.gstNumber || undefined,
+          items: orderItems.map((i: any) => ({
+            name: i.product?.itemName || i.product?.name || 'Product',
+            quantity: i.quantity,
+            price: i.price,
+          })),
+          totalAmount: total,
+          paymentMethod: (populatedOrder as any)?.paymentMethod || 'Online',
+          paymentStatus: (populatedOrder as any)?.paymentStatus || 'paid',
+        });
+      } catch (pdfErr) {
+        console.error('Invoice PDF generation error:', (pdfErr as any)?.message || pdfErr);
+      }
+
       // ── Customer confirmation ──────────────────────────────────────────────
       if (toEmail) {
+        const attachments = invoicePdf
+          ? [{ filename: `Invoice-${orderNumber}.pdf`, content: invoicePdf, contentType: 'application/pdf' }]
+          : [];
+
         await sendEmail({
           to: toEmail,
           subject: `Order Confirmed — ${orderNumber} | ${siteName}`,
@@ -282,7 +312,7 @@ const createOrder = async (req: Request, res: Response) => {
             '',
             orderItems.length ? 'Items:\n' + buildItemsTable(orderItems) : '',
             '',
-            'We will email you again once your order ships.',
+            'Your invoice is attached as a PDF. We will email you again once your order ships.',
             '',
             `— ${siteName} team`,
           ]
@@ -302,9 +332,13 @@ const createOrder = async (req: Request, res: Response) => {
       ${shippingLine ? `<tr><td style="color:#666;padding:4px 0">Ship To</td><td>${shippingLine}</td></tr>` : ''}
     </table>
     ${orderItems.length ? `<h3 style="font-size:14px;color:#444;margin-bottom:8px">Items Ordered</h3>${buildItemsHtml(orderItems)}` : ''}
-    <p style="margin-top:20px;font-size:13px;color:#888">We will send you another email once your order ships. If you have questions, just reply to this email.</p>
+    <div style="margin-top:20px;padding:12px 16px;background:#f0fbff;border-left:4px solid rgb(22,176,238);border-radius:4px;font-size:13px;color:#0a6a8a">
+      📎 Your tax invoice is attached to this email as a PDF.
+    </div>
+    <p style="margin-top:16px;font-size:13px;color:#888">We will send you another email once your order ships. If you have questions, just reply to this email.</p>
   </div>
 </div>`,
+          attachments,
         });
       }
 
