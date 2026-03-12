@@ -187,7 +187,9 @@ const ProductCard = ({
               {isAdded ? <Check className="h-4 w-4" /> : !inStock ? <X className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
             </button>
           </div>
-          {isSaleActive && saleEndDate && <SaleCountdown saleEndDate={saleEndDate} />}
+          {isSaleActive && saleEndDate && (
+            <SaleCountdown saleEndDate={saleEndDate} />
+          )}
         </div>
       </div>
     </div>

@@ -436,9 +436,9 @@ export default function ProductForm({ product, categories, subCategories = [], o
   );
 
   return (
-    <div className="flex flex-col xl:flex-row gap-6">
+    <div className="flex flex-col xl:flex-row gap-6 min-w-0">
       {/* Main Form */}
-      <form onSubmit={handleSubmit} className="flex-1 space-y-6">
+      <form onSubmit={handleSubmit} className="flex-1 space-y-6 min-w-0">
         {/* Product Information */}
         <Card className="rounded-none overflow-hidden border-border shadow-sm">
           <CardHeader className="p-0">
@@ -451,9 +451,9 @@ export default function ProductForm({ product, categories, subCategories = [], o
           />
           </CardHeader>
           {expandedSections.basic && (
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 min-w-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2 md:col-span-2 min-w-0">
                   <Label>Product Name *</Label>
                   <textarea
                     value={formData.itemName}
@@ -461,7 +461,7 @@ export default function ProductForm({ product, categories, subCategories = [], o
                     required
                     placeholder="Enter product name"
                     rows={2}
-                    className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="w-full min-w-0 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 break-words"
                   />
                 </div>
           <div className="space-y-2">
@@ -510,14 +510,14 @@ export default function ProductForm({ product, categories, subCategories = [], o
                   </Select>
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <Label>Short Description</Label>
                 <textarea
                   value={formData.shortDescription}
                   onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
                   placeholder="Brief description for product cards"
                   rows={3}
-                  className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full min-w-0 resize-y rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 break-words"
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

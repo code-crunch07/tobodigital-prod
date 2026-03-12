@@ -7,6 +7,7 @@ import { getSaleProducts } from '@/lib/api';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import QuickViewDialog from '@/components/QuickViewDialog';
+import SaleCountdown from '@/components/SaleCountdown';
 import { getProductUrl } from '@/lib/product-url';
 
 interface Product {
@@ -169,27 +170,30 @@ export default function SaleProductsSection() {
                       <h3 className="text-[11px] sm:text-xs font-semibold text-gray-900 line-clamp-2 min-h-[32px] group-hover:text-[rgb(22,176,238)] transition-colors">
                         {product.itemName}
                       </h3>
-                      <div className="mt-auto pt-2 flex items-center justify-between gap-1.5">
-                        <div className="flex items-baseline gap-1 min-w-0 overflow-hidden">
-                          <span className="text-xs sm:text-sm font-semibold text-[rgb(22,176,238)] flex-shrink-0">
-                            {formatPrice(currentPrice)}
-                          </span>
-                          {discount > 0 && maxRetailPrice && (
-                            <span className="text-[10px] text-gray-400 line-through truncate">
-                              {formatPrice(maxRetailPrice)}
+                      <div className="mt-auto pt-2">
+                        <div className="flex items-center justify-between gap-1.5">
+                          <div className="flex items-baseline gap-1 min-w-0 overflow-hidden">
+                            <span className="text-xs sm:text-sm font-semibold text-[rgb(22,176,238)] flex-shrink-0">
+                              {formatPrice(currentPrice)}
                             </span>
-                          )}
+                            {discount > 0 && maxRetailPrice && (
+                              <span className="text-[10px] text-gray-400 line-through truncate">
+                                {formatPrice(maxRetailPrice)}
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => handleAddToCart(e, product)}
+                            disabled={!inStock}
+                            className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all disabled:opacity-50 ${
+                              isAdded ? 'bg-emerald-500 text-white' : 'bg-[rgb(22,176,238)] text-white hover:opacity-90'
+                            }`}
+                          >
+                            {isAdded ? <Check className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          onClick={(e) => handleAddToCart(e, product)}
-                          disabled={!inStock}
-                          className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all disabled:opacity-50 ${
-                            isAdded ? 'bg-emerald-500 text-white' : 'bg-[rgb(22,176,238)] text-white hover:opacity-90'
-                          }`}
-                        >
-                          {isAdded ? <Check className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}
-                        </button>
+                        {isSaleActive && saleEnd && <SaleCountdown saleEndDate={saleEnd} />}
                       </div>
                     </div>
                   </div>
