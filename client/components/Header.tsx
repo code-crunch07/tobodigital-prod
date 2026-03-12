@@ -253,7 +253,7 @@ export default function Header() {
           </div>
         </div>
       )}
-      <div className={`w-full min-w-0 px-4 sm:px-6 lg:px-8 ${isScrolled ? 'py-2' : 'py-3'}`}>
+      <div className="w-full min-w-0 px-4 sm:px-6 lg:px-8 py-0">
         <div className="flex items-center justify-between h-14 min-w-0 gap-2">
           {/* Logo - high quality rendering */}
           <Link 
