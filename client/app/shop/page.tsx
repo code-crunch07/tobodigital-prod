@@ -187,7 +187,7 @@ const ProductCard = ({
               {isAdded ? <Check className="h-4 w-4" /> : !inStock ? <X className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
             </button>
           </div>
-          {isSaleActive && saleEndDate && (
+          {!!isSaleActive && !!saleEndDate && (
             <SaleCountdown saleEndDate={saleEndDate} />
           )}
         </div>
@@ -491,7 +491,7 @@ function ShopPageContent() {
 
             {/* Products Grid */}
             {loading && products.length === 0 ? (
-              <div className={`grid grid-cols-2 gap-[0.2rem] ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
+              <div className={`grid grid-cols-2 gap-[0.3rem] ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
                 {Array.from({ length: perPage > 12 ? 12 : perPage }).map((_, i) => (
                   <div key={i} className="aspect-[3/4] bg-gray-100 animate-pulse rounded-[5px]"></div>
                 ))}
@@ -499,7 +499,7 @@ function ShopPageContent() {
             ) : products.length > 0 ? (
               <>
                 {viewMode === 'grid' ? (
-                  <div className={`grid grid-cols-2 gap-[0.2rem] ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
+                  <div className={`grid grid-cols-2 gap-[0.3rem] ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
                     {products.map((product) => (
                       <ProductCard 
                         key={product._id}

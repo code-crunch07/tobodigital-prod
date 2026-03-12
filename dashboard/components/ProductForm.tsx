@@ -248,8 +248,8 @@ export default function ProductForm({ product, categories, subCategories = [], o
         yourPrice: product.yourPrice || 0,
         maximumRetailPrice: mrp,
         salePrice: product.salePrice || 0,
-        saleStartDate: product.saleStartDate || '',
-        saleEndDate: product.saleEndDate || '',
+        saleStartDate: product.saleStartDate ? new Date(product.saleStartDate).toISOString().split('T')[0] : '',
+        saleEndDate: product.saleEndDate ? new Date(product.saleEndDate).toISOString().split('T')[0] : '',
         stockQuantity: product.stockQuantity || 0,
         itemCondition: product.itemCondition || 'New',
         compatibleDevices: Array.isArray(product.compatibleDevices) ? product.compatibleDevices : [],
@@ -300,6 +300,11 @@ export default function ProductForm({ product, categories, subCategories = [], o
         ...formData,
         genericKeyword: Array.isArray(formData.genericKeyword) ? formData.genericKeyword : [],
         specialFeatures: Array.isArray(formData.specialFeatures) ? formData.specialFeatures.join(', ') : formData.specialFeatures,
+        // Convert empty strings to null for date fields so MongoDB stores null, not ""
+        saleStartDate: formData.saleStartDate || null,
+        saleEndDate: formData.saleEndDate || null,
+        // Convert 0 salePrice to null — 0 means no sale
+        salePrice: formData.salePrice > 0 ? formData.salePrice : null,
       };
 
       // Normalize variants for API (optional feature)

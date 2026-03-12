@@ -206,7 +206,7 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
         <div className="relative">
           <div 
             ref={scrollContainerRef}
-            className="flex gap-[0.2rem] overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+            className="flex gap-[0.3rem] overflow-x-auto scrollbar-hide scroll-smooth pb-4"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
@@ -284,7 +284,7 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
                             {isAdded ? <Check className="h-3.5 w-3.5" /> : !inStock ? <X className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}
                           </button>
                         </div>
-                        {isSaleActive && saleEndDate && <SaleCountdown saleEndDate={saleEndDate} />}
+                        {!!isSaleActive && !!saleEndDate && <SaleCountdown saleEndDate={saleEndDate} />}
                       </div>
                     </div>
                   </div>

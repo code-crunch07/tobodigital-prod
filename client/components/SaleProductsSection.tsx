@@ -193,7 +193,7 @@ export default function SaleProductsSection() {
                             {isAdded ? <Check className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}
                           </button>
                         </div>
-                        {isSaleActive && saleEnd && <SaleCountdown saleEndDate={saleEnd} />}
+                        {!!isSaleActive && !!saleEnd && <SaleCountdown saleEndDate={saleEnd} />}
                       </div>
                     </div>
                   </div>

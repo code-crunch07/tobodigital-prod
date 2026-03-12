@@ -748,7 +748,7 @@ export default function ProductDetailPage() {
       effectivePrice={effectivePrice}
       effectiveMrp={effectiveMrp}
       effectiveStock={effectiveStock}
-      saleEndDate={product.saleEndDate}
+      saleEndDate={!!isSaleActive ? product.saleEndDate : undefined}
       selectedImage={selectedImage}
       setSelectedImage={setSelectedImage}
       setImageRef={setImageRef}
