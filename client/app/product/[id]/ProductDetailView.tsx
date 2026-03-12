@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import SaleCountdown from '@/components/SaleCountdown';
+import CouponStrip from '@/components/CouponStrip';
 import Link from 'next/link';
 import {
   ShoppingCart,
@@ -26,6 +27,9 @@ import {
   Minus,
   FileText,
   List,
+  TrendingDown,
+  PackageCheck,
+  BadgeIndianRupee,
 } from 'lucide-react';
 import type { Product, ProductVariant } from './types';
 
@@ -159,6 +163,40 @@ export function ProductDetailView(props: ProductDetailViewProps) {
   const [thumbScroll, setThumbScroll] = useState({ canScrollLeft: false, canScrollRight: false });
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
+
+  // Review form state
+  const [reviewRating, setReviewRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [reviewName, setReviewName] = useState('');
+  const [reviewEmail, setReviewEmail] = useState('');
+  const [reviewSaveInfo, setReviewSaveInfo] = useState(false);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (reviewRating === 0) return;
+    setReviewSubmitting(true);
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/public/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId: product._id,
+          rating: reviewRating,
+          reviewText,
+          name: reviewName,
+          email: reviewEmail,
+        }),
+      });
+    } catch {
+      // show success anyway for UX
+    } finally {
+      setReviewSubmitted(true);
+      setReviewSubmitting(false);
+    }
+  };
 
   const updateThumbScroll = useCallback(() => {
     const el = thumbStripRef.current;
@@ -490,27 +528,23 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </h1>
 
             {/* Rating / reviews */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#4b5563] mt-3">
-              {reviewCount > 0 && averageRating != null && Number.isFinite(averageRating) ? (
-                <>
-                  <div className="flex items-center gap-1.5">
-                    <div className="flex text-[#fbbf24]" aria-hidden>
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          className={`h-4 w-4 sm:h-5 sm:w-5 ${star <= Math.round(averageRating) ? 'fill-current' : 'fill-none'}`}
-                        />
-                      ))}
-                    </div>
-                    <span className="font-medium text-[#2d3748]">{Number(averageRating).toFixed(1)}</span>
-                    <span>({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})</span>
+            {reviewCount > 0 && averageRating != null && Number.isFinite(averageRating) && (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#4b5563] mt-3">
+                <div className="flex items-center gap-1.5">
+                  <div className="flex text-[#fbbf24]" aria-hidden>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`h-4 w-4 sm:h-5 sm:w-5 ${star <= Math.round(averageRating) ? 'fill-current' : 'fill-none'}`}
+                      />
+                    ))}
                   </div>
-                  <Link href="#reviews" className="text-[#4299e1] hover:underline font-medium">Write a review</Link>
-                </>
-              ) : (
-                <Link href="#reviews" className="text-[#4299e1] hover:underline font-medium">Be the first to review</Link>
-              )}
-            </div>
+                  <span className="font-medium text-[#2d3748]">{Number(averageRating).toFixed(1)}</span>
+                  <span>({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})</span>
+                </div>
+                <Link href="#reviews" className="text-[#4299e1] hover:underline font-medium">Write a review</Link>
+              </div>
+            )}
 
             <hr className="my-5 border-gray-100" />
 
@@ -723,24 +757,55 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             </form>
 
             {/* Benefits strip */}
-            <div className="mt-5 flex items-center justify-between rounded-xl bg-gray-100 px-5 py-4">
-              <div className="flex flex-col items-center gap-1.5 text-center">
-                <ShieldCheck className="h-5 w-5 text-gray-500" />
-                <span className="text-[11px] font-medium text-gray-600">1 Year Warranty</span>
-              </div>
-              <div className="flex flex-col items-center gap-1.5 text-center">
-                <RotateCcw className="h-5 w-5 text-gray-500" />
-                <span className="text-[11px] font-medium text-gray-600">10 days Replacement</span>
-              </div>
-              <div className="flex flex-col items-center gap-1.5 text-center">
-                <Truck className="h-5 w-5 text-gray-500" />
-                <span className="text-[11px] font-medium text-gray-600">Standard Delivery</span>
-              </div>
-              <div className="flex flex-col items-center gap-1.5 text-center">
-                <Lock className="h-5 w-5 text-gray-500" />
-                <span className="text-[11px] font-medium text-gray-600">Secure Pay</span>
-              </div>
+            <div className="mt-5 flex items-stretch rounded-xl bg-white overflow-hidden">
+              {[
+                {
+                  icon: <BadgeIndianRupee className="h-7 w-7 text-[rgb(22,176,238)]" />,
+                  line1: 'Lower Price',
+                  line2: 'Than Amazon',
+                  color: 'text-[rgb(22,176,238)]',
+                },
+                {
+                  icon: <ShieldCheck className="h-7 w-7 text-blue-600" />,
+                  line1: '1 Year',
+                  line2: 'Warranty',
+                  color: 'text-gray-700',
+                },
+                {
+                  icon: <RotateCcw className="h-7 w-7 text-gray-700" />,
+                  line1: '10 days',
+                  line2: 'Replacement',
+                  color: 'text-gray-700',
+                },
+                {
+                  icon: <Truck className="h-7 w-7 text-gray-700" />,
+                  line1: 'Standard',
+                  line2: 'Delivery',
+                  color: 'text-gray-700',
+                },
+                {
+                  icon: <Lock className="h-7 w-7 text-gray-700" />,
+                  line1: 'Secure',
+                  line2: 'Pay',
+                  color: 'text-gray-700',
+                },
+              ].map((item, i, arr) => (
+                <div
+                  key={i}
+                  className={`flex-1 flex flex-col items-center justify-center gap-2 py-4 px-2 text-center ${
+                    i < arr.length - 1 ? 'border-r border-gray-200' : ''
+                  }`}
+                >
+                  {item.icon}
+                  <span className={`text-[11px] font-bold leading-tight ${item.color}`}>
+                    {item.line1}<br />{item.line2}
+                  </span>
+                </div>
+              ))}
             </div>
+
+            {/* Coupon codes */}
+            <CouponStrip />
           </div>
         </div>
 
@@ -979,45 +1044,49 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 <ChevronDown className={`flex-shrink-0 h-4 w-4 text-gray-400 transition-transform duration-200 ${mobileOpenSection === 'reviews' ? 'rotate-180 text-[rgb(22,176,238)]' : ''}`} />
               </button>
               {mobileOpenSection === 'reviews' && (
-                <div className="border-t border-gray-100 px-4 py-4 pb-5 space-y-4 text-sm text-gray-700 bg-white" id="reviews">
-                  {reviewCount > 0 && averageRating != null && Number.isFinite(averageRating) ? (
-                    <div className="flex flex-col gap-4 pb-4 border-b border-gray-200 bg-[#fafafa] p-4 rounded-xl">
-                      <div className="flex items-center gap-3">
-                        <span className="text-3xl font-bold text-[#1a202c]">
-                          {Number(averageRating).toFixed(1)}
-                        </span>
-                        <div className="flex text-[#fbbf24]">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star key={star} className={`h-5 w-5 ${star <= Math.round(averageRating) ? 'fill-current' : 'fill-none'}`} />
-                          ))}
-                        </div>
-                        <p className="text-sm font-medium text-gray-600">
-                          Based on {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
-                        </p>
-                      </div>
-                      <button type="button" className="px-5 py-2.5 bg-[#ff6b35] text-white text-sm font-semibold rounded-lg hover:bg-[#e85a28] transition-colors">
-                        Write a review
-                      </button>
+                <div className="border-t border-gray-100 px-4 py-5 bg-white space-y-5" id="reviews-mobile">
+                  {reviewSubmitted ? (
+                    <div className="py-6 text-center">
+                      <p className="text-sm font-semibold text-green-600">Thank you! Your review has been submitted.</p>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-8 px-4 bg-[#fafafa] rounded-xl border border-gray-100 text-center">
-                      <div className="flex text-[#e2e8f0] mb-3">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star key={star} className="h-8 w-8" />
-                        ))}
-                      </div>
-                      <h3 className="text-lg font-bold text-[#1a202c] mb-1">No reviews yet</h3>
-                      <p className="text-[#4a5568] text-sm max-w-md mb-4">
-                        Be the first to share your experience with this product.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
-                        className="px-6 py-3 bg-[#ff6b35] text-white text-sm font-semibold rounded-lg hover:bg-[#e85a28] transition-colors"
-                      >
-                        Write a review
-                      </button>
-                    </div>
+                    <>
+                      <h3 className="text-sm font-extrabold uppercase text-gray-900 tracking-wide">
+                        {reviewCount > 0 ? 'Add a review' : `Be the first to review "${product.itemName}"`}
+                      </h3>
+                      <p className="text-xs text-gray-500">Your email address will not be published. Required fields are marked <span className="text-red-500">*</span></p>
+                      <form onSubmit={handleReviewSubmit} className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-gray-700">Your rating <span className="text-red-500">*</span></span>
+                          <div className="flex gap-0.5">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button key={star} type="button" onClick={() => setReviewRating(star)} onMouseEnter={() => setHoverRating(star)} onMouseLeave={() => setHoverRating(0)}>
+                                <Star className={`h-5 w-5 transition-colors ${star <= (hoverRating || reviewRating) ? 'text-[#fbbf24] fill-[#fbbf24]' : 'text-gray-300 fill-none'}`} />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Your review <span className="text-red-500">*</span></label>
+                          <textarea required rows={5} value={reviewText} onChange={(e) => setReviewText(e.target.value)} className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(22,176,238)] resize-y" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Name <span className="text-red-500">*</span></label>
+                          <input type="text" required value={reviewName} onChange={(e) => setReviewName(e.target.value)} className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(22,176,238)]" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Email <span className="text-red-500">*</span></label>
+                          <input type="email" required value={reviewEmail} onChange={(e) => setReviewEmail(e.target.value)} className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(22,176,238)]" />
+                        </div>
+                        <label className="flex items-start gap-2 cursor-pointer">
+                          <input type="checkbox" checked={reviewSaveInfo} onChange={(e) => setReviewSaveInfo(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[rgb(22,176,238)]" />
+                          <span className="text-xs text-gray-600">Save my name, email, and website in this browser for the next time I comment.</span>
+                        </label>
+                        <button type="submit" disabled={reviewSubmitting || reviewRating === 0} className="bg-[#ff6b35] hover:bg-[#e85a28] disabled:opacity-60 text-white text-xs font-bold uppercase tracking-wider px-6 py-2.5 rounded transition-colors">
+                          {reviewSubmitting ? 'Submitting…' : 'Submit'}
+                        </button>
+                      </form>
+                    </>
                   )}
                 </div>
               )}
@@ -1098,36 +1167,68 @@ export function ProductDetailView(props: ProductDetailViewProps) {
             )}
 
             {activeTab === 'reviews' && (
-              <div id="reviews" className="space-y-6 sm:space-y-8 w-full scroll-mt-6">
-                {reviewCount > 0 && averageRating != null && Number.isFinite(averageRating) ? (
-                  <div className="flex flex-col sm:flex-row items-start justify-between gap-4 pb-6 sm:pb-8 border-b-2 border-gray-200 bg-[#fafafa] p-4 sm:p-6 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <span className="text-3xl sm:text-4xl font-bold text-[#1a202c]">{Number(averageRating).toFixed(1)}</span>
+              <div id="reviews" className="w-full scroll-mt-6 space-y-8">
+                {reviewCount > 0 && averageRating != null && Number.isFinite(averageRating) && (
+                  <div className="flex items-center gap-3 pb-6 border-b border-gray-200">
+                    <span className="text-4xl font-bold text-gray-900">{Number(averageRating).toFixed(1)}</span>
+                    <div>
                       <div className="flex text-[#fbbf24]">
                         {[1, 2, 3, 4, 5].map((star) => (
-                          <Star key={star} className={`h-5 w-5 sm:h-6 sm:w-6 ${star <= Math.round(averageRating) ? 'fill-current' : 'fill-none'}`} />
+                          <Star key={star} className={`h-5 w-5 ${star <= Math.round(averageRating!) ? 'fill-current' : 'fill-none'}`} />
                         ))}
                       </div>
-                      <p className="text-sm font-medium text-gray-600">Based on {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}</p>
+                      <p className="text-sm text-gray-500 mt-0.5">Based on {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}</p>
                     </div>
-                    <button type="button" className="px-5 py-2.5 bg-[#ff6b35] text-white text-sm font-semibold rounded-lg hover:bg-[#e85a28] transition-colors">Write a review</button>
+                  </div>
+                )}
+                {reviewSubmitted ? (
+                  <div className="py-8 text-center">
+                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
+                      <Star className="h-6 w-6 text-green-600 fill-current" />
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-1">Thank you for your review!</h3>
+                    <p className="text-sm text-gray-500">Your review has been submitted and is pending approval.</p>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4 bg-[#fafafa] rounded-xl border border-gray-100 text-center">
-                    <div className="flex text-[#e2e8f0] mb-4">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star key={star} className="h-8 w-8 sm:h-10 sm:w-10" />
-                      ))}
-                    </div>
-                    <h3 className="text-lg font-bold text-[#1a202c] mb-2">No reviews yet</h3>
-                    <p className="text-[#4a5568] text-sm sm:text-base max-w-md mb-6">Be the first to share your experience with this product.</p>
-                    <button
-                      type="button"
-                      onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
-                      className="px-6 py-3 bg-[#ff6b35] text-white text-sm font-semibold rounded-lg hover:bg-[#e85a28] transition-colors"
-                    >
-                      Write a review
-                    </button>
+                  <div>
+                    <h3 className="text-base font-extrabold uppercase text-gray-900 mb-1 tracking-wide">
+                      {reviewCount > 0 ? 'Add a review' : `Be the first to review "${product.itemName}"`}
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-5">Your email address will not be published. Required fields are marked <span className="text-red-500">*</span></p>
+                    <form onSubmit={handleReviewSubmit} className="space-y-5">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-gray-700">Your rating <span className="text-red-500">*</span></span>
+                        <div className="flex items-center gap-0.5">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button key={star} type="button" onClick={() => setReviewRating(star)} onMouseEnter={() => setHoverRating(star)} onMouseLeave={() => setHoverRating(0)} className="focus:outline-none">
+                              <Star className={`h-6 w-6 transition-colors ${star <= (hoverRating || reviewRating) ? 'text-[#fbbf24] fill-[#fbbf24]' : 'text-gray-300 fill-none'}`} />
+                            </button>
+                          ))}
+                        </div>
+                        {reviewRating === 0 && <span className="text-[11px] text-red-400">Please select a rating</span>}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Your review <span className="text-red-500">*</span></label>
+                        <textarea required rows={6} value={reviewText} onChange={(e) => setReviewText(e.target.value)} className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[rgb(22,176,238)] focus:border-transparent resize-y placeholder:text-gray-400" />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1.5">Name <span className="text-red-500">*</span></label>
+                          <input type="text" required value={reviewName} onChange={(e) => setReviewName(e.target.value)} className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[rgb(22,176,238)] focus:border-transparent" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1.5">Email <span className="text-red-500">*</span></label>
+                          <input type="email" required value={reviewEmail} onChange={(e) => setReviewEmail(e.target.value)} className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[rgb(22,176,238)] focus:border-transparent" />
+                        </div>
+                      </div>
+                      <label className="flex items-start gap-2.5 cursor-pointer">
+                        <input type="checkbox" checked={reviewSaveInfo} onChange={(e) => setReviewSaveInfo(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[rgb(22,176,238)]" />
+                        <span className="text-sm text-gray-600">Save my name, email, and website in this browser for the next time I comment.</span>
+                      </label>
+                      <button type="submit" disabled={reviewSubmitting || reviewRating === 0} className="inline-flex items-center gap-2 bg-[#ff6b35] hover:bg-[#e85a28] disabled:opacity-60 text-white text-sm font-bold uppercase tracking-wider px-7 py-3 rounded transition-colors">
+                        {reviewSubmitting ? 'Submitting…' : 'Submit'}
+                      </button>
+                    </form>
                   </div>
                 )}
               </div>

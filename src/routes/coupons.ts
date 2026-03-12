@@ -2,6 +2,7 @@ import express from 'express';
 import {
   validateCoupon,
   getAllCoupons,
+  getPublicCoupons,
   createCoupon,
   updateCoupon,
   deleteCoupon,
@@ -10,8 +11,9 @@ import { requireAdminOrShopManager } from '../controllers/auth';
 
 const router = express.Router();
 
-// Public route - Validate coupon (storefront)
+// Public routes (storefront)
 router.post('/validate', validateCoupon);
+router.get('/public/active', getPublicCoupons);
 
 // Dashboard routes (admin or shop manager)
 router.get('/', requireAdminOrShopManager, getAllCoupons);

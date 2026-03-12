@@ -6,6 +6,7 @@ import PromotionBanner from '@/components/PromotionBanner';
 import ProductCarousel from '@/components/ProductCarousel';
 import PromoBannersRow from '@/components/PromoBannersRow';
 import SaleProductsSection from '@/components/SaleProductsSection';
+import TestimonialsSection from '@/components/TestimonialsSection';
 
 export default function Home() {
   return (
@@ -41,6 +42,9 @@ export default function Home() {
         title="Top Deals"
         dataSource="deals"
       />
+
+      {/* Customer Reviews & Testimonials */}
+      <TestimonialsSection />
     </div>
   );
 }

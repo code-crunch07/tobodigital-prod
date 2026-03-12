@@ -159,7 +159,7 @@ export default function WishlistPage() {
                           <span className="text-[11px] text-gray-400 line-through truncate">{formatPrice(maxRetailPrice)}</span>
                         ) : null}
                       </div>
-                      <button onClick={() => handleAddToCart(product)} className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97] transition-all duration-200">
+                      <button onClick={() => handleAddToCart(product)} className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full bg-[#f56d32] text-white hover:bg-[#e05a22] active:scale-[0.97] transition-all duration-200">
                         <ShoppingCart className="h-4 w-4" />
                       </button>
                     </div>

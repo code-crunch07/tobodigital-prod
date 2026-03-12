@@ -280,7 +280,7 @@ export default function ProductCarousel({ title = "Today's Popular Picks", descr
                               <span className="text-[11px] text-gray-400 line-through truncate">{formatPrice(maxRetailPrice)}</span>
                             ) : null}
                           </div>
-                          <button type="button" onClick={(e) => handleAddToCart(e, product)} disabled={!inStock} className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
+                          <button type="button" onClick={(e) => handleAddToCart(e, product)} disabled={!inStock} className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-[#f56d32] text-white hover:bg-[#e05a22] active:scale-[0.97]'}`}>
                             {isAdded ? <Check className="h-3.5 w-3.5" /> : !inStock ? <X className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}
                           </button>
                         </div>

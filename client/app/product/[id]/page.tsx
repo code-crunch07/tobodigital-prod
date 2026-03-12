@@ -429,7 +429,7 @@ export default function ProductDetailPage() {
                 <span className="text-[11px] text-gray-400 line-through truncate">{formatPrice(maxRetailPrice)}</span>
               ) : null}
             </div>
-            <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
+            <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-[#f56d32] text-white hover:bg-[#e05a22] active:scale-[0.97]'}`}>
               {isAdded ? <Check className="h-4 w-4" /> : !inStock ? <X className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
             </button>
           </div>

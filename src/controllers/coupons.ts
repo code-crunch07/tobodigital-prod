@@ -108,6 +108,25 @@ export const validateCoupon = async (req: Request, res: Response) => {
   }
 };
 
+// Get active public coupons (storefront display)
+export const getPublicCoupons = async (req: Request, res: Response) => {
+  try {
+    const now = new Date();
+    const coupons = await Coupon.find({
+      isActive: true,
+      startDate: { $lte: now },
+      endDate: { $gte: now },
+    })
+      .select('code description discountType discountValue minPurchaseAmount maxDiscountAmount endDate')
+      .sort({ discountValue: -1 })
+      .lean();
+
+    res.json({ success: true, data: coupons });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: 'Failed to fetch coupons' });
+  }
+};
+
 // Get all coupons (admin)
 export const getAllCoupons = async (req: Request, res: Response) => {
   try {

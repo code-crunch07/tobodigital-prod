@@ -187,7 +187,7 @@ export default function SaleProductsSection() {
                             onClick={(e) => handleAddToCart(e, product)}
                             disabled={!inStock}
                             className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all disabled:opacity-50 ${
-                              isAdded ? 'bg-emerald-500 text-white' : 'bg-[rgb(22,176,238)] text-white hover:opacity-90'
+                              isAdded ? 'bg-emerald-500 text-white' : 'bg-[#f56d32] text-white hover:bg-[#e05a22]'
                             }`}
                           >
                             {isAdded ? <Check className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}

@@ -162,7 +162,7 @@ export default function QuickViewDialog({
                 }`}
                 style={
                   product.stockQuantity !== 0 && !addedToCart
-                    ? { backgroundColor: 'rgb(22, 176, 238)' }
+                    ? { backgroundColor: '#f56d32' }
                     : {}
                 }
               >

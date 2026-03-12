@@ -318,4 +318,25 @@ export const getOrderTracking = async (orderId: string) => {
   }
 };
 
+export const submitReview = async (data: {
+  productId: string;
+  rating: number;
+  reviewText: string;
+  name: string;
+  email: string;
+}) => {
+  const response = await api.post('/reviews', data);
+  return response.data;
+};
+
+export const getApprovedReviews = async (limit = 20) => {
+  const response = await api.get('/reviews', { params: { limit } });
+  return response.data;
+};
+
+export const getProductReviews = async (productId: string) => {
+  const response = await api.get(`/reviews/product/${productId}`);
+  return response.data;
+};
+
 export default api;

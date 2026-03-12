@@ -156,7 +156,7 @@ const ProductCard = ({
                 <span className="text-[11px] text-gray-400 line-through truncate">{formatPrice(maxRetailPrice)}</span>
               ) : null}
             </div>
-            <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97]'}`}>
+            <button type="button" onClick={handleAddToCart} disabled={!inStock} className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-200 disabled:opacity-50 ${isAdded ? 'bg-emerald-500 text-white' : 'bg-[#f56d32] text-white hover:bg-[#e05a22] active:scale-[0.97]'}`}>
               {isAdded ? <Check className="h-4 w-4" /> : !inStock ? <X className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
             </button>
           </div>
@@ -186,7 +186,7 @@ export default function NewArrivalsPage() {
   const [availableBrands, setAvailableBrands] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [gridCols, setGridCols] = useState(5);
+  const [gridCols, setGridCols] = useState(6);
   const [perPage, setPerPage] = useState(24);
   const [expandedFilter, setExpandedFilter] = useState<string | null>('PRICE');
 
@@ -343,6 +343,7 @@ export default function NewArrivalsPage() {
                 <button type="button" onClick={() => { setViewMode('grid'); setGridCols(3); }} className={`p-1.5 transition-colors ${viewMode === 'grid' && gridCols === 3 ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`} title="3 columns"><Grid2X2 className="h-5 w-5" /></button>
                 <button type="button" onClick={() => { setViewMode('grid'); setGridCols(4); }} className={`p-1.5 transition-colors ${viewMode === 'grid' && gridCols === 4 ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`} title="4 columns"><LayoutGrid className="h-5 w-5" /></button>
                 <button type="button" onClick={() => { setViewMode('grid'); setGridCols(5); }} className={`p-1.5 transition-colors ${viewMode === 'grid' && gridCols === 5 ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`} title="5 columns"><Grid3X3 className="h-5 w-5" /></button>
+                <button type="button" onClick={() => { setViewMode('grid'); setGridCols(6); }} className={`p-1.5 transition-colors ${viewMode === 'grid' && gridCols === 6 ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`} title="6 columns"><Layers className="h-5 w-5" /></button>
                 <button type="button" onClick={() => setViewMode('list')} className={`p-1.5 transition-colors ${viewMode === 'list' ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`} title="List view"><List className="h-5 w-5" /></button>
               </div>
               <div className="relative">
@@ -401,7 +402,7 @@ export default function NewArrivalsPage() {
 
             {/* Products Grid */}
             {loading && products.length === 0 ? (
-              <div className={`grid grid-cols-2 gap-[0.3rem] ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
+              <div className={`grid grid-cols-2 gap-[0.3rem] ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : gridCols === 5 ? 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'}`}>
                 {Array.from({ length: perPage > 12 ? 12 : perPage }).map((_, i) => (
                   <div key={i} className="aspect-[3/4] bg-gray-100 animate-pulse rounded-[5px]" />
                 ))}
@@ -409,7 +410,7 @@ export default function NewArrivalsPage() {
             ) : products.length > 0 ? (
               <>
                 {viewMode === 'grid' ? (
-                  <div className={`grid grid-cols-2 gap-[0.3rem] ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'}`}>
+                  <div className={`grid grid-cols-2 gap-[0.3rem] ${gridCols === 3 ? 'sm:grid-cols-2 md:grid-cols-3' : gridCols === 4 ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : gridCols === 5 ? 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5' : 'sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'}`}>
                     {products.map((product) => (
                       <ProductCard key={product._id} product={product} addedItems={addedItems} setAddedItems={setAddedItems} addToCart={addToCart} formatPrice={formatPrice} onQuickView={setQuickViewProduct} />
                     ))}
@@ -443,7 +444,7 @@ export default function NewArrivalsPage() {
                               <div className="flex items-baseline gap-1.5">
                                 <span className="text-lg font-bold text-gray-900">{formatPrice(currentPrice)}</span>
                               </div>
-                              <button type="button" onClick={(e) => { e.preventDefault(); addToCart({ _id: product._id, itemName: product.itemName, mainImage: product.mainImage, yourPrice: product.yourPrice, freeShipping: product.freeShipping ?? false }); }} disabled={!inStock} className="flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                              <button type="button" onClick={(e) => { e.preventDefault(); addToCart({ _id: product._id, itemName: product.itemName, mainImage: product.mainImage, yourPrice: product.yourPrice, freeShipping: product.freeShipping ?? false }); }} disabled={!inStock} className="flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold bg-[#f56d32] text-white hover:bg-[#e05a22] disabled:opacity-50 transition-colors">
                                 {inStock ? <ShoppingCart className="h-3.5 w-3.5" /> : <>Out of Stock</>}
                               </button>
                             </div>
