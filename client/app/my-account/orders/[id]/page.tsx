@@ -34,6 +34,7 @@ export default function OrderDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [tracking, setTracking] = useState<any>(null);
   const [trackingLoading, setTrackingLoading] = useState(false);
+  const [trackingError, setTrackingError] = useState('');
 
   useEffect(() => {
     loadOrderDetails();
@@ -48,6 +49,7 @@ export default function OrderDetailsPage() {
         return;
       }
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const API_ORIGIN = API_URL.replace(/\/api\/?$/, '');
       const response = await fetch(`${API_URL}/orders/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -69,15 +71,22 @@ export default function OrderDetailsPage() {
             phone: raw.shippingAddress?.phone ?? (raw.customer as any)?.phone ?? '',
             email: raw.shippingAddress?.email ?? (raw.customer as any)?.email ?? '',
           },
-          items: (raw.items || []).map((item: any) => ({
-            _id: item._id,
-            quantity: item.quantity,
-            price: item.price,
-            yourPrice: item.price ?? item.yourPrice,
-            itemName: item.product?.itemName ?? item.itemName,
-            image: item.product?.mainImage ?? item.image,
-            sku: item.sku ?? item.product?.sku,
-          })),
+          items: (raw.items || []).map((item: any) => {
+            const rawImg = item.product?.mainImage ?? item.product?.images?.[0] ?? item.image ?? '';
+            let image = rawImg;
+            if (image && !image.startsWith('http')) {
+              image = `${API_ORIGIN}${image.startsWith('/') ? '' : '/'}${image}`;
+            }
+            return {
+              _id: item._id,
+              quantity: item.quantity,
+              price: item.price,
+              yourPrice: item.price ?? item.yourPrice,
+              itemName: item.product?.itemName ?? item.itemName,
+              image,
+              sku: item.sku ?? item.product?.sku,
+            };
+          }),
         };
         setOrder(data);
       } else {
@@ -94,10 +103,16 @@ export default function OrderDetailsPage() {
   const loadTracking = async () => {
     try {
       setTrackingLoading(true);
+      setTrackingError('');
       const data = await getOrderTracking(orderId);
       setTracking(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading tracking:', error);
+      setTrackingError(
+        error?.response?.data?.message ||
+        error?.message ||
+        'Unable to fetch tracking information. Please try again.'
+      );
     } finally {
       setTrackingLoading(false);
     }
@@ -384,22 +399,42 @@ export default function OrderDetailsPage() {
               </div>
             )}
 
+            {trackingError && (
+              <div className="bg-red-50 rounded-lg border border-red-200 p-4 flex items-start gap-3">
+                <span className="text-red-500 text-lg leading-none">⚠</span>
+                <div>
+                  <p className="font-semibold text-red-800 text-sm">Could not load tracking</p>
+                  <p className="text-sm text-red-600 mt-0.5">{trackingError}</p>
+                  <button
+                    onClick={loadTracking}
+                    className="mt-2 text-xs font-semibold text-red-700 underline underline-offset-2 hover:opacity-75"
+                  >
+                    Try again
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Order Items */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <h2 className="text-xl font-bold mb-6">Order Items</h2>
               <div className="space-y-4">
                 {order.items.map((item: any) => (
                   <div key={item._id} className="flex gap-4 pb-4 border-b border-gray-200 last:border-0">
-                    <div className="relative w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                      <Image
-                        src={item.image || '/api/placeholder/150/150'}
-                        alt={item.itemName}
-                        fill
-                        className="object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/api/placeholder/150/150';
-                        }}
-                      />
+                    <div className="relative w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
+                      {item.image ? (
+                        <Image
+                          src={item.image}
+                          alt={item.itemName}
+                          fill
+                          className="object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <Package className="h-8 w-8 text-gray-300" />
+                      )}
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg mb-1">{item.itemName}</h3>

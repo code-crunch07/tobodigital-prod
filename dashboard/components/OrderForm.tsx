@@ -42,6 +42,10 @@ export default function OrderForm({ order, customers, products, onSuccess }: Ord
     paymentMethod: '',
     status: 'pending' as 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled',
     paymentStatus: 'pending' as 'pending' | 'paid' | 'failed' | 'refunded',
+    trackingNumber: '',
+    awbNumber: '',
+    courierName: '',
+    trackingUrl: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -68,6 +72,10 @@ export default function OrderForm({ order, customers, products, onSuccess }: Ord
         paymentMethod: order.paymentMethod || '',
         status: order.status || 'pending',
         paymentStatus: order.paymentStatus || 'pending',
+        trackingNumber: order.trackingNumber || '',
+        awbNumber: order.awbNumber || '',
+        courierName: order.courierName || '',
+        trackingUrl: order.trackingUrl || '',
       });
 
       setTotalAmount(order.totalAmount || 0);
@@ -146,6 +154,10 @@ export default function OrderForm({ order, customers, products, onSuccess }: Ord
         paymentMethod: formData.paymentMethod,
         status: formData.status,
         paymentStatus: formData.paymentStatus,
+        trackingNumber: formData.trackingNumber || undefined,
+        awbNumber: formData.awbNumber || undefined,
+        courierName: formData.courierName || undefined,
+        trackingUrl: formData.trackingUrl || undefined,
       };
 
       if (order) {
@@ -412,6 +424,50 @@ export default function OrderForm({ order, customers, products, onSuccess }: Ord
                 <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        </div>
+      </section>
+
+      <Separator />
+
+      {/* Shipping & Tracking */}
+      <section className="space-y-4">
+        <h3 className="text-base font-semibold flex items-center gap-2">
+          🚚 Shipping & Tracking
+          <span className="text-xs font-normal text-muted-foreground">(Fill after creating shipment in Shiprocket)</span>
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>AWB Number <span className="text-xs text-muted-foreground">(from Shiprocket)</span></Label>
+            <Input
+              value={formData.awbNumber}
+              onChange={(e) => setFormData({ ...formData, awbNumber: e.target.value })}
+              placeholder="e.g., 141456789012"
+            />
+          </div>
+          <div>
+            <Label>Tracking Number</Label>
+            <Input
+              value={formData.trackingNumber}
+              onChange={(e) => setFormData({ ...formData, trackingNumber: e.target.value })}
+              placeholder="e.g., same as AWB or courier ref"
+            />
+          </div>
+          <div>
+            <Label>Courier Name</Label>
+            <Input
+              value={formData.courierName}
+              onChange={(e) => setFormData({ ...formData, courierName: e.target.value })}
+              placeholder="e.g., Delhivery, BlueDart, DTDC"
+            />
+          </div>
+          <div>
+            <Label>Tracking URL <span className="text-xs text-muted-foreground">(optional)</span></Label>
+            <Input
+              value={formData.trackingUrl}
+              onChange={(e) => setFormData({ ...formData, trackingUrl: e.target.value })}
+              placeholder="https://shiprocket.co/tracking/..."
+            />
           </div>
         </div>
       </section>
