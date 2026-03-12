@@ -281,7 +281,7 @@ export function ProductDetailView(props: ProductDetailViewProps) {
 
         {/* Layout: left = images (sticky on desktop); right = product info */}
         <div className="grid lg:grid-cols-[1fr_1fr] gap-4 sm:gap-6 lg:gap-12 mb-8 min-w-0 relative">
-          <div className="min-w-0 relative lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)]">
+          <div className="min-w-0 relative lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)] lg:z-30">
             {/* Mobile: image carousel with dots + wishlist/share below image */}
             <div className="lg:hidden flex flex-col gap-3">
               <div
@@ -441,9 +441,8 @@ export function ProductDetailView(props: ProductDetailViewProps) {
                 </button>
               </div>
             </div>
-            {/* Zoom panel - appears on hover, positioned to the right and overlapping product info */}
             <div
-              className={`hidden lg:block absolute left-full top-0 ml-4 z-30 w-[800px] h-[800px] transition-opacity duration-150 pointer-events-none ${showZoom ? 'opacity-100' : 'opacity-0'}`}
+              className={`hidden lg:block absolute left-full top-0 ml-4 mr-6 z-40 w-[560px] xl:w-[700px] 2xl:w-[800px] h-[800px] max-w-[calc(100vw-6rem)] transition-opacity duration-150 pointer-events-none ${showZoom ? 'opacity-100' : 'opacity-0'}`}
               style={{ minWidth: ZOOM_PANEL_SIZE }}
               aria-hidden={!showZoom}
             >
